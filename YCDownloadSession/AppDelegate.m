@@ -18,10 +18,8 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
-    
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [[YCDownloadSession downloadSession] startDownloadWithURL:@"http://down.xt70.com/soft/170220/23874.exe"];
-    });
+    NSLog(@"%@", NSHomeDirectory());
+
     
     return YES;
 }

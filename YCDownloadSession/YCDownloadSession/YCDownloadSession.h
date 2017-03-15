@@ -7,9 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
-
+@class YCDownloadSession;
 @protocol YCDownloadSessionDelegate <NSObject>
 
+- (void)request:(YCDownloadSession *)request totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite;
+- (void)requestFailed:(YCDownloadSession *)request;
+- (void)requestFinished:(YCDownloadSession *)request;
 
 @end
 
@@ -17,8 +20,13 @@
 
 @property (nonatomic, weak) id <YCDownloadSessionDelegate>delegate;
 
+@property (nonatomic, copy) NSString *savePath;
+
 + (instancetype)downloadSession;
 
-- (void)startDownloadWithURL:(NSString *)downloadUrl;
+- (void)startDownloadWithUrl:(NSString *)downloadURLString;
+- (void)pauseDownloadWithUrl:(NSString *)downloadURLString;
+- (void)resumeDownloadWithUrl:(NSString *)downloadURLString;
+- (void)stopDownloadWithUrl:(NSString *)downloadURLString;
 
 @end
