@@ -46,7 +46,9 @@
     [self.view addSubview:pauseBtn];
     
     self.session = [YCDownloadSession downloadSession];
-    self.downloadURL = @"http://down.xt70.com/soft/170220/23874.exe";
+    [YCDownloadSession downloadSession].saveFileDirectory = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true).firstObject;
+    //http://down.xt70.com/soft/170220/23874.exe
+    self.downloadURL = @"http://vod.lexue.com/video/c3067fc7160916.mp4";
     
 }
 

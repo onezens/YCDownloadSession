@@ -8,11 +8,11 @@
 
 #import "YCDownloadSession.h"
 
-@interface YCDownloadSession ()<NSURLSessionDelegate>
+@interface YCDownloadSession ()<NSURLSessionDownloadDelegate>
 
 @property (nonatomic, strong) NSURLSession *downloadSession;
-@property (nonatomic, strong) NSMutableDictionary *tasks;
-@property (nonatomic, strong) NSMutableDictionary *resumeData;
+@property (nonatomic, strong) NSMutableDictionary *downloadItems;//正在下载的item
+@property (nonatomic, strong) NSMutableDictionary *downloadedItems;//下载完成的item
 
 @end
 
@@ -33,13 +33,18 @@ static YCDownloadSession *_instance;
     if (self = [super init]) {
         self.downloadSession = [self getDownloadURLSession];
         NSMutableDictionary *dictM = [self.downloadSession valueForKey:@"tasks"];
-        self.tasks = [NSMutableDictionary dictionary];
-        self.resumeData = [NSMutableDictionary dictionary];
+        self.downloadItems = [NSKeyedUnarchiver unarchiveObjectWithFile:[self getArchiverPathIsDownloaded:false]];
+        self.downloadedItems = [NSKeyedUnarchiver unarchiveObjectWithFile:[self getArchiverPathIsDownloaded:true]];
+        if(!self.downloadedItems) self.downloadedItems = [NSMutableDictionary dictionary];
+        if(!self.downloadItems) self.downloadItems = [NSMutableDictionary dictionary];
         [dictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-            [self.tasks setValue:obj forKey:[self getURLFromTask:obj]];
-            [self pauseDownloadTask:obj];
+            YCDownloadItem *item = [self.downloadItems valueForKey:[YCDownloadItem getURLFromTask:obj]];
+            if(!item) item = [[YCDownloadItem alloc] init];
+            item.downloadTask = obj;
+            [self.downloadItems setObject:item forKey:item.downloadURL];
+            [self pauseDownloadTask:item];
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                [self resumeDownloadTask:obj];
+                [self resumeDownloadTask:item];
             });
         }];
         NSLog(@"%@", dictM);
@@ -47,15 +52,12 @@ static YCDownloadSession *_instance;
     return self;
 }
 
-
-
-
 - (NSURLSession *)getDownloadURLSession {
     
     static NSURLSession *session = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        NSString *identifier = @"com.yourcompany.appId.BackgroundSession";
+        NSString *identifier = @"cc.onezen.BackgroundSession";
         NSURLSessionConfiguration* sessionConfig = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:identifier];
         session = [NSURLSession sessionWithConfiguration:sessionConfig
                                                 delegate:self
@@ -68,71 +70,84 @@ static YCDownloadSession *_instance;
 #pragma mark - event
 
 
-- (NSString *)getURLFromTask:(NSURLSessionTask *)task {
-    NSURLRequest *req = [task currentRequest];
-    return req.URL.absoluteString;
-}
-
 - (void)startDownloadWithUrl:(NSString *)downloadURLString {
     
-    NSURLSessionDownloadTask *downloadTask = [self.tasks valueForKey:downloadURLString];
-    
-    if (!downloadTask) {
+    YCDownloadItem *item = [self.downloadItems valueForKey:downloadURLString];
+   
+    if (!item) {
         [self pauseAllDownloadTask];
         NSURL *downloadURL = [NSURL URLWithString:downloadURLString];
         NSURLRequest *request = [NSURLRequest requestWithURL:downloadURL];
-        downloadTask = [self.downloadSession downloadTaskWithRequest:request];
-        [self.tasks setValue:downloadTask forKey:downloadURLString];
+        NSURLSessionDownloadTask *downloadTask = [self.downloadSession downloadTaskWithRequest:request];
+        YCDownloadItem *item = [[YCDownloadItem alloc] init];
+        item.downloadTask = downloadTask;
+        [self.downloadItems setObject:item forKey:item.downloadURL];
         [downloadTask resume];
     }else{
-        [self resumeDownloadTask:downloadTask];
+        [self resumeDownloadTask:item];
     }
     
     
 }
 
-- (void)pauseDownloadTask:(NSURLSessionDownloadTask *)downloadTask {
-    
-    __weak __typeof(self) wSelf = self;
-    
-    [downloadTask cancelByProducingResumeData:^(NSData * resumeData) {
-        [wSelf.resumeData setValue:resumeData forKey:[self getURLFromTask:downloadTask]];
-        
+- (void)pauseDownloadTask:(YCDownloadItem *)item {
+    [item.downloadTask cancelByProducingResumeData:^(NSData * resumeData) {
+        item.resumeData = resumeData;
+        [self saveDownloadStatus];
     }];
 }
 
 - (void)pauseDownloadWithUrl:(NSString *)downloadURLString {
-    [self pauseDownloadTask:[self.tasks valueForKey:downloadURLString]];
+    [self pauseDownloadTask:[self.downloadItems valueForKey:downloadURLString]];
     
 }
 - (void)resumeDownloadWithUrl:(NSString *)downloadURLString {
-    [self resumeDownloadTask:[self.tasks valueForKey:downloadURLString]];
+    [self resumeDownloadTask:[self.downloadItems valueForKey:downloadURLString]];
 }
 
 
 - (void)pauseAllDownloadTask{
-    [self.tasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+    [self.downloadItems enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
         [self pauseDownloadTask:obj];
     }];
 }
 
 - (void)stopDownloadWithUrl:(NSString *)downloadURLString {
-    
+    [self saveDownloadStatus];
 }
 
-- (void)resumeDownloadTask:(NSURLSessionDownloadTask *)downloadTask {
+- (void)resumeDownloadTask:(YCDownloadItem *)item {
     
-    NSData *data = [self.resumeData valueForKey:[self getURLFromTask:downloadTask]];
+    NSData *data = item.resumeData;
     if (data.length > 0) {
-        NSURLSessionDownloadTask *downloadTask = nil;
-        downloadTask = [self.downloadSession downloadTaskWithResumeData:data];
+        NSURLSessionDownloadTask *downloadTask = [self.downloadSession downloadTaskWithResumeData:data];
         [downloadTask resume];
-        [self.tasks setValue:downloadTask forKey:[self getURLFromTask:downloadTask]];
-        [self.resumeData removeObjectForKey:[self getURLFromTask:downloadTask]];
+        item.downloadTask = downloadTask;
+        item.resumeData = nil;
     }else{
-        [downloadTask resume];
+        [item.downloadTask resume];
     }
 }
+
+
+- (void)saveDownloadStatus {
+    
+    [NSKeyedArchiver archiveRootObject:self.downloadItems toFile:[self getArchiverPathIsDownloaded:false]];
+    [NSKeyedArchiver archiveRootObject:self.downloadedItems toFile:[self getArchiverPathIsDownloaded:true]];
+}
+
+- (NSString *)getArchiverPathIsDownloaded:(BOOL)isDownloaded {
+    NSString *saveDir = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true).firstObject;
+    saveDir = [saveDir stringByAppendingPathComponent:@"YCDownload"];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:saveDir]) {
+        [[NSFileManager defaultManager] createDirectoryAtPath:saveDir withIntermediateDirectories:true attributes:nil error:nil];
+    }
+    saveDir = isDownloaded ? [saveDir stringByAppendingPathComponent:@"YCDownloaded.data"] : [saveDir stringByAppendingPathComponent:@"YCDownloading.data"];
+ 
+    return saveDir;
+}
+
+
 
 #pragma mark -  NSURLSessionDelegate
 
@@ -143,8 +158,12 @@ didFinishDownloadingToURL:(NSURL *)location {
     NSLog(@"downloadTask:%lu didFinishDownloadingToURL:%@", (unsigned long)downloadTask.taskIdentifier, location);
     NSString *locationString = [location path];
     NSError *error;
-     NSString *finalLocation = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory , NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:[NSString stringWithFormat:@"%lufile",(unsigned long)downloadTask.taskIdentifier]];
-    NSString *savePath = self.savePath.length > 0 ? self.savePath : finalLocation;
+    NSString *finalLocation = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory , NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:[NSString stringWithFormat:@"%lufile",(unsigned long)downloadTask.taskIdentifier]];
+    YCDownloadItem *item = [self.downloadItems valueForKey:[YCDownloadItem getURLFromTask:downloadTask]];
+    [self.downloadItems removeObjectForKey:item.downloadURL];
+    item.resumeData = nil;
+    [self.downloadedItems setObject:item forKey:item.downloadURL];
+    NSString *savePath =  item.savePath.length > 0 ? item.savePath : finalLocation;
     [[NSFileManager defaultManager] moveItemAtPath:locationString toPath:savePath error:&error];
     if ([self.delegate respondsToSelector:@selector(requestFinished:)]) {
         [self.delegate requestFinished:self];
@@ -170,10 +189,21 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     
     NSLog(@"downloadTask:%lu percent:%.2f%%",(unsigned long)downloadTask.taskIdentifier,(float)totalBytesWritten / totalBytesExpectedToWrite * 100);
-    
+    YCDownloadItem *item = [self.downloadItems valueForKey:[YCDownloadItem getURLFromTask:downloadTask]];
+    if (!item.response)  [item updateItem];
     if ([self.delegate respondsToSelector:@selector(request:totalBytesWritten:totalBytesExpectedToWrite:)]){
         [self.delegate request:self totalBytesWritten:totalBytesWritten totalBytesExpectedToWrite:totalBytesExpectedToWrite];
     }
+    
+}
+
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task
+willPerformHTTPRedirection:(NSHTTPURLResponse *)response
+        newRequest:(NSURLRequest *)request
+ completionHandler:(void (^)(NSURLRequest * _Nullable))completionHandler {
+    
+    
+    NSLog(@"willPerformHTTPRedirection ------> %@",response);
     
 }
 
@@ -201,10 +231,11 @@ didCompleteWithError:(NSError *)error {
             [self.delegate requestFailed:self];
         }
         // check if resume data are available
-        if ([error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData]) {
-            NSData *resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
+        NSData *resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
+        if (resumeData) {
             //通过之前保存的resumeData，获取断点的NSURLSessionTask，调用resume恢复下载
-            [self.resumeData setValue:resumeData forKey:[self getURLFromTask:task]];
+            YCDownloadItem *item = [self.downloadItems valueForKey:[YCDownloadItem getURLFromTask:task]];
+            item.resumeData = resumeData;
         }
     } else {
         
