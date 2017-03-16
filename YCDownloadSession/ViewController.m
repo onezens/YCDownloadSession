@@ -9,10 +9,11 @@
 #import "ViewController.h"
 #import "YCDownloadSession.h"
 
-@interface ViewController ()
+@interface ViewController ()<YCDownloadSessionDelegate>
 
 @property (nonatomic, strong) YCDownloadSession *session;
 @property (nonatomic, copy) NSString *downloadURL;
+@property (nonatomic, weak) UILabel *progressLbl;
 
 @end
 
@@ -47,9 +48,22 @@
     
     self.session = [YCDownloadSession downloadSession];
     [YCDownloadSession downloadSession].saveFileDirectory = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true).firstObject;
+    [YCDownloadSession downloadSession].delegate = self;
     //http://down.xt70.com/soft/170220/23874.exe
     self.downloadURL = @"http://vod.lexue.com/video/c3067fc7160916.mp4";
     
+    
+    UILabel *lbl = [[UILabel alloc] init];
+    lbl.text = @"0%";
+    lbl.frame = CGRectMake(100, 300, 100, 30);
+    lbl.textAlignment = NSTextAlignmentCenter;
+    self.progressLbl = lbl;
+    [self.view addSubview:lbl];
+    
+}
+
+- (void)request:(YCDownloadSession *)request totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
+    self.progressLbl.text = [NSString stringWithFormat:@"%f",(float)totalBytesWritten / totalBytesExpectedToWrite * 100];
 }
 
 - (void)start {

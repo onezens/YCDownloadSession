@@ -24,6 +24,8 @@
 
 @property (nonatomic, copy) NSString *saveFileDirectory;
 
+@property (nonatomic, strong, readonly) NSURLSession *downloadSession;
+
 + (instancetype)downloadSession;
 
 /**
@@ -53,5 +55,19 @@
  @param downloadURLString 下载url
  */
 - (void)stopDownloadWithUrl:(NSString *)downloadURLString;
+
+
+/**
+ 保存下载进度
+ */
+- (void)saveDownloadStatus;
+
+/**
+ 暂停所有的下载
+ */
+- (void)pauseAllDownloadTask;
+
+
+
 
 @end
