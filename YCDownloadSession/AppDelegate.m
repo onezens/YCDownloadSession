@@ -11,6 +11,9 @@
 typedef void(^CompletionHandlerType)();
 @interface AppDelegate ()
 @property (strong, nonatomic) NSMutableDictionary *completionHandlerDictionary;
+
+@property (nonatomic, strong) NSTimer *timer;
+@property (nonatomic, assign) NSInteger duration;
 @end
 
 @implementation AppDelegate
@@ -24,7 +27,7 @@ typedef void(^CompletionHandlerType)();
     return YES;
 }
 
-
+#pragma mark Save completionHandler
 - (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler {
     // 你必须重新建立一个后台 seesion 的参照
     // 否则 NSURLSessionDownloadDelegate 和 NSURLSessionDelegate 方法会因为
@@ -37,7 +40,7 @@ typedef void(^CompletionHandlerType)();
     [self addCompletionHandler:completionHandler forSession:identifier];
 }
 
-#pragma mark Save completionHandler
+
 - (void)addCompletionHandler:(CompletionHandlerType)handler forSession:(NSString *)identifier {
     if ([self.completionHandlerDictionary objectForKey:identifier]) {
         NSLog(@"Error: Got multiple handlers for a single session identifier.  This should not happen.\n");
@@ -70,6 +73,14 @@ typedef void(^CompletionHandlerType)();
     // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
     // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
 //    [[YCDownloadSession downloadSession] saveDownloadStatus];
+    self.duration = 0;
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:1 repeats:true block:^(NSTimer * _Nonnull timer) {
+        self.duration += 1;
+        NSLog(@"%zd", self.duration);
+    }];
+    [self.timer fire];
+    
+    
 }
 
 

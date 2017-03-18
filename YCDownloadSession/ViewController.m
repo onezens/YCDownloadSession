@@ -47,7 +47,6 @@
     [self.view addSubview:pauseBtn];
     
     self.session = [YCDownloadSession downloadSession];
-    [YCDownloadSession downloadSession].saveFileDirectory = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true).firstObject;
     [YCDownloadSession downloadSession].delegate = self;
     //http://down.xt70.com/soft/170220/23874.exe
     self.downloadURL = @"http://vod.lexue.com/video/c3067fc7160916.mp4";
@@ -62,12 +61,14 @@
     
 }
 
-- (void)request:(YCDownloadSession *)request totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
+- (void)downloadProgress:(YCDownloadItem *)downloadItem totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     self.progressLbl.text = [NSString stringWithFormat:@"%f",(float)totalBytesWritten / totalBytesExpectedToWrite * 100];
 }
 
 - (void)start {
-      [self.session startDownloadWithUrl:self.downloadURL];
+    NSString *savPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true).firstObject;
+    savPath = [savPath stringByAppendingPathComponent:@"123.mp4"];
+      [self.session startDownloadWithUrl:self.downloadURL savePath:savPath];
 }
 - (void)resume {
     [self.session resumeDownloadWithUrl:self.downloadURL];

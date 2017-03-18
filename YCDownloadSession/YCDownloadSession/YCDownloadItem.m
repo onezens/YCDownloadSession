@@ -20,14 +20,21 @@
 
 - (void)updateItem {
     _response = _downloadTask.response;
-    _fileSize = [_response expectedContentLength];
+    _fileSize = (NSInteger)[_response expectedContentLength];
     _suggestedFilename = [_response suggestedFilename];
 }
 
 - (NSString *)savePath {
-    NSString *saveDir = [YCDownloadSession downloadSession].saveFileDirectory;
-    if (saveDir.length == 0) return nil;
-    return [saveDir stringByAppendingPathComponent:self.suggestedFilename];
+    if (_savePath.length==0) {
+        NSString *saveDir = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true).firstObject;
+        saveDir = [saveDir stringByAppendingPathComponent:@"YCDownload/video"];
+        if (![[NSFileManager defaultManager] fileExistsAtPath:saveDir]) {
+            [[NSFileManager defaultManager] createDirectoryAtPath:saveDir withIntermediateDirectories:true attributes:nil error:nil];
+        }
+        saveDir =  [saveDir stringByAppendingPathComponent:self.suggestedFilename];
+        return saveDir;
+    }
+    return _savePath;
 }
 
 + (NSString *)getURLFromTask:(NSURLSessionTask *)task {
@@ -50,7 +57,7 @@
             NSString *name = [[NSString alloc] initWithUTF8String:ivar_getName(ivar)];
             if ([name isEqualToString:@"_downloadTask"]) continue;
             id value = [coder decodeObjectForKey:name];
-            [self setValue:value forKey:name];
+            if(value) [self setValue:value forKey:name];
         }
         
         free(ivars);
@@ -72,7 +79,7 @@
         NSString *name = [[NSString alloc] initWithUTF8String:ivar_getName(ivar)];
         if ([name isEqualToString:@"_downloadTask"]) continue;
         id value = [self valueForKey:name];
-        [coder encodeObject:value forKey:name];
+        if(value) [coder encodeObject:value forKey:name];
     }
     
     free(ivars);

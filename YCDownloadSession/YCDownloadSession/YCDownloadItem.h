@@ -8,15 +8,19 @@
 
 #import <Foundation/Foundation.h>
 
+
 @interface YCDownloadItem : NSObject
 
 @property (nonatomic, copy) NSString *downloadURL;
 @property (nonatomic, strong) NSData *resumeData;
 @property (nonatomic, strong) NSURLSessionDownloadTask *downloadTask;
+@property (nonatomic, assign) NSInteger downloadedSize;
+@property (nonatomic, copy) NSString *savePath;
+@property (nonatomic, copy) NSString *tempPath;
+
 
 @property (nonatomic, copy, readonly) NSString *suggestedFilename;
-@property (nonatomic, copy, readonly) NSString *savePath;
-@property (nonatomic, assign, readonly) long long fileSize;
+@property (nonatomic, assign, readonly) NSInteger fileSize;
 @property (nonatomic, strong, readonly) NSURLResponse *response;
 
 
