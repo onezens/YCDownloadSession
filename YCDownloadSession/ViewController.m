@@ -48,9 +48,8 @@
     
     self.session = [YCDownloadSession downloadSession];
     [YCDownloadSession downloadSession].delegate = self;
-    //http://down.xt70.com/soft/170220/23874.exe
-    self.downloadURL = @"http://vod.lexue.com/video/c3067fc7160916.mp4";
-    
+
+    self.downloadURL = @"http://down.xt70.com/soft/170220/23874.exe";
     
     UILabel *lbl = [[UILabel alloc] init];
     lbl.text = @"0%";

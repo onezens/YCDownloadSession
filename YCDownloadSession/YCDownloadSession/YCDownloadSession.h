@@ -30,10 +30,12 @@
 
 + (instancetype)downloadSession;
 
+
 /**
  开始一个后台下载任务
-
+ 
  @param downloadURLString 下载url
+ @param savePath 保存路径
  */
 - (void)startDownloadWithUrl:(NSString *)downloadURLString savePath:(NSString *)savePath;
 

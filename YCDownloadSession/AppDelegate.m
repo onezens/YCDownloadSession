@@ -8,12 +8,17 @@
 
 #import "AppDelegate.h"
 #import "YCDownloadSession.h"
-typedef void(^CompletionHandlerType)();
-@interface AppDelegate ()
-@property (strong, nonatomic) NSMutableDictionary *completionHandlerDictionary;
+#import "VideoListInfoController.h"
 
+typedef void(^CompletionHandlerType)();
+
+
+@interface AppDelegate ()
+
+@property (strong, nonatomic) NSMutableDictionary *completionHandlerDictionary;
 @property (nonatomic, strong) NSTimer *timer;
 @property (nonatomic, assign) NSInteger duration;
+
 @end
 
 @implementation AppDelegate
@@ -22,7 +27,13 @@ typedef void(^CompletionHandlerType)();
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     NSLog(@"%@", NSHomeDirectory());
-
+    
+    self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    VideoListInfoController *listVc = [[VideoListInfoController alloc] init];
+    UINavigationController *rootNav = [[UINavigationController alloc] initWithRootViewController:listVc];
+    self.window.rootViewController = rootNav;
+    [self.window makeKeyAndVisible];
+    
     
     return YES;
 }
@@ -86,6 +97,9 @@ typedef void(^CompletionHandlerType)();
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
     // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+    [self.timer invalidate];
+    self.timer = nil;
+    self.duration = 0;
     
 }
 

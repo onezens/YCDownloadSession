@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="VideoListInfoCell" rowHeight="84" id="gLd-89-sys" customClass="VideoListInfoCell">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="84"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="gLd-89-sys" id="wmN-eP-kf3">
+                <rect key="frame" x="0.0" y="0.0" width="375" height="83"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="ASR-EJ-jYG">
+                        <rect key="frame" x="8" y="8" width="124" height="67"/>
+                        <color key="backgroundColor" red="0.90980392160000001" green="0.90980392160000001" blue="0.90980392160000001" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="124" id="VWe-2i-4Jv"/>
+                        </constraints>
+                    </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="三生三世十里桃花" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jRd-Gw-D26">
+                        <rect key="frame" x="140" y="8" width="227" height="30"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="30" id="bdh-vm-fyC"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="2017-03-23 10:53:23" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Yyr-cY-Rma">
+                        <rect key="frame" x="140" y="46" width="167" height="17"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                        <color key="textColor" red="0.6705882353" green="0.67450980390000004" blue="0.67450980390000004" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8Qw-xD-Mde">
+                        <rect key="frame" x="311" y="42" width="56" height="26"/>
+                        <color key="backgroundColor" red="0.95294117649999999" green="0.4941176471" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="26" id="Crr-Or-RjZ"/>
+                            <constraint firstAttribute="width" constant="56" id="bgW-7F-30s"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                        <state key="normal" title="下载">
+                            <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        </state>
+                        <connections>
+                            <action selector="downloadBtnClick:" destination="gLd-89-sys" eventType="touchUpInside" id="0aQ-HE-6C3"/>
+                        </connections>
+                    </button>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PT3-Pd-hi8">
+                        <rect key="frame" x="0.0" y="83" width="375" height="0.0"/>
+                        <color key="backgroundColor" red="0.88235294119999996" green="0.8862745098" blue="0.89411764709999997" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="0.5" id="uC4-3j-cL1"/>
+                        </constraints>
+                    </view>
+                </subviews>
+                <constraints>
+                    <constraint firstAttribute="trailing" secondItem="8Qw-xD-Mde" secondAttribute="trailing" constant="8" id="4E6-bR-9Ce"/>
+                    <constraint firstAttribute="bottom" secondItem="PT3-Pd-hi8" secondAttribute="bottom" id="6mA-bA-Tlh"/>
+                    <constraint firstItem="Yyr-cY-Rma" firstAttribute="top" secondItem="jRd-Gw-D26" secondAttribute="bottom" constant="8" id="9Iz-dx-ZPY"/>
+                    <constraint firstAttribute="trailing" secondItem="PT3-Pd-hi8" secondAttribute="trailing" id="Awv-oL-eTF"/>
+                    <constraint firstAttribute="trailing" secondItem="jRd-Gw-D26" secondAttribute="trailing" constant="8" id="DRg-qC-gnK"/>
+                    <constraint firstItem="8Qw-xD-Mde" firstAttribute="leading" secondItem="Yyr-cY-Rma" secondAttribute="trailing" constant="4" id="Edo-2w-wKV"/>
+                    <constraint firstItem="Yyr-cY-Rma" firstAttribute="leading" secondItem="ASR-EJ-jYG" secondAttribute="trailing" constant="8" id="IbF-Wo-jby"/>
+                    <constraint firstItem="ASR-EJ-jYG" firstAttribute="leading" secondItem="wmN-eP-kf3" secondAttribute="leading" constant="8" id="anv-7v-nb4"/>
+                    <constraint firstItem="8Qw-xD-Mde" firstAttribute="top" secondItem="jRd-Gw-D26" secondAttribute="bottom" constant="4" id="gTr-PW-Tgk"/>
+                    <constraint firstItem="PT3-Pd-hi8" firstAttribute="leading" secondItem="wmN-eP-kf3" secondAttribute="leading" id="hHl-X5-dze"/>
+                    <constraint firstItem="jRd-Gw-D26" firstAttribute="leading" secondItem="ASR-EJ-jYG" secondAttribute="trailing" constant="8" id="iYf-sc-4fL"/>
+                    <constraint firstItem="ASR-EJ-jYG" firstAttribute="top" secondItem="wmN-eP-kf3" secondAttribute="top" constant="8" id="qpB-TE-tXK"/>
+                    <constraint firstAttribute="bottom" secondItem="ASR-EJ-jYG" secondAttribute="bottom" constant="8" id="xOL-aQ-nVL"/>
+                    <constraint firstItem="jRd-Gw-D26" firstAttribute="top" secondItem="wmN-eP-kf3" secondAttribute="top" constant="8" id="zeS-L1-hfN"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="coverImgView" destination="ASR-EJ-jYG" id="lX5-TQ-uz4"/>
+                <outlet property="downloadBtn" destination="8Qw-xD-Mde" id="sLx-pr-snv"/>
+                <outlet property="timeLbl" destination="Yyr-cY-Rma" id="jO8-s7-6fp"/>
+                <outlet property="titleLbl" destination="jRd-Gw-D26" id="Ax7-Rk-pww"/>
+            </connections>
+            <point key="canvasLocation" x="70.5" y="-73"/>
+        </tableViewCell>
+    </objects>
+</document>

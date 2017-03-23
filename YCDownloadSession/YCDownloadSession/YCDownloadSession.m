@@ -252,11 +252,7 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
 
 - (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session {
     NSLog(@"Background URL session %@ finished events.\n", session);
-    
-//    if (session.configuration.identifier) {
-//        AppDelegate *del = [AppDelegate sharedDelegate];
-//        [del callCompletionHandlerForSession:self.downloadSession.configuration.identifier];
-//    }
+
 }
 
 /*
@@ -269,6 +265,7 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
 didCompleteWithError:(NSError *)error {
     
     if (error) {
+        NSLog(@"%@", error);
         // check if resume data are available
         NSData *resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
         YCDownloadItem *item = [self.downloadItems valueForKey:[YCDownloadItem getURLFromTask:task]];
