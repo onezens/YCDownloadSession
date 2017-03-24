@@ -8,6 +8,13 @@
 
 #import <Foundation/Foundation.h>
 
+typedef NS_ENUM(NSUInteger, YCDownloadStatus) {
+    YCDownloadStatusWaiting,
+    YCDownloadStatusDownloading,
+    YCDownloadStatusPause,
+    YCDownloadStatusFailed,
+    YCDownloadStatusFinished,
+};
 
 @interface YCDownloadItem : NSObject
 
@@ -17,7 +24,7 @@
 @property (nonatomic, assign) NSInteger downloadedSize;
 @property (nonatomic, copy) NSString *savePath;
 @property (nonatomic, copy) NSString *tempPath;
-
+@property (nonatomic, assign) YCDownloadStatus downloadStatus;
 
 @property (nonatomic, copy, readonly) NSString *suggestedFilename;
 @property (nonatomic, assign, readonly) NSInteger fileSize;

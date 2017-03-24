@@ -44,6 +44,7 @@
 		D78946CA1E83A66000284B35 /* VideoCacheController.m in Sources */ = {isa = PBXBuildFile; fileRef = D78946C91E83A66000284B35 /* VideoCacheController.m */; };
 		D78946CD1E83A68700284B35 /* VideoCacheListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D78946CC1E83A68700284B35 /* VideoCacheListCell.m */; };
 		D78946CF1E83A69700284B35 /* VideoCacheListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = D78946CE1E83A69700284B35 /* VideoCacheListCell.xib */; };
+		D79F745A1E8519D600ED87C9 /* YCDownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D79F74591E8519D600ED87C9 /* YCDownloadManager.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -119,6 +120,8 @@
 		D78946CB1E83A68700284B35 /* VideoCacheListCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoCacheListCell.h; sourceTree = "<group>"; };
 		D78946CC1E83A68700284B35 /* VideoCacheListCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoCacheListCell.m; sourceTree = "<group>"; };
 		D78946CE1E83A69700284B35 /* VideoCacheListCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = VideoCacheListCell.xib; sourceTree = "<group>"; };
+		D79F74581E8519D600ED87C9 /* YCDownloadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YCDownloadManager.h; sourceTree = "<group>"; };
+		D79F74591E8519D600ED87C9 /* YCDownloadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YCDownloadManager.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -189,6 +192,8 @@
 		D72C84EA1E77D46100EDCEEF /* YCDownloadSession */ = {
 			isa = PBXGroup;
 			children = (
+				D79F74581E8519D600ED87C9 /* YCDownloadManager.h */,
+				D79F74591E8519D600ED87C9 /* YCDownloadManager.m */,
 				D72C84EB1E77D47200EDCEEF /* YCDownloadSession.h */,
 				D72C84EC1E77D47200EDCEEF /* YCDownloadSession.m */,
 				D775A4001E791C9E00117D97 /* YCDownloadItem.h */,
@@ -345,6 +350,7 @@
 				D72C84DB1E77D42500EDCEEF /* ViewController.m in Sources */,
 				D78946BF1E83A4B700284B35 /* SDWebImageManager.m in Sources */,
 				D789468E1E837C0D00284B35 /* AFNetworkReachabilityManager.m in Sources */,
+				D79F745A1E8519D600ED87C9 /* YCDownloadManager.m in Sources */,
 				D789467D1E83783C00284B35 /* VideoListInfoController.m in Sources */,
 				D72C84D81E77D42500EDCEEF /* AppDelegate.m in Sources */,
 				D78946BD1E83A4B700284B35 /* SDWebImageDownloader.m in Sources */,

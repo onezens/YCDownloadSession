@@ -16,11 +16,13 @@
 - (void)downloadProgress:(YCDownloadItem *)downloadItem totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite;
 - (void)downloadFailed:(YCDownloadItem *)downloadItem;
 - (void)downloadinished:(YCDownloadItem *)downloadItem;
-- (void)downloadCreate:(YCDownloadItem *)downloadItem;
 
 @end
 
 @interface YCDownloadSession : NSObject
+
+@property (nonatomic, strong, readonly) NSMutableDictionary *downloadItems;//正在下载的item
+@property (nonatomic, strong, readonly) NSMutableDictionary *downloadedItems;//下载完成的item
 
 @property (nonatomic, weak) id <YCDownloadSessionDelegate>delegate;
 
