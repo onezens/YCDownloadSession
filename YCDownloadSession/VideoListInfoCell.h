@@ -8,9 +8,17 @@
 
 #import <UIKit/UIKit.h>
 #import "VideoListInfoModel.h"
+@class VideoListInfoCell;
+
+@protocol VideoListInfoCellDelegate <NSObject>
+
+- (void)videoListCell:(VideoListInfoCell *)cell downloadVideo:(VideoListInfoModel *)model;
+
+@end
 
 @interface VideoListInfoCell : UITableViewCell
 @property (nonatomic, strong) VideoListInfoModel *videoModel;
+@property (nonatomic, weak) id <VideoListInfoCellDelegate> delegate;
 + (instancetype)videoListInfoCellWithTableView:(UITableView *)tableView;
 + (CGFloat)rowHeight;
 

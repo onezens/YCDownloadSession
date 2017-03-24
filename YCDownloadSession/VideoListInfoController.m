@@ -10,8 +10,9 @@
 #import "VideoListInfoCell.h"
 #import "VideoListInfoModel.h"
 #import "AFNetworking.h"
+#import "VideoCacheController.h"
 
-@interface VideoListInfoController ()
+@interface VideoListInfoController ()<VideoListInfoCellDelegate>
 
 @property (nonatomic, strong) NSArray *videoListArr;
 
@@ -38,6 +39,12 @@
     }];
 }
 
+- (void)videoListCell:(VideoListInfoCell *)cell downloadVideo:(VideoListInfoModel *)model {
+    NSLog(@"%@", model.mp4_url);
+    VideoCacheController *vc = [[VideoCacheController alloc] init];
+    [self.navigationController pushViewController:vc animated:true];
+}
+
 #pragma mark - Table view data source & delegate
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -50,6 +57,7 @@
     VideoListInfoCell *cell = [VideoListInfoCell videoListInfoCellWithTableView:tableView];
     VideoListInfoModel *model = self.videoListArr[indexPath.row];
     [cell setVideoModel:model];
+    cell.delegate = self;
     return cell;
 }
 

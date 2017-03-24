@@ -7,7 +7,7 @@
 //
 
 #import "VideoListInfoCell.h"
-#import "AFNetworking.h"
+#import "UIImageView+WebCache.h"
 
 @interface VideoListInfoCell()
 
@@ -47,16 +47,14 @@
     _videoModel = videoModel;
     self.titleLbl.text = videoModel.title;
     self.timeLbl.text = videoModel.ptime;
-    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:videoModel.mp4_url]];
-    [manager downloadTaskWithRequest:req progress:nil destination:nil completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
-        self.coverImgView.image = [UIImage imageWithContentsOfFile:filePath.absoluteString];
-    }];
+    [self.coverImgView sd_setImageWithURL:[NSURL URLWithString:videoModel.cover]];
 }
 
 
 - (IBAction)downloadBtnClick:(id)sender {
-    
+    if ([self.delegate respondsToSelector:@selector(videoListCell:downloadVideo:)]) {
+        [self.delegate videoListCell:self downloadVideo:self.videoModel];
+    }
 }
 
 @end
