@@ -8,10 +8,13 @@
 
 #import "VideoCacheController.h"
 #import "VideoCacheListCell.h"
+#import "YCDownloadManager.h"
 
 @interface VideoCacheController ()<UITableViewDelegate, UITableViewDataSource>
 
 @property (nonatomic, strong) UITableView *tableView;
+
+@property (nonatomic, strong) NSMutableArray *cacheVideoList;
 
 @end
 
@@ -22,6 +25,16 @@
     [self setupTableView];
     self.title = @"缓存";
     self.view.backgroundColor = [UIColor whiteColor];
+    self.cacheVideoList = [NSMutableArray array];
+    [self getCacheVideoList];
+}
+
+- (void)getCacheVideoList {
+    
+    [self.cacheVideoList removeAllObjects];
+    [self.cacheVideoList addObjectsFromArray:[YCDownloadManager downloadList]];
+    [self.cacheVideoList addObjectsFromArray:[YCDownloadManager finishList]];
+    [self.tableView reloadData];
 }
 
 - (void)setupTableView {
@@ -41,7 +54,7 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return 20;
+    return self.cacheVideoList.count;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {

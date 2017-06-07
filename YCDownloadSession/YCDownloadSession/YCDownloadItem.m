@@ -17,7 +17,6 @@
     if (![_downloadTask isEqual:downloadTask]) { //防止重复下载
         [_downloadTask suspend];
         [_downloadTask cancel];
-        NSLog(@" %@ -----------> called!!!!  -----------> called!!!! ", _downloadTask);
     }
     _downloadTask = downloadTask;
 }
@@ -39,7 +38,6 @@
     return saveDir;
     
 }
-
 
 
 - (NSString *)suggestedFileSavePath {

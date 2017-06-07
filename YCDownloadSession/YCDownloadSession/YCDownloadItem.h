@@ -17,6 +17,9 @@
 @property (nonatomic, copy) NSString *saveName;
 @property (nonatomic, copy) NSString *tempPath;
 
+@property (nonatomic, copy) NSString *coverImgUrl;
+@property (nonatomic, copy) NSString *videoTitle;
+
 
 @property (nonatomic, copy, readonly) NSString *suggestedFilename;
 @property (nonatomic, assign, readonly) NSInteger fileSize;

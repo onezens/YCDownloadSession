@@ -9,7 +9,6 @@
 #import "VideoListInfoController.h"
 #import "VideoListInfoCell.h"
 #import "VideoListInfoModel.h"
-#import "AFNetworking.h"
 #import "VideoCacheController.h"
 
 @interface VideoListInfoController ()<VideoListInfoCellDelegate>

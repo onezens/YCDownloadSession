@@ -114,12 +114,7 @@ static YCDownloadSession *_instance;
             *stop = true;
         }
     }];
-    
-    //    BOOL isGo = [item.downloadURL isEqualToString:downloadUrl];
-    //
-    //    if (!item || !isGo) {
-    //        NSLog(@"item nil ----------> downloadUrl: %@", downloadUrl);
-    //    }
+
     return item;
     
 }
@@ -256,7 +251,6 @@ static YCDownloadSession *_instance;
     
     [NSKeyedArchiver archiveRootObject:self.downloadItems toFile:[self getArchiverPathIsDownloaded:false]];
     [NSKeyedArchiver archiveRootObject:self.downloadedItems toFile:[self getArchiverPathIsDownloaded:true]];
-//    [DownloadManager saveData];
 }
 
 - (NSString *)getArchiverPathIsDownloaded:(BOOL)isDownloaded {
