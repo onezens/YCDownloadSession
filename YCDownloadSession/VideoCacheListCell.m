@@ -12,8 +12,10 @@
 
 @property (weak, nonatomic) IBOutlet UIProgressView *progressView;
 @property (weak, nonatomic) IBOutlet UILabel *titleLbl;
-@property (weak, nonatomic) IBOutlet UILabel *percentProgressView;
 @property (weak, nonatomic) IBOutlet UILabel *sizeLbl;
+@property (weak, nonatomic) IBOutlet UILabel *statusAndSpeedLbl;
+@property (weak, nonatomic) IBOutlet UIImageView *coverImgView;
+
 
 @end
 
@@ -32,6 +34,12 @@
 
 + (CGFloat)rowHeight {
     return 84.0f;
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    self.coverImgView.layer.cornerRadius = 6.0f;
+    self.coverImgView.layer.masksToBounds = true;
 }
 
 @end

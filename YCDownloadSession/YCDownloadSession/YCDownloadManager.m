@@ -22,7 +22,7 @@
  @param savePath 保存路径
  */
 + (void)startDownloadWithUrl:(NSString *)downloadURLString savePath:(NSString *)savePath {
-    [[YCDownloadSession downloadSession] startDownloadWithUrl:downloadURLString savePath:savePath];
+//    [[YCDownloadSession downloadSession] startDownloadWithUrl:downloadURLString savePath:savePath];
 }
 
 /**
@@ -69,18 +69,18 @@
 
 + (NSArray *)downloadList {
     NSMutableArray *arrM = [NSMutableArray array];
-    NSDictionary *downloadListDict = [[YCDownloadSession downloadSession] downloadItems];
-    for (YCDownloadItem *item in downloadListDict) {
-        [arrM addObject:item];
-    }
+//    NSDictionary *downloadListDict = [[YCDownloadSession downloadSession] downloadItems];
+//    for (YCDownloadItem *item in downloadListDict) {
+//        [arrM addObject:item];
+//    }
     return arrM;
 }
 + (NSArray *)finishList {
     NSMutableArray *arrM = [NSMutableArray array];
-    NSDictionary *downloadListDict = [[YCDownloadSession downloadSession] downloadedItems];
-    for (YCDownloadItem *item in downloadListDict) {
-        [arrM addObject:item];
-    }
+//    NSDictionary *downloadListDict = [[YCDownloadSession downloadSession] downloadedItems];
+//    for (YCDownloadItem *item in downloadListDict) {
+//        [arrM addObject:item];
+//    }
     return arrM;
 }
 + (NSUInteger)videoCacheSize {

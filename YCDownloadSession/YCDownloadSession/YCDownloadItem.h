@@ -8,23 +8,15 @@
 
 #import <Foundation/Foundation.h>
 
-typedef NS_ENUM(NSUInteger, YCDownloadStatus) {
-    YCDownloadStatusWaiting,
-    YCDownloadStatusDownloading,
-    YCDownloadStatusPause,
-    YCDownloadStatusFailed,
-    YCDownloadStatusFinished,
-};
-
 @interface YCDownloadItem : NSObject
 
 @property (nonatomic, copy) NSString *downloadURL;
 @property (nonatomic, strong) NSData *resumeData;
 @property (nonatomic, strong) NSURLSessionDownloadTask *downloadTask;
 @property (nonatomic, assign) NSInteger downloadedSize;
-@property (nonatomic, copy) NSString *savePath;
+@property (nonatomic, copy) NSString *saveName;
 @property (nonatomic, copy) NSString *tempPath;
-@property (nonatomic, assign) YCDownloadStatus downloadStatus;
+
 
 @property (nonatomic, copy, readonly) NSString *suggestedFilename;
 @property (nonatomic, assign, readonly) NSInteger fileSize;
@@ -34,5 +26,9 @@ typedef NS_ENUM(NSUInteger, YCDownloadStatus) {
 + (NSString *)getURLFromTask:(NSURLSessionTask *)task;
 
 - (void)updateItem;
+
+- (NSString *)suggestedFileSavePath;
+
+- (NSString *)savePath;
 
 @end

@@ -15,6 +15,7 @@
 @property (nonatomic, copy) NSString *cover;
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, copy) NSString *ptime;
+@property (nonatomic, copy) NSString *videosource;
 
 + (NSArray <VideoListInfoModel *> *)getVideoListInfo:(NSArray <NSDictionary *>*)listInfos;
 

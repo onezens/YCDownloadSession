@@ -14,6 +14,8 @@
 		D72C84E01E77D42500EDCEEF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D72C84DF1E77D42500EDCEEF /* Assets.xcassets */; };
 		D72C84E31E77D42500EDCEEF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D72C84E11E77D42500EDCEEF /* LaunchScreen.storyboard */; };
 		D72C84ED1E77D47200EDCEEF /* YCDownloadSession.m in Sources */ = {isa = PBXBuildFile; fileRef = D72C84EC1E77D47200EDCEEF /* YCDownloadSession.m */; };
+		D75627FE1EE799F200A031FE /* video.json in Resources */ = {isa = PBXBuildFile; fileRef = D75627FD1EE799F200A031FE /* video.json */; };
+		D75628011EE79F9300A031FE /* NSURLSession+CorrectedResumeData.m in Sources */ = {isa = PBXBuildFile; fileRef = D75628001EE79F9300A031FE /* NSURLSession+CorrectedResumeData.m */; };
 		D775A4021E791C9E00117D97 /* YCDownloadItem.m in Sources */ = {isa = PBXBuildFile; fileRef = D775A4011E791C9E00117D97 /* YCDownloadItem.m */; };
 		D78946771E83754100284B35 /* VideoListInfoCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = D78946761E83754100284B35 /* VideoListInfoCell.xib */; };
 		D789467A1E83777000284B35 /* VideoListInfoCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D78946791E83777000284B35 /* VideoListInfoCell.m */; };
@@ -60,6 +62,9 @@
 		D72C84E41E77D42500EDCEEF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D72C84EB1E77D47200EDCEEF /* YCDownloadSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YCDownloadSession.h; sourceTree = "<group>"; };
 		D72C84EC1E77D47200EDCEEF /* YCDownloadSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YCDownloadSession.m; sourceTree = "<group>"; };
+		D75627FD1EE799F200A031FE /* video.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = video.json; sourceTree = "<group>"; };
+		D75627FF1EE79F9300A031FE /* NSURLSession+CorrectedResumeData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURLSession+CorrectedResumeData.h"; sourceTree = "<group>"; };
+		D75628001EE79F9300A031FE /* NSURLSession+CorrectedResumeData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURLSession+CorrectedResumeData.m"; sourceTree = "<group>"; };
 		D775A4001E791C9E00117D97 /* YCDownloadItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YCDownloadItem.h; sourceTree = "<group>"; };
 		D775A4011E791C9E00117D97 /* YCDownloadItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YCDownloadItem.m; sourceTree = "<group>"; };
 		D78946761E83754100284B35 /* VideoListInfoCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = VideoListInfoCell.xib; sourceTree = "<group>"; };
@@ -162,6 +167,7 @@
 				D72C84DA1E77D42500EDCEEF /* ViewController.m */,
 				D789467B1E83783C00284B35 /* VideoListInfoController.h */,
 				D789467C1E83783C00284B35 /* VideoListInfoController.m */,
+				D75627FD1EE799F200A031FE /* video.json */,
 				D78946C81E83A66000284B35 /* VideoCacheController.h */,
 				D78946C91E83A66000284B35 /* VideoCacheController.m */,
 				D78946931E837D8600284B35 /* VideoListInfoModel.h */,
@@ -192,6 +198,8 @@
 		D72C84EA1E77D46100EDCEEF /* YCDownloadSession */ = {
 			isa = PBXGroup;
 			children = (
+				D75627FF1EE79F9300A031FE /* NSURLSession+CorrectedResumeData.h */,
+				D75628001EE79F9300A031FE /* NSURLSession+CorrectedResumeData.m */,
 				D79F74581E8519D600ED87C9 /* YCDownloadManager.h */,
 				D79F74591E8519D600ED87C9 /* YCDownloadManager.m */,
 				D72C84EB1E77D47200EDCEEF /* YCDownloadSession.h */,
@@ -331,6 +339,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D72C84E31E77D42500EDCEEF /* LaunchScreen.storyboard in Resources */,
+				D75627FE1EE799F200A031FE /* video.json in Resources */,
 				D78946771E83754100284B35 /* VideoListInfoCell.xib in Resources */,
 				D78946CF1E83A69700284B35 /* VideoCacheListCell.xib in Resources */,
 				D72C84E01E77D42500EDCEEF /* Assets.xcassets in Resources */,
@@ -351,6 +360,7 @@
 				D78946BF1E83A4B700284B35 /* SDWebImageManager.m in Sources */,
 				D789468E1E837C0D00284B35 /* AFNetworkReachabilityManager.m in Sources */,
 				D79F745A1E8519D600ED87C9 /* YCDownloadManager.m in Sources */,
+				D75628011EE79F9300A031FE /* NSURLSession+CorrectedResumeData.m in Sources */,
 				D789467D1E83783C00284B35 /* VideoListInfoController.m in Sources */,
 				D72C84D81E77D42500EDCEEF /* AppDelegate.m in Sources */,
 				D78946BD1E83A4B700284B35 /* SDWebImageDownloader.m in Sources */,

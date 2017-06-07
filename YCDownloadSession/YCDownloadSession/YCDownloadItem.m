@@ -14,8 +14,12 @@
 @implementation YCDownloadItem
 
 - (void)setDownloadTask:(NSURLSessionDownloadTask *)downloadTask {
+    if (![_downloadTask isEqual:downloadTask]) { //防止重复下载
+        [_downloadTask suspend];
+        [_downloadTask cancel];
+        NSLog(@" %@ -----------> called!!!!  -----------> called!!!! ", _downloadTask);
+    }
     _downloadTask = downloadTask;
-    _downloadURL = [YCDownloadItem getURLFromTask:downloadTask];
 }
 
 - (void)updateItem {
@@ -25,16 +29,27 @@
 }
 
 - (NSString *)savePath {
-    if (_savePath.length==0) {
-        NSString *saveDir = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true).firstObject;
-        saveDir = [saveDir stringByAppendingPathComponent:@"YCDownload/video"];
-        if (![[NSFileManager defaultManager] fileExistsAtPath:saveDir]) {
-            [[NSFileManager defaultManager] createDirectoryAtPath:saveDir withIntermediateDirectories:true attributes:nil error:nil];
-        }
-        saveDir =  [saveDir stringByAppendingPathComponent:self.suggestedFilename];
-        return saveDir;
+    
+    NSString *saveDir = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true).firstObject;
+    saveDir = [saveDir stringByAppendingPathComponent:@"video"];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:saveDir]) {
+        [[NSFileManager defaultManager] createDirectoryAtPath:saveDir withIntermediateDirectories:true attributes:nil error:nil];
     }
-    return _savePath;
+    saveDir =  [saveDir stringByAppendingPathComponent:self.saveName];
+    return saveDir;
+    
+}
+
+
+
+- (NSString *)suggestedFileSavePath {
+    NSString *saveDir = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true).firstObject;
+    saveDir = [saveDir stringByAppendingPathComponent:@"YCDownload/video"];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:saveDir]) {
+        [[NSFileManager defaultManager] createDirectoryAtPath:saveDir withIntermediateDirectories:true attributes:nil error:nil];
+    }
+    saveDir =  [saveDir stringByAppendingPathComponent:self.suggestedFilename];
+    return saveDir;
 }
 
 + (NSString *)getURLFromTask:(NSURLSessionTask *)task {

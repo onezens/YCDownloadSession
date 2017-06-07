@@ -28,15 +28,12 @@
 }
 
 - (void)getVideoList {
-    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    [manager GET:@"http://c.m.163.com/nc/video/home/0-10.html" parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSArray *listArr = [responseObject valueForKey:@"videoList"];
-        _videoListArr = [VideoListInfoModel getVideoListInfo:listArr];
-        [self.tableView reloadData];
-        
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSLog(@"%@", error);
-    }];
+    
+    NSString *dataPath = [[NSBundle mainBundle] pathForResource:@"video.json" ofType:nil];
+    NSData *videoData = [[NSData alloc] initWithContentsOfFile:dataPath];
+    NSArray *videoArr = [NSJSONSerialization JSONObjectWithData:videoData options:0 error:nil];
+    _videoListArr = [VideoListInfoModel getVideoListInfo:videoArr];;
+    [self.tableView reloadData];
 }
 
 - (void)videoListCell:(VideoListInfoCell *)cell downloadVideo:(VideoListInfoModel *)model {

@@ -40,13 +40,15 @@
     
     self.downloadBtn.layer.cornerRadius = 4.0f;
     self.downloadBtn.layer.masksToBounds = true;
+    self.coverImgView.layer.cornerRadius = 6;
+    self.coverImgView.layer.masksToBounds = true;
     
 }
 
 - (void)setVideoModel:(VideoListInfoModel *)videoModel {
     _videoModel = videoModel;
     self.titleLbl.text = videoModel.title;
-    self.timeLbl.text = videoModel.ptime;
+    self.timeLbl.text = videoModel.videosource;
     [self.coverImgView sd_setImageWithURL:[NSURL URLWithString:videoModel.cover]];
 }
 

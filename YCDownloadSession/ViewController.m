@@ -67,7 +67,7 @@
 - (void)start {
     NSString *savPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true).firstObject;
     savPath = [savPath stringByAppendingPathComponent:@"123.mp4"];
-      [self.session startDownloadWithUrl:self.downloadURL savePath:savPath];
+//      [self.session startDownloadWithUrl:self.downloadURL savePath:savPath];
 }
 - (void)resume {
     [self.session resumeDownloadWithUrl:self.downloadURL];
