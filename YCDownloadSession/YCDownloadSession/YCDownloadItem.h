@@ -14,14 +14,9 @@
 @property (nonatomic, strong) NSData *resumeData;
 @property (nonatomic, strong) NSURLSessionDownloadTask *downloadTask;
 @property (nonatomic, assign) NSInteger downloadedSize;
-@property (nonatomic, copy) NSString *saveName;
+@property (nonatomic, copy, readonly) NSString *saveName;
 @property (nonatomic, copy) NSString *tempPath;
 
-@property (nonatomic, copy) NSString *coverImgUrl;
-@property (nonatomic, copy) NSString *videoTitle;
-
-
-@property (nonatomic, copy, readonly) NSString *suggestedFilename;
 @property (nonatomic, assign, readonly) NSInteger fileSize;
 @property (nonatomic, strong, readonly) NSURLResponse *response;
 
@@ -29,8 +24,6 @@
 + (NSString *)getURLFromTask:(NSURLSessionTask *)task;
 
 - (void)updateItem;
-
-- (NSString *)suggestedFileSavePath;
 
 - (NSString *)savePath;
 

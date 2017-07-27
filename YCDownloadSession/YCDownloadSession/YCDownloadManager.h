@@ -11,13 +11,13 @@
 
 @interface YCDownloadManager : NSObject
 
+
 /**
  开始一个后台下载任务
  
  @param downloadURLString 下载url
- @param savePath 保存路径
  */
-+ (void)startDownloadWithUrl:(NSString *)downloadURLString savePath:(NSString *)savePath;
++ (void)startDownloadWithUrl:(NSString *)downloadURLString;
 
 /**
  暂停一个后台下载任务
@@ -42,14 +42,11 @@
 
 
 /**
- 保存下载进度
- */
-+ (void)saveDownloadStatus;
-
-/**
  暂停所有的下载
  */
 + (void)pauseAllDownloadTask;
+
+
 
 + (NSArray *)downloadList;
 + (NSArray *)finishList;

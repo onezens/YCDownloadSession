@@ -43,8 +43,5 @@
     self.coverImgView.layer.masksToBounds = true;
 }
 
-- (void)setItem:(YCDownloadItem *)item {
-    [self.coverImgView sd_setImageWithURL:[NSURL URLWithString:item.coverImgUrl] placeholderImage:nil];
-    self.titleLbl.text = item.videoTitle;
-}
+
 @end

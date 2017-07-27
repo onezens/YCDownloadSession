@@ -39,7 +39,7 @@
  
  @param downloadURLString 下载url
  */
-- (void)startDownloadWithUrl:(NSString *)downloadURLString saveName:(NSString *)saveName;
+- (void)startDownloadWithUrl:(NSString *)downloadURLString;
 
 /**
  暂停一个后台下载任务

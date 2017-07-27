@@ -35,6 +35,12 @@
     [self.tableView reloadData];
 }
 
+#pragma mark - videolistcell delegate
+
+
+/**
+ 点击下载
+ */
 - (void)videoListCell:(VideoListInfoCell *)cell downloadVideo:(VideoListInfoModel *)model {
     NSLog(@"%@", model.mp4_url);
     VideoCacheController *vc = [[VideoCacheController alloc] init];

@@ -119,7 +119,7 @@ static YCDownloadSession *_instance;
     
 }
 
-- (void)startDownloadWithUrl:(NSString *)downloadURLString saveName:(NSString *)saveName{
+- (void)startDownloadWithUrl:(NSString *)downloadURLString{
     if (downloadURLString.length == 0)  return;
     
     YCDownloadItem *item = [self getDownloadItemWithUrl:downloadURLString isDownloadList:false];
@@ -139,7 +139,6 @@ static YCDownloadSession *_instance;
         NSURLSessionDownloadTask *downloadTask = [self.downloadSession downloadTaskWithRequest:request];
         YCDownloadItem *item = [[YCDownloadItem alloc] init];
         item.downloadURL = downloadURLString;
-        item.saveName = saveName;
         item.downloadTask = downloadTask;
         [self.downloadItems setObject:item forKey:item.downloadURL];
         [downloadTask resume];
@@ -239,7 +238,7 @@ static YCDownloadSession *_instance;
             NSString *url = item.downloadURL;
             if (url.length ==0) return;
             [self.downloadItems removeObjectForKey:url];
-            [self startDownloadWithUrl:url saveName:item.saveName];
+            [self startDownloadWithUrl:url];
         }else{
             [item.downloadTask resume];
         }
@@ -275,10 +274,7 @@ static YCDownloadSession *_instance;
         }
     }else if (item.fileSize>0 && item.fileSize==item.downloadedSize){
         
-        if ([[NSFileManager defaultManager] fileExistsAtPath:[item suggestedFileSavePath]]) {
-            [[NSFileManager defaultManager] moveItemAtPath:[item suggestedFileSavePath] toPath:item.savePath error:nil];
-            return true;
-        }else if(!item.resumeData) {
+        if(!item.resumeData) {
             item.downloadedSize = 0;
             item.downloadTask = nil;
         }
@@ -325,28 +321,17 @@ didFinishDownloadingToURL:(NSURL *)location {
     }
     
     [[NSFileManager defaultManager] moveItemAtPath:locationString toPath:item.savePath error:&error];
-    
-    if (error ) {
-        NSLog(@"download finished , and move file failed!!  ----->>>>>%@  --> %@", error,downloadUrl);
-        
-        if ([[NSFileManager defaultManager] fileExistsAtPath:locationString]) {
-            [[NSFileManager defaultManager] moveItemAtPath:locationString toPath:[item suggestedFileSavePath] error:nil];
-        }
-        
-        if ([self.delegate respondsToSelector:@selector(downloadFailed:)]) {
-            [self.delegate downloadFailed:item];
-        }
-    }else{
-        NSLog(@"downloadTask:%lu didFinishDownloadingToURL:%@      \n---->to Path:  %@", (unsigned long)downloadTask.taskIdentifier, location, item.savePath);
-        if (item.downloadURL.length != 0) {
-            [self.downloadedItems setObject:item forKey:item.downloadURL];
-            [self.downloadItems removeObjectForKey:item.downloadURL];
-        }
-        if ([self.delegate respondsToSelector:@selector(downloadinished:)]) {
-            [self.delegate downloadinished:item];
-        }
-        item.resumeData = nil;
+
+    NSLog(@"downloadTask:%lu didFinishDownloadingToURL:%@      \n---->to Path:  %@", (unsigned long)downloadTask.taskIdentifier, location, item.savePath);
+    if (item.downloadURL.length != 0) {
+        [self.downloadedItems setObject:item forKey:item.downloadURL];
+        [self.downloadItems removeObjectForKey:item.downloadURL];
     }
+    if ([self.delegate respondsToSelector:@selector(downloadinished:)]) {
+        [self.delegate downloadinished:item];
+    }
+    item.resumeData = nil;
+
     [self saveDownloadStatus];
     
 }

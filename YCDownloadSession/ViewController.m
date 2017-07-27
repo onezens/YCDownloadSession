@@ -49,7 +49,7 @@
     self.session = [YCDownloadSession downloadSession];
     [YCDownloadSession downloadSession].delegate = self;
 
-    self.downloadURL = @"http://down.xt70.com/soft/170220/23874.exe";
+    self.downloadURL = @"http://src.onezen.cc/123.mov";
     
     UILabel *lbl = [[UILabel alloc] init];
     lbl.text = @"0%";
@@ -65,9 +65,7 @@
 }
 
 - (void)start {
-    NSString *savPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true).firstObject;
-    savPath = [savPath stringByAppendingPathComponent:@"123.mp4"];
-//      [self.session startDownloadWithUrl:self.downloadURL savePath:savPath];
+    [self.session startDownloadWithUrl:self.downloadURL];
 }
 - (void)resume {
     [self.session resumeDownloadWithUrl:self.downloadURL];
@@ -78,7 +76,7 @@
 }
 
 - (void)stop {
-    
+    [self.session stopDownloadWithUrl:self.downloadURL];
 }
 
 
