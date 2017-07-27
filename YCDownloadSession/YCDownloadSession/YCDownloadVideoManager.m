@@ -6,14 +6,15 @@
 //  Copyright © 2017年 onezen.cc. All rights reserved.
 //
 
-#import "YCDownloadManager.h"
+#import "YCDownloadVideoManager.h"
 #import "YCDownloadSession.h"
 
-@interface YCDownloadManager ()
+@interface YCDownloadVideoManager ()
 
 @end
 
-@implementation YCDownloadManager
+@implementation YCDownloadVideoManager
+
 
 /**
  开始一个后台下载任务
@@ -21,8 +22,8 @@
  @param downloadURLString 下载url
 
  */
-+ (void)startDownloadWithUrl:(NSString *)downloadURLString {
-    [[YCDownloadSession downloadSession] startDownloadWithUrl:downloadURLString];
++ (void)startDownloadWithUrl:(NSString *)downloadURLString videoInfo:(id)videoInfo{
+    [[YCDownloadSession downloadSession] startDownloadWithUrl:downloadURLString delegate:nil];
 }
 
 /**
@@ -53,12 +54,6 @@
 }
 
 
-/**
- 保存下载进度
- */
-+ (void)saveDownloadStatus {
-    [[YCDownloadSession downloadSession] saveDownloadStatus];
-}
 
 /**
  暂停所有的下载
@@ -66,6 +61,10 @@
 + (void)pauseAllDownloadTask {
     [[YCDownloadSession downloadSession] pauseAllDownloadTask];
 }
+
+
+
+
 
 + (NSArray *)downloadList {
     NSMutableArray *arrM = [NSMutableArray array];
@@ -108,6 +107,9 @@
     }
     return totalFreeSpace;
 }
+
+
+
 
 
 @end

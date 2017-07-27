@@ -56,7 +56,7 @@ static YCDownloadSession *_instance;
         //获取后台下载缓存在本地的数据
         [self.downloadedItems enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, YCDownloadItem *obj, BOOL * _Nonnull stop) {
             if ([[NSFileManager defaultManager] fileExistsAtPath:obj.tempPath]) {
-                [[NSFileManager defaultManager] moveItemAtPath:obj.tempPath toPath:obj.savePath error:nil];
+                [[NSFileManager defaultManager] moveItemAtPath:obj.tempPath toPath:[YCDownloadItem savePathWithSaveName:obj.saveName] error:nil];
                 
                 NSLog(@"------>>>>>>> file move to ---->>>>>");
             }
@@ -119,13 +119,14 @@ static YCDownloadSession *_instance;
     
 }
 
-- (void)startDownloadWithUrl:(NSString *)downloadURLString{
+- (void)startDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadSessionDelegate>)delegate{
     if (downloadURLString.length == 0)  return;
     
     YCDownloadItem *item = [self getDownloadItemWithUrl:downloadURLString isDownloadList:false];
     if (item) {
-        if ([self.delegate respondsToSelector:@selector(downloadinished:)]) {
-            [self.delegate downloadinished:item];
+        
+        if ([item.delegate respondsToSelector:@selector(downloadinished:)]) {
+            [item.delegate downloadinished:item];
         }
         return;
     }
@@ -134,20 +135,12 @@ static YCDownloadSession *_instance;
     
     if (!item) {
         [self pauseAllDownloadTask];
-        NSURL *downloadURL = [NSURL URLWithString:downloadURLString];
-        NSURLRequest *request = [NSURLRequest requestWithURL:downloadURL];
-        NSURLSessionDownloadTask *downloadTask = [self.downloadSession downloadTaskWithRequest:request];
-        YCDownloadItem *item = [[YCDownloadItem alloc] init];
-        item.downloadURL = downloadURLString;
-        item.downloadTask = downloadTask;
-        [self.downloadItems setObject:item forKey:item.downloadURL];
-        [downloadTask resume];
-        [self saveDownloadStatus];
+        [self createDownloadTaskWithUrl:downloadURLString delegate:delegate];
     }else{
-        
+        if (item.delegate == nil ) item.delegate = delegate;
         if ([self detectDownloadItemIsFinished:item]) {
-            if ([self.delegate respondsToSelector:@selector(downloadinished:)]) {
-                [self.delegate downloadinished:item];
+            if ([item.delegate respondsToSelector:@selector(downloadinished:)]) {
+                [item.delegate downloadinished:item];
             }
             [self saveDownloadStatus];
             return;
@@ -164,6 +157,19 @@ static YCDownloadSession *_instance;
         [self resumeDownloadTask:item];
     }
     
+}
+
+- (void)createDownloadTaskWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadSessionDelegate>)delegate{
+    NSURL *downloadURL = [NSURL URLWithString:downloadURLString];
+    NSURLRequest *request = [NSURLRequest requestWithURL:downloadURL];
+    NSURLSessionDownloadTask *downloadTask = [self.downloadSession downloadTaskWithRequest:request];
+    YCDownloadItem *item = [[YCDownloadItem alloc] init];
+    item.downloadURL = downloadURLString;
+    item.downloadTask = downloadTask;
+    item.delegate = delegate;;
+    [self.downloadItems setObject:item forKey:item.downloadURL];
+    [downloadTask resume];
+    [self saveDownloadStatus];
 }
 
 - (void)pauseDownloadTask:(YCDownloadItem *)item {
@@ -207,8 +213,8 @@ static YCDownloadSession *_instance;
     
     if(!item) return;
     if ([self detectDownloadItemIsFinished:item]) {
-        if ([self.delegate respondsToSelector:@selector(downloadinished:)]) {
-            [self.delegate downloadinished:item];
+        if ([item.delegate respondsToSelector:@selector(downloadinished:)]) {
+            [item.delegate downloadinished:item];
         }
         [self saveDownloadStatus];
         return;
@@ -234,11 +240,12 @@ static YCDownloadSession *_instance;
         item.resumeData = nil; //这句代码不能省略，否则在点击继续活着开始的时候会重复下载任务
         
     }else{
+        
         if (!item.downloadTask) { //没有下载任务，那么重新创建下载任务
             NSString *url = item.downloadURL;
             if (url.length ==0) return;
             [self.downloadItems removeObjectForKey:url];
-            [self startDownloadWithUrl:url];
+//            [self startDownloadWithUrl:url delegate:<#(id<YCDownloadSessionDelegate>)#>];
         }else{
             [item.downloadTask resume];
         }
@@ -269,7 +276,7 @@ static YCDownloadSession *_instance;
         NSDictionary *dic = [[NSFileManager defaultManager] attributesOfItemAtPath:item.tempPath error:nil];
         NSInteger fileSize = dic ? (NSInteger)[dic fileSize] : 0;
         if (fileSize>0 && fileSize == item.fileSize) {
-            [[NSFileManager defaultManager] moveItemAtPath:item.tempPath toPath:item.savePath error:nil];
+            [[NSFileManager defaultManager] moveItemAtPath:item.tempPath toPath:[YCDownloadItem savePathWithSaveName:item.saveName] error:nil];
             return true;
         }
     }else if (item.fileSize>0 && item.fileSize==item.downloadedSize){
@@ -286,6 +293,7 @@ static YCDownloadSession *_instance;
 
 #pragma mark -  NSURLSessionDelegate
 
+
 - (void)URLSession:(NSURLSession *)session
       downloadTask:(NSURLSessionDownloadTask *)downloadTask
 didFinishDownloadingToURL:(NSURL *)location {
@@ -297,8 +305,8 @@ didFinishDownloadingToURL:(NSURL *)location {
     YCDownloadItem *item = [self getDownloadItemWithUrl:downloadUrl isDownloadList:true];
     if(!item){
         NSLog(@"download finished , item nil error!!!! url: %@", downloadUrl);
-        if ([self.delegate respondsToSelector:@selector(downloadFailed:)]) {
-            [self.delegate downloadFailed:item];
+        if ([item.delegate respondsToSelector:@selector(downloadFailed:)]) {
+            [item.delegate downloadFailed:item];
         }
         [self saveDownloadStatus];
         return;
@@ -312,23 +320,24 @@ didFinishDownloadingToURL:(NSURL *)location {
     if (!isCompltedFile) {
         NSLog(@"download finished , file size error!!!! url: %@", downloadUrl);
         [self pauseDownloadTask:item];
-        if ([self.delegate respondsToSelector:@selector(downloadFailed:)]) {
-            [self.delegate downloadFailed:item];
+        if ([item.delegate respondsToSelector:@selector(downloadFailed:)]) {
+            [item.delegate downloadFailed:item];
         }
         item.downloadTask = nil;
         [self saveDownloadStatus];
         return;
     }
     
-    [[NSFileManager defaultManager] moveItemAtPath:locationString toPath:item.savePath error:&error];
+    [[NSFileManager defaultManager] moveItemAtPath:locationString toPath:[YCDownloadItem savePathWithSaveName:item.saveName] error:&error];
 
-    NSLog(@"downloadTask:%lu didFinishDownloadingToURL:%@      \n---->to Path:  %@", (unsigned long)downloadTask.taskIdentifier, location, item.savePath);
+    NSLog(@"downloadTask:%lu didFinishDownloadingToURL:%@      \n---->to Path:  %@", (unsigned long)downloadTask.taskIdentifier, location, [YCDownloadItem savePathWithSaveName:item.saveName]);
+    
     if (item.downloadURL.length != 0) {
         [self.downloadedItems setObject:item forKey:item.downloadURL];
         [self.downloadItems removeObjectForKey:item.downloadURL];
     }
-    if ([self.delegate respondsToSelector:@selector(downloadinished:)]) {
-        [self.delegate downloadinished:item];
+    if ([item.delegate respondsToSelector:@selector(downloadinished:)]) {
+        [item.delegate downloadinished:item];
     }
     item.resumeData = nil;
 
@@ -352,9 +361,9 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     
     YCDownloadItem *item = [self getDownloadItemWithUrl:[YCDownloadItem getURLFromTask:downloadTask] isDownloadList:true];
     item.downloadedSize = (NSInteger)totalBytesWritten;
-    if (!item.response)  [item updateItem];
-    if ([self.delegate respondsToSelector:@selector(downloadProgress:totalBytesWritten:totalBytesExpectedToWrite:)]){
-        [self.delegate downloadProgress:item totalBytesWritten:totalBytesWritten totalBytesExpectedToWrite:totalBytesExpectedToWrite];
+    if (item.fileSize == 0)  [item updateItem];
+    if ([item.delegate respondsToSelector:@selector(downloadProgress:totalBytesWritten:totalBytesExpectedToWrite:)]){
+        [item.delegate downloadProgress:item totalBytesWritten:totalBytesWritten totalBytesExpectedToWrite:totalBytesExpectedToWrite];
     }
 }
 
@@ -373,6 +382,7 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
     
     
 }
+
 
 /*
  * 该方法下载成功和失败都会回调，只是失败的是error是有值的，
@@ -397,12 +407,14 @@ didCompleteWithError:(NSError *)error {
                 
             }else{
                 NSLog(@"%@", error);
-                if ([self.delegate respondsToSelector:@selector(downloadFailed:)]) {
-                    [self.delegate downloadFailed:item];
+                if ([item.delegate respondsToSelector:@selector(downloadFailed:)]) {
+                    [item.delegate downloadFailed:item];
                 }
             }
         } @catch (NSException *exception) {}
     }
 }
+
+
 
 @end

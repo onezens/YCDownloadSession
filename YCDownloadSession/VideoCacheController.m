@@ -8,7 +8,7 @@
 
 #import "VideoCacheController.h"
 #import "VideoCacheListCell.h"
-#import "YCDownloadManager.h"
+#import "YCDownloadVideoManager.h"
 
 @interface VideoCacheController ()<UITableViewDelegate, UITableViewDataSource>
 
@@ -32,8 +32,8 @@
 - (void)getCacheVideoList {
     
     [self.cacheVideoList removeAllObjects];
-    [self.cacheVideoList addObjectsFromArray:[YCDownloadManager downloadList]];
-    [self.cacheVideoList addObjectsFromArray:[YCDownloadManager finishList]];
+    [self.cacheVideoList addObjectsFromArray:[YCDownloadVideoManager downloadList]];
+    [self.cacheVideoList addObjectsFromArray:[YCDownloadVideoManager finishList]];
     [self.tableView reloadData];
 }
 

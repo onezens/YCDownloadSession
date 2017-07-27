@@ -34,6 +34,8 @@ typedef void(^CompletionHandlerType)();
 //    self.window.rootViewController = rootNav;
     [self.window makeKeyAndVisible];
     
+    [YCDownloadSession downloadSession];
+    
     
     return YES;
 }

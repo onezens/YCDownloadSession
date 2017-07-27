@@ -18,25 +18,23 @@
 #pragma mark - public
 
 - (void)updateItem {
-    _response = _downloadTask.response;
-    _fileSize = (NSInteger)[_response expectedContentLength];
-
+    
+    _fileSize = (NSInteger)[_downloadTask.response expectedContentLength];
+    [[YCDownloadSession downloadSession] saveDownloadStatus];
 }
-
-
 
 #pragma mark - getter
 
-- (NSString *)savePath {
++ (NSString *)savePathWithSaveName:(NSString *)saveName {
     
     NSString *saveDir = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true).firstObject;
     saveDir = [saveDir stringByAppendingPathComponent:@"YCDownload/video"];
     if (![[NSFileManager defaultManager] fileExistsAtPath:saveDir]) {
         [[NSFileManager defaultManager] createDirectoryAtPath:saveDir withIntermediateDirectories:true attributes:nil error:nil];
     }
-    saveDir =  [saveDir stringByAppendingPathComponent:self.saveName];
+    saveDir =  [saveDir stringByAppendingPathComponent:saveName];
     return saveDir;
-    
+
 }
 
 
@@ -57,7 +55,7 @@
 }
 
 - (void)setDownloadTask:(NSURLSessionDownloadTask *)downloadTask {
-    if (![_downloadTask isEqual:downloadTask]) { //防止重复下载
+    if (_downloadTask && downloadTask && ![_downloadTask isEqual:downloadTask]) { //防止重复下载
         [_downloadTask suspend];
         [_downloadTask cancel];
     }
@@ -81,7 +79,7 @@
             
             Ivar ivar = ivars[i];
             NSString *name = [[NSString alloc] initWithUTF8String:ivar_getName(ivar)];
-            if ([name isEqualToString:@"_downloadTask"]) continue;
+            if ([name isEqualToString:@"_downloadTask"] || [name isEqualToString:@"_delegate"]) continue;
             id value = [coder decodeObjectForKey:name];
             if(value) [self setValue:value forKey:name];
         }
@@ -103,7 +101,7 @@
         
         Ivar ivar = ivars[i];
         NSString *name = [[NSString alloc] initWithUTF8String:ivar_getName(ivar)];
-        if ([name isEqualToString:@"_downloadTask"]) continue;
+        if ([name isEqualToString:@"_downloadTask"] || [name isEqualToString:@"_delegate"]) continue;
         id value = [self valueForKey:name];
         if(value) [coder encodeObject:value forKey:name];
     }

@@ -9,20 +9,9 @@
 #import <UIKit/UIKit.h>
 #import "YCDownloadItem.h"
 
-
 @class YCDownloadSession;
-@protocol YCDownloadSessionDelegate <NSObject>
-
-- (void)downloadProgress:(YCDownloadItem *)downloadItem totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite;
-- (void)downloadFailed:(YCDownloadItem *)downloadItem;
-- (void)downloadinished:(YCDownloadItem *)downloadItem;
-- (void)downloadCreate:(YCDownloadItem *)downloadItem;
-
-@end
 
 @interface YCDownloadSession : NSObject
-
-@property (nonatomic, weak) id <YCDownloadSessionDelegate>delegate;
 
 @property (nonatomic, copy) NSString *saveFilePath;
 
@@ -39,7 +28,7 @@
  
  @param downloadURLString 下载url
  */
-- (void)startDownloadWithUrl:(NSString *)downloadURLString;
+- (void)startDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadSessionDelegate>)delegate;
 
 /**
  暂停一个后台下载任务

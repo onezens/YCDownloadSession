@@ -8,6 +8,16 @@
 
 #import <Foundation/Foundation.h>
 
+@class YCDownloadItem;
+@protocol YCDownloadSessionDelegate <NSObject>
+
+@optional
+- (void)downloadProgress:(YCDownloadItem *)downloadItem totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite;
+- (void)downloadFailed:(YCDownloadItem *)downloadItem;
+- (void)downloadinished:(YCDownloadItem *)downloadItem;
+
+@end
+
 @interface YCDownloadItem : NSObject
 
 @property (nonatomic, copy) NSString *downloadURL;
@@ -16,15 +26,17 @@
 @property (nonatomic, assign) NSInteger downloadedSize;
 @property (nonatomic, copy, readonly) NSString *saveName;
 @property (nonatomic, copy) NSString *tempPath;
+@property (nonatomic, weak) id <YCDownloadSessionDelegate>delegate;
 
 @property (nonatomic, assign, readonly) NSInteger fileSize;
-@property (nonatomic, strong, readonly) NSURLResponse *response;
+
 
 
 + (NSString *)getURLFromTask:(NSURLSessionTask *)task;
 
 - (void)updateItem;
 
-- (NSString *)savePath;
++ (NSString *)savePathWithSaveName:(NSString *)saveName;
+
 
 @end

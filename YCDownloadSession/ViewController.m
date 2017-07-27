@@ -11,7 +11,6 @@
 
 @interface ViewController ()<YCDownloadSessionDelegate>
 
-@property (nonatomic, strong) YCDownloadSession *session;
 @property (nonatomic, copy) NSString *downloadURL;
 @property (nonatomic, weak) UILabel *progressLbl;
 
@@ -45,9 +44,6 @@
     [pauseBtn setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
     [pauseBtn addTarget:self action:@selector(pause) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:pauseBtn];
-    
-    self.session = [YCDownloadSession downloadSession];
-    [YCDownloadSession downloadSession].delegate = self;
 
     self.downloadURL = @"http://src.onezen.cc/123.mov";
     
@@ -65,24 +61,18 @@
 }
 
 - (void)start {
-    [self.session startDownloadWithUrl:self.downloadURL];
+    [[YCDownloadSession downloadSession] startDownloadWithUrl:self.downloadURL delegate:self];
 }
 - (void)resume {
-    [self.session resumeDownloadWithUrl:self.downloadURL];
+    [[YCDownloadSession downloadSession] resumeDownloadWithUrl:self.downloadURL];
 }
 
 - (void)pause {
-    [self.session pauseDownloadWithUrl:self.downloadURL];
+    [[YCDownloadSession downloadSession] pauseDownloadWithUrl:self.downloadURL];
 }
 
 - (void)stop {
-    [self.session stopDownloadWithUrl:self.downloadURL];
-}
-
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    [[YCDownloadSession downloadSession] stopDownloadWithUrl:self.downloadURL];
 }
 
 
