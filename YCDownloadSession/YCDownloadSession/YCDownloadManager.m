@@ -136,7 +136,32 @@ static id _instance;
     return totalFreeSpace;
 }
 
-
++ (void)saveDownloadStatus {
+    [[YCDownloadManager manager] saveDownloadItems];
+}
++ (NSString *)fileSizeStringFromBytes:(uint64_t)byteSize {
+    if (kCommonUtilsGigabyte <= byteSize) {
+        return [NSString stringWithFormat:@"%@GB", [self numberStringFromDouble:(double)byteSize / kCommonUtilsGigabyte]];
+    }
+    if (kCommonUtilsMegabyte <= byteSize) {
+        return [NSString stringWithFormat:@"%@MB", [self numberStringFromDouble:(double)byteSize / kCommonUtilsMegabyte]];
+    }
+    if (kCommonUtilsKilobyte <= byteSize) {
+        return [NSString stringWithFormat:@"%@KB", [self numberStringFromDouble:(double)byteSize / kCommonUtilsKilobyte]];
+    }
+    return [NSString stringWithFormat:@"%zdB", byteSize];
+}
+// output the string with max %.2f string, if the 0 got
++ (NSString *)numberStringFromDouble:(const double)num {
+    NSInteger section = round((num - (NSInteger)num) * 100);
+    if (section % 10) {
+        return [NSString stringWithFormat:@"%.2f", num];
+    }
+    if (section > 0) {
+        return [NSString stringWithFormat:@"%.1f", num];
+    }
+    return [NSString stringWithFormat:@"%.0f", num];
+}
 #pragma mark - private
 
 
@@ -149,6 +174,7 @@ static id _instance;
     item.thumbImageUrl = imagUrl;
     [self.itemsDictM setValue:item forKey:downloadURLString];
     [[YCDownloadSession downloadSession] startDownloadWithUrl:downloadURLString delegate:item];
+    [self saveDownloadItems];
     
 }
 
@@ -157,6 +183,7 @@ static id _instance;
     YCDownloadItem *item = [self.itemsDictM valueForKey:downloadURLString];
     item.downloadStatus = YCDownloadStatusDownloading;
     [[YCDownloadSession downloadSession] resumeDownloadWithUrl:downloadURLString delegate:item];
+    [self saveDownloadItems];
 }
 
 
@@ -164,11 +191,13 @@ static id _instance;
     YCDownloadItem *item = [self.itemsDictM valueForKey:downloadURLString];
     item.downloadStatus = YCDownloadStatusPaused;
     [[YCDownloadSession downloadSession] pauseDownloadWithUrl:downloadURLString];
+    [self saveDownloadItems];
 }
 
 - (void)stopDownloadWithUrl:(NSString *)downloadURLString {
     [self.itemsDictM removeObjectForKey:downloadURLString];
     [[YCDownloadSession downloadSession] stopDownloadWithUrl:downloadURLString];
+    [self saveDownloadItems];
 }
 
 - (void)pauseAllDownloadTask {
@@ -177,6 +206,7 @@ static id _instance;
         item.downloadStatus = YCDownloadStatusPaused;
     }];
     [[YCDownloadSession downloadSession] pauseAllDownloadTask];
+    [self saveDownloadItems];
 }
 
 -(NSArray *)downloadList {

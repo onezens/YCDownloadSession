@@ -48,6 +48,28 @@
 
 #pragma mark - uitableview datasource & delegate
 
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+    return YES;
+}
+
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+        
+        YCDownloadItem *item = _cacheVideoList[indexPath.row];
+        [YCDownloadManager stopDownloadWithUrl:item.downloadUrl];
+        
+        [self.cacheVideoList removeObjectAtIndex:indexPath.row];
+        // Delete the row from the data source.
+        [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+        
+    }
+    else if (editingStyle == UITableViewCellEditingStyleInsert) {
+        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
+    }
+}
+
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     VideoCacheListCell *cell = [VideoCacheListCell videoCacheListCellWithTableView:tableView];
@@ -63,6 +85,19 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     return [VideoCacheListCell rowHeight];
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    YCDownloadItem *item = self.cacheVideoList[indexPath.row];
+    if (item.downloadStatus == YCDownloadStatusDownloading) {
+        [YCDownloadManager pauseDownloadWithUrl:item.downloadUrl];
+    }else if (item.downloadStatus == YCDownloadStatusPaused){
+        [YCDownloadManager resumeDownloadWithUrl:item.downloadUrl];
+    }else if (item.downloadStatus == YCDownloadStatusFailed){
+        [YCDownloadManager resumeDownloadWithUrl:item.downloadUrl];
+    }
+    [self.tableView reloadData];
 }
 
 

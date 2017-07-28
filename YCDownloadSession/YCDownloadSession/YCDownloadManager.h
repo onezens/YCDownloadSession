@@ -10,6 +10,10 @@
 #import "YCDownloadTask.h"
 #import "YCDownloadItem.h"
 
+#define kCommonUtilsGigabyte (1024 * 1024 * 1024)
+#define kCommonUtilsMegabyte (1024 * 1024)
+#define kCommonUtilsKilobyte 1024
+
 @interface YCDownloadManager : NSObject
 
 
@@ -53,6 +57,9 @@
 + (NSArray *)finishList;
 + (NSUInteger)videoCacheSize;
 + (NSUInteger)fileSystemFreeSize;
+
++ (void)saveDownloadStatus;
++ (NSString *)fileSizeStringFromBytes:(uint64_t)byteSize;
 
 
 @end

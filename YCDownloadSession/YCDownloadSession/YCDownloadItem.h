@@ -22,7 +22,7 @@ typedef enum : NSUInteger {
 
 @optional
 - (void)downloadItemStatusChanged:(YCDownloadItem *)item;
-- (void)downloadItem:(YCDownloadItem *)item downloadedSize:(NSInteger)downloadedSize totalSize:(NSInteger)totalSize;
+- (void)downloadItem:(YCDownloadItem *)item downloadedSize:(int64_t)downloadedSize totalSize:(int64_t)totalSize;
 
 @end
 
@@ -32,7 +32,7 @@ typedef enum : NSUInteger {
 @property (nonatomic, copy) NSString *thumbImageUrl;
 @property (nonatomic, copy) NSString *downloadUrl;
 @property (nonatomic, assign) NSUInteger fileSize;
-@property (nonatomic, assign) NSUInteger *downloadedSize;
+@property (nonatomic, assign) NSUInteger downloadedSize;
 @property (nonatomic, assign) YCDownloadStatus downloadStatus;
 @property (nonatomic, copy, readonly) NSString *saveName;
 @property (nonatomic, weak) id <YCDownloadItemDelegate> delegate;

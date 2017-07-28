@@ -8,13 +8,14 @@
 
 #import "VideoCacheListCell.h"
 #import "UIImageView+WebCache.h"
+#import "YCDownloadManager.h"
 
 @interface VideoCacheListCell ()
 
 @property (weak, nonatomic) IBOutlet UIProgressView *progressView;
 @property (weak, nonatomic) IBOutlet UILabel *titleLbl;
 @property (weak, nonatomic) IBOutlet UILabel *sizeLbl;
-@property (weak, nonatomic) IBOutlet UILabel *statusAndSpeedLbl;
+@property (weak, nonatomic) IBOutlet UILabel *statusLbl;
 @property (weak, nonatomic) IBOutlet UIImageView *coverImgView;
 
 
@@ -49,17 +50,50 @@
     self.titleLbl.text = item.fileName;
     [self.coverImgView sd_setImageWithURL:[NSURL URLWithString:item.thumbImageUrl]];
     [self changeSizeLblDownloadedSize:item.fileSize totalSize:item.fileSize];
+    [self setDownloadStatus:item.downloadStatus];
 }
 
 
-- (void)changeSizeLblDownloadedSize:(NSInteger)downloadedSize totalSize:(NSInteger)totalSize {
-    self.sizeLbl.text = [NSString stringWithFormat:@"%zd/%zd",downloadedSize, totalSize];
+- (void)setDownloadStatus:(YCDownloadStatus)status {
+
+    switch (status) {
+        case YCDownloadStatusWaiting:
+            self.statusLbl.text = @"正在等待";
+            break;
+        case YCDownloadStatusDownloading:
+            self.statusLbl.text = @"正在下载";
+            break;
+        case YCDownloadStatusPaused:
+            self.statusLbl.text = @"暂停下载";
+            break;
+        case YCDownloadStatusFinished:
+            self.statusLbl.text = @"下载成功";
+            break;
+        case YCDownloadStatusFailed:
+            self.statusLbl.text = @"下载失败";
+            break;
+            
+        default:
+            break;
+    }
 }
 
 
-- (void)downloadItem:(YCDownloadItem *)item downloadedSize:(NSInteger)downloadedSize totalSize:(NSInteger)totalSize {
+
+- (void)changeSizeLblDownloadedSize:(int64_t)downloadedSize totalSize:(int64_t)totalSize {
+    self.sizeLbl.text = [NSString stringWithFormat:@"%@ / %@",[YCDownloadManager fileSizeStringFromBytes:downloadedSize], [YCDownloadManager fileSizeStringFromBytes:totalSize]];
+}
+
+- (void)downloadItemStatusChanged:(YCDownloadItem *)item {
+   [self setDownloadStatus:item.downloadStatus];
+}
+
+- (void)downloadItem:(YCDownloadItem *)item downloadedSize:(int64_t)downloadedSize totalSize:(int64_t)totalSize {
     self.progressView.progress = (float)downloadedSize / totalSize;
     [self changeSizeLblDownloadedSize:downloadedSize totalSize:totalSize];
 }
+
+
+
 
 @end

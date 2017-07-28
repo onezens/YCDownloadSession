@@ -25,6 +25,7 @@
     self.title = @"网易视频";
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self getVideoList];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"缓存" style:UIBarButtonItemStylePlain target:self action:@selector(goCache)];
 }
 
 - (void)getVideoList {
@@ -36,6 +37,11 @@
     [self.tableView reloadData];
 }
 
+
+- (void)goCache {
+    VideoCacheController *vc = [[VideoCacheController alloc] init];
+    [self.navigationController pushViewController:vc animated:true];
+}
 #pragma mark - videolistcell delegate
 
 

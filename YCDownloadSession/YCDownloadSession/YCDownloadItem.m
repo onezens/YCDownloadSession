@@ -59,6 +59,7 @@
             
             Ivar ivar = ivars[i];
             NSString *name = [[NSString alloc] initWithUTF8String:ivar_getName(ivar)];
+            if([name isEqualToString:@"delegate"]) continue;
             id value = [coder decodeObjectForKey:name];
             if(value) [self setValue:value forKey:name];
         }
@@ -80,6 +81,7 @@
         
         Ivar ivar = ivars[i];
         NSString *name = [[NSString alloc] initWithUTF8String:ivar_getName(ivar)];
+        if([name isEqualToString:@"delegate"]) continue;
         id value = [self valueForKey:name];
         if(value) [coder encodeObject:value forKey:name];
     }

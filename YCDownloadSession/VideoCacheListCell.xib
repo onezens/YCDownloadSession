@@ -15,7 +15,7 @@
             <rect key="frame" x="0.0" y="0.0" width="375" height="84"/>
             <autoresizingMask key="autoresizingMask"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KHc-cV-BJx" id="KkF-PE-0Bi">
-                <rect key="frame" x="0.0" y="0.0" width="375" height="83"/>
+                <rect key="frame" x="0.0" y="0.0" width="375" height="84"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fdY-h6-fuM">
@@ -80,7 +80,7 @@
                 <outlet property="coverImgView" destination="hGC-ff-cUG" id="RkK-8b-1Yj"/>
                 <outlet property="progressView" destination="5dw-ac-okN" id="c4Y-Bt-Win"/>
                 <outlet property="sizeLbl" destination="Fmh-S1-Fzr" id="Jo2-0D-Aai"/>
-                <outlet property="statusAndSpeedLbl" destination="Crm-Dw-Sbl" id="c4d-5O-UYS"/>
+                <outlet property="statusLbl" destination="Crm-Dw-Sbl" id="gqI-qp-2VZ"/>
                 <outlet property="titleLbl" destination="fdY-h6-fuM" id="az6-1p-Q2P"/>
             </connections>
             <point key="canvasLocation" x="-66.5" y="-24"/>
