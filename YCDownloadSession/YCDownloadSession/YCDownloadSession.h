@@ -42,7 +42,7 @@
  
  @param downloadURLString 下载url
  */
-- (void)resumeDownloadWithUrl:(NSString *)downloadURLString;
+- (void)resumeDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadSessionDelegate>)delegate;
 
 /**
  删除一个后台下载任务，同时会删除当前任务下载的缓存数据

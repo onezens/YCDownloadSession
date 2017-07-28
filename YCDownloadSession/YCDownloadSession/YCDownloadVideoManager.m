@@ -41,7 +41,7 @@
  @param downloadURLString 下载url
  */
 + (void)resumeDownloadWithUrl:(NSString *)downloadURLString {
-    [[YCDownloadSession downloadSession] resumeDownloadWithUrl:downloadURLString];
+    [[YCDownloadSession downloadSession] resumeDownloadWithUrl:downloadURLString delegate:nil];
 }
 
 /**

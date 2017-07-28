@@ -49,7 +49,7 @@
     
     UILabel *lbl = [[UILabel alloc] init];
     lbl.text = @"0%";
-    lbl.frame = CGRectMake(100, 300, 100, 30);
+    lbl.frame = CGRectMake(100, 300, 200, 30);
     lbl.textAlignment = NSTextAlignmentCenter;
     self.progressLbl = lbl;
     [self.view addSubview:lbl];
@@ -60,11 +60,20 @@
     self.progressLbl.text = [NSString stringWithFormat:@"%f",(float)totalBytesWritten / totalBytesExpectedToWrite * 100];
 }
 
+- (void)downloadFailed:(YCDownloadItem *)downloadItem {
+    
+    self.progressLbl.text = @"download failed!";
+}
+
+- (void)downloadinished:(YCDownloadItem *)downloadItem {
+    self.progressLbl.text = @"download success!";
+}
+
 - (void)start {
     [[YCDownloadSession downloadSession] startDownloadWithUrl:self.downloadURL delegate:self];
 }
 - (void)resume {
-    [[YCDownloadSession downloadSession] resumeDownloadWithUrl:self.downloadURL];
+    [[YCDownloadSession downloadSession] resumeDownloadWithUrl:self.downloadURL delegate:self];
 }
 
 - (void)pause {

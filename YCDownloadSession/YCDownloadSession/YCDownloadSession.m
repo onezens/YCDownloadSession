@@ -101,23 +101,7 @@ static YCDownloadSession *_instance;
 
 #pragma mark - event
 
-// 部分下载会把域名地址解析成IP地址，所以根据URL获取不到下载任务,所以根据下载文件名称获取(后台下载，重新启动，获取的的url是IP)
-- (YCDownloadItem *)getDownloadItemWithUrl:(NSString *)downloadUrl isDownloadList:(BOOL)isDownloadList{
-    
-    NSMutableDictionary *items = isDownloadList ? self.downloadItems : self.downloadedItems;
-    NSString *fileName = downloadUrl.lastPathComponent;
-    __block YCDownloadItem *item = nil;
-    [items enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        YCDownloadItem *dItem = obj;
-        if ([dItem.downloadURL.lastPathComponent isEqualToString:fileName]) {
-            item = dItem;
-            *stop = true;
-        }
-    }];
 
-    return item;
-    
-}
 
 - (void)startDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadSessionDelegate>)delegate{
     if (downloadURLString.length == 0)  return;
@@ -125,8 +109,8 @@ static YCDownloadSession *_instance;
     YCDownloadItem *item = [self getDownloadItemWithUrl:downloadURLString isDownloadList:false];
     if (item) {
         
-        if ([item.delegate respondsToSelector:@selector(downloadinished:)]) {
-            [item.delegate downloadinished:item];
+        if ([delegate respondsToSelector:@selector(downloadinished:)]) {
+            [delegate downloadinished:item];
         }
         return;
     }
@@ -184,8 +168,10 @@ static YCDownloadSession *_instance;
     [self pauseDownloadTask:[self getDownloadItemWithUrl:downloadURLString isDownloadList:true]];
     
 }
-- (void)resumeDownloadWithUrl:(NSString *)downloadURLString {
-    [self resumeDownloadTask:[self getDownloadItemWithUrl:downloadURLString isDownloadList:true]];
+- (void)resumeDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadSessionDelegate>)delegate{
+    YCDownloadItem *item = [self getDownloadItemWithUrl:downloadURLString isDownloadList:true];
+    if(delegate) item.delegate = delegate;
+    [self resumeDownloadTask: item];
 }
 
 
@@ -245,7 +231,7 @@ static YCDownloadSession *_instance;
             NSString *url = item.downloadURL;
             if (url.length ==0) return;
             [self.downloadItems removeObjectForKey:url];
-//            [self startDownloadWithUrl:url delegate:<#(id<YCDownloadSessionDelegate>)#>];
+            [self createDownloadTaskWithUrl:url delegate:item.delegate];
         }else{
             [item.downloadTask resume];
         }
@@ -288,6 +274,24 @@ static YCDownloadSession *_instance;
     }
     
     return false;
+}
+
+// 部分下载会把域名地址解析成IP地址，所以根据URL获取不到下载任务,所以根据下载文件名称获取(后台下载，重新启动，获取的的url是IP)
+- (YCDownloadItem *)getDownloadItemWithUrl:(NSString *)downloadUrl isDownloadList:(BOOL)isDownloadList{
+    
+    NSMutableDictionary *items = isDownloadList ? self.downloadItems : self.downloadedItems;
+    NSString *fileName = downloadUrl.lastPathComponent;
+    __block YCDownloadItem *item = nil;
+    [items enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        YCDownloadItem *dItem = obj;
+        if ([dItem.downloadURL.lastPathComponent isEqualToString:fileName]) {
+            item = dItem;
+            *stop = true;
+        }
+    }];
+    
+    return item;
+    
 }
 
 
@@ -365,6 +369,9 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     if ([item.delegate respondsToSelector:@selector(downloadProgress:totalBytesWritten:totalBytesExpectedToWrite:)]){
         [item.delegate downloadProgress:item totalBytesWritten:totalBytesWritten totalBytesExpectedToWrite:totalBytesExpectedToWrite];
     }
+    
+    NSString *url = downloadTask.response.URL.absoluteString;
+    NSLog(@"downloadURL: %@  downloadedSize: %zd totalSize: %zd  progress: %f", url, bytesWritten, totalBytesWritten, (float)totalBytesWritten / totalBytesExpectedToWrite);
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task

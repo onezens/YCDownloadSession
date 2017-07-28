@@ -26,12 +26,12 @@ typedef void(^CompletionHandlerType)();
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
-//    NSLog(@"%@", NSHomeDirectory());
-//    
-//    self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-//    VideoListInfoController *listVc = [[VideoListInfoController alloc] init];
-//    UINavigationController *rootNav = [[UINavigationController alloc] initWithRootViewController:listVc];
-//    self.window.rootViewController = rootNav;
+    NSLog(@"%@", NSHomeDirectory());
+    
+    self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    VideoListInfoController *listVc = [[VideoListInfoController alloc] init];
+    UINavigationController *rootNav = [[UINavigationController alloc] initWithRootViewController:listVc];
+    self.window.rootViewController = rootNav;
     [self.window makeKeyAndVisible];
     
     [YCDownloadSession downloadSession];
