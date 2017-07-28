@@ -49,7 +49,11 @@
 #pragma mark - uitableview datasource & delegate
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
     VideoCacheListCell *cell = [VideoCacheListCell videoCacheListCellWithTableView:tableView];
+    YCDownloadItem *item = self.cacheVideoList[indexPath.row];
+    cell.item = item;
+    item.delegate = cell;
     return cell;
 }
 

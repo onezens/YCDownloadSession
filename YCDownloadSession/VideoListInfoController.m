@@ -10,6 +10,7 @@
 #import "VideoListInfoCell.h"
 #import "VideoListInfoModel.h"
 #import "VideoCacheController.h"
+#import "YCDownloadManager.h"
 
 @interface VideoListInfoController ()<VideoListInfoCellDelegate>
 
@@ -43,6 +44,9 @@
  */
 - (void)videoListCell:(VideoListInfoCell *)cell downloadVideo:(VideoListInfoModel *)model {
     NSLog(@"%@", model.mp4_url);
+    
+    [YCDownloadManager startDownloadWithUrl:model.mp4_url fileName:model.title thumbImageUrl:model.cover];
+    
     VideoCacheController *vc = [[VideoCacheController alloc] init];
     [self.navigationController pushViewController:vc animated:true];
 }

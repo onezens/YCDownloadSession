@@ -8,14 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "YCDownloadTask.h"
-
-typedef enum : NSUInteger {
-    YCDownloadStatusWaiting,
-    YCDownloadStatusDownloading,
-    YCDownloadStatusPaused,
-    YCDownloadStatusFinished,
-    YCDownloadStatusFailed
-} YCDownloadStatus;
+#import "YCDownloadItem.h"
 
 @interface YCDownloadManager : NSObject
 
@@ -25,7 +18,7 @@ typedef enum : NSUInteger {
  
  @param downloadURLString 下载url
  */
-+ (void)startDownloadWithUrl:(NSString *)downloadURLString videoInfo:(id)videoInfo;
++ (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName thumbImageUrl:(NSString *)imagUrl;
 
 /**
  暂停一个后台下载任务

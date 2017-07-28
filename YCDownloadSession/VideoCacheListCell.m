@@ -43,5 +43,23 @@
     self.coverImgView.layer.masksToBounds = true;
 }
 
+- (void)setItem:(YCDownloadItem *)item {
+    
+    _item = item;
+    self.titleLbl.text = item.fileName;
+    [self.coverImgView sd_setImageWithURL:[NSURL URLWithString:item.thumbImageUrl]];
+    [self changeSizeLblDownloadedSize:item.fileSize totalSize:item.fileSize];
+}
+
+
+- (void)changeSizeLblDownloadedSize:(NSInteger)downloadedSize totalSize:(NSInteger)totalSize {
+    self.sizeLbl.text = [NSString stringWithFormat:@"%zd/%zd",downloadedSize, totalSize];
+}
+
+
+- (void)downloadItem:(YCDownloadItem *)item downloadedSize:(NSInteger)downloadedSize totalSize:(NSInteger)totalSize {
+    self.progressView.progress = (float)downloadedSize / totalSize;
+    [self changeSizeLblDownloadedSize:downloadedSize totalSize:totalSize];
+}
 
 @end

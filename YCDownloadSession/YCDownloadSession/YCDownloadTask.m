@@ -27,14 +27,19 @@
 
 + (NSString *)savePathWithSaveName:(NSString *)saveName {
     
+    NSString *saveDir = [self saveDir];
+    saveDir =  [saveDir stringByAppendingPathComponent:saveName];
+    return saveDir;
+
+}
+
++ (NSString *)saveDir {
     NSString *saveDir = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true).firstObject;
     saveDir = [saveDir stringByAppendingPathComponent:@"YCDownload/video"];
     if (![[NSFileManager defaultManager] fileExistsAtPath:saveDir]) {
         [[NSFileManager defaultManager] createDirectoryAtPath:saveDir withIntermediateDirectories:true attributes:nil error:nil];
     }
-    saveDir =  [saveDir stringByAppendingPathComponent:saveName];
     return saveDir;
-
 }
 
 

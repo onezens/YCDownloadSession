@@ -109,8 +109,8 @@ static YCDownloadSession *_instance;
     YCDownloadTask *item = [self getDownloadItemWithUrl:downloadURLString isDownloadList:false];
     if (item) {
         
-        if ([delegate respondsToSelector:@selector(downloadinished:)]) {
-            [delegate downloadinished:item];
+        if ([delegate respondsToSelector:@selector(downloadFinished:)]) {
+            [delegate downloadFinished:item];
         }
         return;
     }
@@ -123,8 +123,8 @@ static YCDownloadSession *_instance;
     }else{
         if (item.delegate == nil ) item.delegate = delegate;
         if ([self detectDownloadItemIsFinished:item]) {
-            if ([item.delegate respondsToSelector:@selector(downloadinished:)]) {
-                [item.delegate downloadinished:item];
+            if ([item.delegate respondsToSelector:@selector(downloadFinished:)]) {
+                [item.delegate downloadFinished:item];
             }
             [self saveDownloadStatus];
             return;
@@ -199,8 +199,8 @@ static YCDownloadSession *_instance;
     
     if(!item) return;
     if ([self detectDownloadItemIsFinished:item]) {
-        if ([item.delegate respondsToSelector:@selector(downloadinished:)]) {
-            [item.delegate downloadinished:item];
+        if ([item.delegate respondsToSelector:@selector(downloadFinished:)]) {
+            [item.delegate downloadFinished:item];
         }
         [self saveDownloadStatus];
         return;
@@ -340,8 +340,8 @@ didFinishDownloadingToURL:(NSURL *)location {
         [self.downloadedItems setObject:item forKey:item.downloadURL];
         [self.downloadItems removeObjectForKey:item.downloadURL];
     }
-    if ([item.delegate respondsToSelector:@selector(downloadinished:)]) {
-        [item.delegate downloadinished:item];
+    if ([item.delegate respondsToSelector:@selector(downloadFinished:)]) {
+        [item.delegate downloadFinished:item];
     }
     item.resumeData = nil;
 
@@ -365,7 +365,12 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     
     YCDownloadTask *item = [self getDownloadItemWithUrl:[YCDownloadTask getURLFromTask:downloadTask] isDownloadList:true];
     item.downloadedSize = (NSInteger)totalBytesWritten;
-    if (item.fileSize == 0)  [item updateItem];
+    if (item.fileSize == 0)  {
+        [item updateItem];
+        if ([item.delegate respondsToSelector:@selector(downloadCreated:)]) {
+            [item.delegate downloadCreated:item];
+        }
+    }
     if ([item.delegate respondsToSelector:@selector(downloadProgress:totalBytesWritten:totalBytesExpectedToWrite:)]){
         [item.delegate downloadProgress:item totalBytesWritten:totalBytesWritten totalBytesExpectedToWrite:totalBytesExpectedToWrite];
     }

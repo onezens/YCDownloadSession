@@ -14,7 +14,8 @@
 @optional
 - (void)downloadProgress:(YCDownloadTask *)downloadItem totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite;
 - (void)downloadFailed:(YCDownloadTask *)downloadItem;
-- (void)downloadinished:(YCDownloadTask *)downloadItem;
+- (void)downloadFinished:(YCDownloadTask *)downloadItem;
+- (void)downloadCreated:(YCDownloadTask *)downloadItem;
 
 @end
 
@@ -37,6 +38,8 @@
 - (void)updateItem;
 
 + (NSString *)savePathWithSaveName:(NSString *)saveName;
+
++ (NSString *)saveDir;
 
 
 @end
