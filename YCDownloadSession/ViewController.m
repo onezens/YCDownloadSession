@@ -56,16 +56,16 @@
     
 }
 
-- (void)downloadProgress:(YCDownloadItem *)downloadItem totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
+- (void)downloadProgress:(YCDownloadTask *)downloadItem totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     self.progressLbl.text = [NSString stringWithFormat:@"%f",(float)totalBytesWritten / totalBytesExpectedToWrite * 100];
 }
 
-- (void)downloadFailed:(YCDownloadItem *)downloadItem {
+- (void)downloadFailed:(YCDownloadTask *)downloadItem {
     
     self.progressLbl.text = @"download failed!";
 }
 
-- (void)downloadinished:(YCDownloadItem *)downloadItem {
+- (void)downloadinished:(YCDownloadTask *)downloadItem {
     self.progressLbl.text = @"download success!";
 }
 

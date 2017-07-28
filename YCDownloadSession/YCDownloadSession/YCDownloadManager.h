@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "YCDownloadItem.h"
+#import "YCDownloadTask.h"
 
 typedef enum : NSUInteger {
     YCDownloadStatusWaiting,
@@ -17,7 +17,7 @@ typedef enum : NSUInteger {
     YCDownloadStatusFailed
 } YCDownloadStatus;
 
-@interface YCDownloadVideoManager : NSObject
+@interface YCDownloadManager : NSObject
 
 
 /**

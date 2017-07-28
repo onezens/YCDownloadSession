@@ -6,14 +6,14 @@
 //  Copyright © 2017年 onezen.cc. All rights reserved.
 //
 
-#import "YCDownloadVideoManager.h"
+#import "YCDownloadManager.h"
 #import "YCDownloadSession.h"
 
-@interface YCDownloadVideoManager ()
+@interface YCDownloadManager ()
 
 @end
 
-@implementation YCDownloadVideoManager
+@implementation YCDownloadManager
 
 
 /**
@@ -69,7 +69,7 @@
 + (NSArray *)downloadList {
     NSMutableArray *arrM = [NSMutableArray array];
 //    NSDictionary *downloadListDict = [[YCDownloadSession downloadSession] downloadItems];
-//    for (YCDownloadItem *item in downloadListDict) {
+//    for (YCDownloadTask *item in downloadListDict) {
 //        [arrM addObject:item];
 //    }
     return arrM;
@@ -77,7 +77,7 @@
 + (NSArray *)finishList {
     NSMutableArray *arrM = [NSMutableArray array];
 //    NSDictionary *downloadListDict = [[YCDownloadSession downloadSession] downloadedItems];
-//    for (YCDownloadItem *item in downloadListDict) {
+//    for (YCDownloadTask *item in downloadListDict) {
 //        [arrM addObject:item];
 //    }
     return arrM;
@@ -86,10 +86,10 @@
     NSUInteger size = 0;
     NSArray *downloadList = [self downloadList];
     NSArray *finishList = [self finishList];
-    for (YCDownloadItem *item in downloadList) {
+    for (YCDownloadTask *item in downloadList) {
         size += item.downloadedSize;
     }
-    for (YCDownloadItem *item in finishList) {
+    for (YCDownloadTask *item in finishList) {
         size += item.fileSize;
     }
     return size;

@@ -7,11 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "YCDownloadItem.h"
+#import "YCDownloadTask.h"
 
 @interface VideoCacheListCell : UITableViewCell
 
-@property (nonatomic, strong) YCDownloadItem *item;
+@property (nonatomic, strong) YCDownloadTask *item;
 
 +(instancetype)videoCacheListCellWithTableView:(UITableView *)tableView;
 

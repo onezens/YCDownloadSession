@@ -14,9 +14,11 @@
 		D72C84E01E77D42500EDCEEF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D72C84DF1E77D42500EDCEEF /* Assets.xcassets */; };
 		D72C84E31E77D42500EDCEEF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D72C84E11E77D42500EDCEEF /* LaunchScreen.storyboard */; };
 		D72C84ED1E77D47200EDCEEF /* YCDownloadSession.m in Sources */ = {isa = PBXBuildFile; fileRef = D72C84EC1E77D47200EDCEEF /* YCDownloadSession.m */; };
+		D750A1431F2ADEDC00EC6796 /* YCDownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D750A1421F2ADEDC00EC6796 /* YCDownloadManager.m */; };
+		D750A1461F2AE2FC00EC6796 /* YCDownloadItem.m in Sources */ = {isa = PBXBuildFile; fileRef = D750A1451F2AE2FC00EC6796 /* YCDownloadItem.m */; };
 		D75627FE1EE799F200A031FE /* video.json in Resources */ = {isa = PBXBuildFile; fileRef = D75627FD1EE799F200A031FE /* video.json */; };
 		D75628011EE79F9300A031FE /* NSURLSession+CorrectedResumeData.m in Sources */ = {isa = PBXBuildFile; fileRef = D75628001EE79F9300A031FE /* NSURLSession+CorrectedResumeData.m */; };
-		D775A4021E791C9E00117D97 /* YCDownloadItem.m in Sources */ = {isa = PBXBuildFile; fileRef = D775A4011E791C9E00117D97 /* YCDownloadItem.m */; };
+		D775A4021E791C9E00117D97 /* YCDownloadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = D775A4011E791C9E00117D97 /* YCDownloadTask.m */; };
 		D78946771E83754100284B35 /* VideoListInfoCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = D78946761E83754100284B35 /* VideoListInfoCell.xib */; };
 		D789467A1E83777000284B35 /* VideoListInfoCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D78946791E83777000284B35 /* VideoListInfoCell.m */; };
 		D789467D1E83783C00284B35 /* VideoListInfoController.m in Sources */ = {isa = PBXBuildFile; fileRef = D789467C1E83783C00284B35 /* VideoListInfoController.m */; };
@@ -40,7 +42,6 @@
 		D78946CA1E83A66000284B35 /* VideoCacheController.m in Sources */ = {isa = PBXBuildFile; fileRef = D78946C91E83A66000284B35 /* VideoCacheController.m */; };
 		D78946CD1E83A68700284B35 /* VideoCacheListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D78946CC1E83A68700284B35 /* VideoCacheListCell.m */; };
 		D78946CF1E83A69700284B35 /* VideoCacheListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = D78946CE1E83A69700284B35 /* VideoCacheListCell.xib */; };
-		D79F745A1E8519D600ED87C9 /* YCDownloadVideoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D79F74591E8519D600ED87C9 /* YCDownloadVideoManager.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -56,11 +57,15 @@
 		D72C84E41E77D42500EDCEEF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D72C84EB1E77D47200EDCEEF /* YCDownloadSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YCDownloadSession.h; sourceTree = "<group>"; };
 		D72C84EC1E77D47200EDCEEF /* YCDownloadSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YCDownloadSession.m; sourceTree = "<group>"; };
+		D750A1411F2ADEDC00EC6796 /* YCDownloadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YCDownloadManager.h; path = YCDownloadSession/YCDownloadSession/YCDownloadManager.h; sourceTree = SOURCE_ROOT; };
+		D750A1421F2ADEDC00EC6796 /* YCDownloadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YCDownloadManager.m; path = YCDownloadSession/YCDownloadSession/YCDownloadManager.m; sourceTree = SOURCE_ROOT; };
+		D750A1441F2AE2FC00EC6796 /* YCDownloadItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YCDownloadItem.h; sourceTree = "<group>"; };
+		D750A1451F2AE2FC00EC6796 /* YCDownloadItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YCDownloadItem.m; sourceTree = "<group>"; };
 		D75627FD1EE799F200A031FE /* video.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = video.json; sourceTree = "<group>"; };
 		D75627FF1EE79F9300A031FE /* NSURLSession+CorrectedResumeData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURLSession+CorrectedResumeData.h"; sourceTree = "<group>"; };
 		D75628001EE79F9300A031FE /* NSURLSession+CorrectedResumeData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURLSession+CorrectedResumeData.m"; sourceTree = "<group>"; };
-		D775A4001E791C9E00117D97 /* YCDownloadItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YCDownloadItem.h; sourceTree = "<group>"; };
-		D775A4011E791C9E00117D97 /* YCDownloadItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YCDownloadItem.m; sourceTree = "<group>"; };
+		D775A4001E791C9E00117D97 /* YCDownloadTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YCDownloadTask.h; sourceTree = "<group>"; };
+		D775A4011E791C9E00117D97 /* YCDownloadTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YCDownloadTask.m; sourceTree = "<group>"; };
 		D78946761E83754100284B35 /* VideoListInfoCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = VideoListInfoCell.xib; sourceTree = "<group>"; };
 		D78946781E83777000284B35 /* VideoListInfoCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoListInfoCell.h; sourceTree = "<group>"; };
 		D78946791E83777000284B35 /* VideoListInfoCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoListInfoCell.m; sourceTree = "<group>"; };
@@ -106,8 +111,6 @@
 		D78946CB1E83A68700284B35 /* VideoCacheListCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoCacheListCell.h; sourceTree = "<group>"; };
 		D78946CC1E83A68700284B35 /* VideoCacheListCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoCacheListCell.m; sourceTree = "<group>"; };
 		D78946CE1E83A69700284B35 /* VideoCacheListCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = VideoCacheListCell.xib; sourceTree = "<group>"; };
-		D79F74581E8519D600ED87C9 /* YCDownloadVideoManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YCDownloadVideoManager.h; path = ../YCDownloadSession/YCDownloadVideoManager.h; sourceTree = "<group>"; };
-		D79F74591E8519D600ED87C9 /* YCDownloadVideoManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YCDownloadVideoManager.m; path = ../YCDownloadSession/YCDownloadVideoManager.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -142,7 +145,6 @@
 			children = (
 				D789467E1E837BEF00284B35 /* ThirdLib */,
 				D72C84EA1E77D46100EDCEEF /* YCDownloadSession */,
-				D7ED1B921F2997F70010EBF2 /* YCDownloadVideoManager */,
 				D72C84D61E77D42500EDCEEF /* AppDelegate.h */,
 				D72C84D71E77D42500EDCEEF /* AppDelegate.m */,
 				D72C84D91E77D42500EDCEEF /* ViewController.h */,
@@ -182,10 +184,14 @@
 			children = (
 				D72C84EB1E77D47200EDCEEF /* YCDownloadSession.h */,
 				D72C84EC1E77D47200EDCEEF /* YCDownloadSession.m */,
-				D775A4001E791C9E00117D97 /* YCDownloadItem.h */,
-				D775A4011E791C9E00117D97 /* YCDownloadItem.m */,
+				D775A4001E791C9E00117D97 /* YCDownloadTask.h */,
+				D775A4011E791C9E00117D97 /* YCDownloadTask.m */,
 				D75627FF1EE79F9300A031FE /* NSURLSession+CorrectedResumeData.h */,
 				D75628001EE79F9300A031FE /* NSURLSession+CorrectedResumeData.m */,
+				D750A1411F2ADEDC00EC6796 /* YCDownloadManager.h */,
+				D750A1421F2ADEDC00EC6796 /* YCDownloadManager.m */,
+				D750A1441F2AE2FC00EC6796 /* YCDownloadItem.h */,
+				D750A1451F2AE2FC00EC6796 /* YCDownloadItem.m */,
 			);
 			path = YCDownloadSession;
 			sourceTree = "<group>";
@@ -236,15 +242,6 @@
 				D78946B71E83A4B700284B35 /* UIView+WebCacheOperation.m */,
 			);
 			path = SDWebImage;
-			sourceTree = "<group>";
-		};
-		D7ED1B921F2997F70010EBF2 /* YCDownloadVideoManager */ = {
-			isa = PBXGroup;
-			children = (
-				D79F74581E8519D600ED87C9 /* YCDownloadVideoManager.h */,
-				D79F74591E8519D600ED87C9 /* YCDownloadVideoManager.m */,
-			);
-			path = YCDownloadVideoManager;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -326,15 +323,15 @@
 				D78946C41E83A4B700284B35 /* UIImage+WebP.m in Sources */,
 				D72C84DB1E77D42500EDCEEF /* ViewController.m in Sources */,
 				D78946BF1E83A4B700284B35 /* SDWebImageManager.m in Sources */,
-				D79F745A1E8519D600ED87C9 /* YCDownloadVideoManager.m in Sources */,
 				D75628011EE79F9300A031FE /* NSURLSession+CorrectedResumeData.m in Sources */,
 				D789467D1E83783C00284B35 /* VideoListInfoController.m in Sources */,
 				D72C84D81E77D42500EDCEEF /* AppDelegate.m in Sources */,
 				D78946BD1E83A4B700284B35 /* SDWebImageDownloader.m in Sources */,
 				D72C84ED1E77D47200EDCEEF /* YCDownloadSession.m in Sources */,
 				D72C84D51E77D42500EDCEEF /* main.m in Sources */,
+				D750A1461F2AE2FC00EC6796 /* YCDownloadItem.m in Sources */,
 				D78946B81E83A4B700284B35 /* MKAnnotationView+WebCache.m in Sources */,
-				D775A4021E791C9E00117D97 /* YCDownloadItem.m in Sources */,
+				D775A4021E791C9E00117D97 /* YCDownloadTask.m in Sources */,
 				D78946B91E83A4B700284B35 /* NSData+ImageContentType.m in Sources */,
 				D78946C21E83A4B700284B35 /* UIImage+GIF.m in Sources */,
 				D78946C11E83A4B700284B35 /* UIButton+WebCache.m in Sources */,
@@ -344,6 +341,7 @@
 				D78946BC1E83A4B700284B35 /* SDWebImageDecoder.m in Sources */,
 				D78946BA1E83A4B700284B35 /* SDImageCache.m in Sources */,
 				D78946CD1E83A68700284B35 /* VideoCacheListCell.m in Sources */,
+				D750A1431F2ADEDC00EC6796 /* YCDownloadManager.m in Sources */,
 				D78946BB1E83A4B700284B35 /* SDWebImageCompat.m in Sources */,
 				D78946C71E83A4B700284B35 /* UIView+WebCacheOperation.m in Sources */,
 				D789467A1E83777000284B35 /* VideoListInfoCell.m in Sources */,

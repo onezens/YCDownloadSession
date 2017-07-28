@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "YCDownloadItem.h"
+#import "YCDownloadTask.h"
 
 @class YCDownloadSession;
 
