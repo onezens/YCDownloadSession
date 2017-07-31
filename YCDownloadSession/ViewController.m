@@ -45,7 +45,9 @@
     [pauseBtn addTarget:self action:@selector(pause) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:pauseBtn];
 
-    self.downloadURL = @"http://src.onezen.cc/123.mov";
+    // http://src.onezen.cc/123.mov
+    // http://flv2.bn.netease.com/videolib3/1706/07/gDNOH8458/SD/gDNOH8458-mobile.mp4
+    self.downloadURL = @"https://flv2.bn.netease.com/videolib3/1706/07/gDNOH8458/SD/gDNOH8458-mobile.mp4";
     
     UILabel *lbl = [[UILabel alloc] init];
     lbl.text = @"0%";

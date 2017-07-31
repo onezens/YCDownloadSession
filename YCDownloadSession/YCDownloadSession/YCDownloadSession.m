@@ -118,7 +118,7 @@ static YCDownloadSession *_instance;
     item = [self getDownloadItemWithUrl:downloadURLString isDownloadList:true];
     
     if (!item) {
-        [self pauseAllDownloadTask];
+//        [self pauseAllDownloadTask];
         [self createDownloadTaskWithUrl:downloadURLString delegate:delegate];
     }else{
         if (item.delegate == nil ) item.delegate = delegate;
@@ -226,9 +226,8 @@ static YCDownloadSession *_instance;
         item.resumeData = nil; //这句代码不能省略，否则在点击继续活着开始的时候会重复下载任务
         
     }else{
-        
-        if (!item.downloadTask) { //没有下载任务，那么重新创建下载任务
-            NSString *url = item.downloadURL;
+        //没有下载任务，那么重新创建下载任务；  部分下载暂停异常 NSURLSessionTaskStateCompleted ，但并没有完成，所以重新下载
+        if (!item.downloadTask || item.downloadTask.state == NSURLSessionTaskStateCompleted) {             NSString *url = item.downloadURL;
             if (url.length ==0) return;
             [self.downloadItems removeObjectForKey:url];
             [self createDownloadTaskWithUrl:url delegate:item.delegate];
@@ -376,7 +375,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     }
     
     NSString *url = downloadTask.response.URL.absoluteString;
-    NSLog(@"downloadURL: %@  downloadedSize: %zd totalSize: %zd  progress: %f", url, bytesWritten, totalBytesWritten, (float)totalBytesWritten / totalBytesExpectedToWrite);
+//    NSLog(@"downloadURL: %@  downloadedSize: %zd totalSize: %zd  progress: %f", url, bytesWritten, totalBytesWritten, (float)totalBytesWritten / totalBytesExpectedToWrite);
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task

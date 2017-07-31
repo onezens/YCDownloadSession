@@ -28,10 +28,22 @@ typedef void(^CompletionHandlerType)();
     // Override point for customization after application launch.
     NSLog(@"%@", NSHomeDirectory());
     
+    
+    
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-    VideoListInfoController *listVc = [[VideoListInfoController alloc] init];
-    UINavigationController *rootNav = [[UINavigationController alloc] initWithRootViewController:listVc];
-    self.window.rootViewController = rootNav;
+    
+    UIViewController *rootVc = nil;
+    
+    if (0) {
+        UIStoryboard *sb = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+        rootVc = [sb instantiateInitialViewController];
+    }else{
+        VideoListInfoController *listVc = [[VideoListInfoController alloc] init];
+        rootVc = [[UINavigationController alloc] initWithRootViewController:listVc];
+    }
+    
+
+    self.window.rootViewController = rootVc;
     [self.window makeKeyAndVisible];
     
     [YCDownloadSession downloadSession];
