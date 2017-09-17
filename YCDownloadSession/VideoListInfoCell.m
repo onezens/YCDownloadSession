@@ -2,7 +2,7 @@
 //  VideoListInfoCell.m
 //  YCDownloadSession
 //
-//  Created by wangzhen on 17/3/23.
+//  Created by wz on 17/3/23.
 //  Copyright © 2017年 onezen.cc. All rights reserved.
 //
 

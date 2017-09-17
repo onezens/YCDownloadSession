@@ -2,7 +2,7 @@
 //  YCDownloadTask.h
 //  YCDownloadSession
 //
-//  Created by wangzhen on 17/3/15.
+//  Created by wz on 17/3/15.
 //  Copyright © 2017年 onezen.cc. All rights reserved.
 //
 

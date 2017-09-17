@@ -2,7 +2,7 @@
 //  YCDownloadSession.m
 //  YCDownloadSession
 //
-//  Created by wangzhen on 17/3/14.
+//  Created by wz on 17/3/14.
 //  Copyright © 2017年 onezen.cc. All rights reserved.
 //
 
@@ -405,24 +405,22 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
 didCompleteWithError:(NSError *)error {
     
     if (error) {
-        @try {
-            // check if resume data are available
-            NSData *resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
-            YCDownloadTask *item = [self getDownloadItemWithUrl:[YCDownloadTask getURLFromTask:task] isDownloadList:true];
-            if (resumeData) {
-                //通过之前保存的resumeData，获取断点的NSURLSessionTask，调用resume恢复下载
-                item.resumeData = resumeData;
-                //id obj = [NSPropertyListSerialization propertyListWithData:resumeData options:0 format:0 error:nil];
-                //NSString *str = [[NSString alloc] initWithData:resumeData encoding:NSUTF8StringEncoding];
-                NSLog(@"error ----->   %@     --->%zd", item.downloadURL, resumeData.length);
-                
-            }else{
-                NSLog(@"%@", error);
-                if ([item.delegate respondsToSelector:@selector(downloadFailed:)]) {
-                    [item.delegate downloadFailed:item];
-                }
+        // check if resume data are available
+        NSData *resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
+        YCDownloadTask *item = [self getDownloadItemWithUrl:[YCDownloadTask getURLFromTask:task] isDownloadList:true];
+        if (resumeData) {
+            //通过之前保存的resumeData，获取断点的NSURLSessionTask，调用resume恢复下载
+            item.resumeData = resumeData;
+            //id obj = [NSPropertyListSerialization propertyListWithData:resumeData options:0 format:0 error:nil];
+            //NSString *str = [[NSString alloc] initWithData:resumeData encoding:NSUTF8StringEncoding];
+            NSLog(@"error ----->   %@     --->%zd", item.downloadURL, resumeData.length);
+            
+        }else{
+            NSLog(@"%@", error);
+            if ([item.delegate respondsToSelector:@selector(downloadFailed:)]) {
+                [item.delegate downloadFailed:item];
             }
-        } @catch (NSException *exception) {}
+        }
     }
 }
 
