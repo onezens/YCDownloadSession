@@ -14,6 +14,7 @@
 
 #pragma mark - YCDownloadSessionDelegate
 - (void)downloadProgress:(YCDownloadTask *)downloadItem totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
+    self.downloadedSize = totalBytesWritten;
     if ([self.delegate respondsToSelector:@selector(downloadItem:downloadedSize:totalSize:)]) {
         [self.delegate downloadItem:self downloadedSize:totalBytesWritten totalSize:totalBytesExpectedToWrite];
     }

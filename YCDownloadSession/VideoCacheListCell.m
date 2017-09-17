@@ -49,7 +49,7 @@
     _item = item;
     self.titleLbl.text = item.fileName;
     [self.coverImgView sd_setImageWithURL:[NSURL URLWithString:item.thumbImageUrl]];
-    [self changeSizeLblDownloadedSize:item.fileSize totalSize:item.fileSize];
+    [self changeSizeLblDownloadedSize:item.downloadedSize totalSize:item.fileSize];
     [self setDownloadStatus:item.downloadStatus];
 }
 
@@ -81,7 +81,10 @@
 
 
 - (void)changeSizeLblDownloadedSize:(int64_t)downloadedSize totalSize:(int64_t)totalSize {
+
     self.sizeLbl.text = [NSString stringWithFormat:@"%@ / %@",[YCDownloadManager fileSizeStringFromBytes:downloadedSize], [YCDownloadManager fileSizeStringFromBytes:totalSize]];
+    
+    self.progressView.progress = (float)downloadedSize / totalSize;
 }
 
 - (void)downloadItemStatusChanged:(YCDownloadItem *)item {
@@ -89,7 +92,7 @@
 }
 
 - (void)downloadItem:(YCDownloadItem *)item downloadedSize:(int64_t)downloadedSize totalSize:(int64_t)totalSize {
-    self.progressView.progress = (float)downloadedSize / totalSize;
+    
     [self changeSizeLblDownloadedSize:downloadedSize totalSize:totalSize];
 }
 
