@@ -70,6 +70,7 @@
     VideoListInfoModel *model = self.videoListArr[indexPath.row];
     [cell setVideoModel:model];
     cell.delegate = self;
+    cell.isDownload = [YCDownloadManager isDownloadWithUrl:model.mp4_url];
     return cell;
 }
 

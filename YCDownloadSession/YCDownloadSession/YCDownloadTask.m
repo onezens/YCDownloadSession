@@ -7,7 +7,6 @@
 //
 
 #import "YCDownloadTask.h"
-#import "YCDownloadSession.h"
 #import <objc/runtime.h>
 #import <CommonCrypto/CommonDigest.h>
 
@@ -19,7 +18,7 @@
 - (void)updateTask {
     
     _fileSize = (NSInteger)[_downloadTask.response expectedContentLength];
-    [[YCDownloadSession downloadSession] saveDownloadStatus];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kYCDownloadSessionSaveDownloadStatus object:nil];
 }
 
 #pragma mark - getter

@@ -28,7 +28,7 @@
  
  @param downloadURLString 下载url
  */
-- (void)startDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadSessionDelegate>)delegate;
+- (void)startDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadTaskDelegate>)delegate;
 
 /**
  暂停一个后台下载任务
@@ -42,7 +42,7 @@
  
  @param downloadURLString 下载url
  */
-- (void)resumeDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadSessionDelegate>)delegate;
+- (void)resumeDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadTaskDelegate>)delegate;
 
 /**
  删除一个后台下载任务，同时会删除当前任务下载的缓存数据
@@ -51,11 +51,6 @@
  */
 - (void)stopDownloadWithUrl:(NSString *)downloadURLString;
 
-
-/**
- 保存下载进度
- */
-- (void)saveDownloadStatus;
 
 /**
  暂停所有的下载

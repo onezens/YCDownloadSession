@@ -18,6 +18,7 @@
 
 @interface VideoListInfoCell : UITableViewCell
 @property (nonatomic, strong) VideoListInfoModel *videoModel;
+@property (nonatomic, assign) BOOL isDownload;
 @property (nonatomic, weak) id <VideoListInfoCellDelegate> delegate;
 + (instancetype)videoListInfoCellWithTableView:(UITableView *)tableView;
 + (CGFloat)rowHeight;

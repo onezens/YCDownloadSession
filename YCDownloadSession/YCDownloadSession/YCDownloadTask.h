@@ -8,14 +8,17 @@
 
 #import <Foundation/Foundation.h>
 
+static NSString * const kYCDownloadSessionSaveDownloadStatus = @"kYCDownloadSessionSaveDownloadStatus";
+
 @class YCDownloadTask;
-@protocol YCDownloadSessionDelegate <NSObject>
+@protocol YCDownloadTaskDelegate <NSObject>
 
 @optional
 - (void)downloadProgress:(YCDownloadTask *)task totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite;
 - (void)downloadFailed:(YCDownloadTask *)task;
 - (void)downloadFinished:(YCDownloadTask *)task;
 - (void)downloadCreated:(YCDownloadTask *)task;
+- (void)downloadPaused:(YCDownloadTask *)task;
 
 @end
 
@@ -27,7 +30,7 @@
 @property (nonatomic, assign) NSInteger downloadedSize;
 @property (nonatomic, copy, readonly) NSString *saveName;
 @property (nonatomic, copy) NSString *tempPath;
-@property (nonatomic, weak) id <YCDownloadSessionDelegate>delegate;
+@property (nonatomic, weak) id <YCDownloadTaskDelegate>delegate;
 
 @property (nonatomic, assign, readonly) NSInteger fileSize;
 

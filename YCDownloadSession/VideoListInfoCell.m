@@ -52,6 +52,16 @@
     [self.coverImgView sd_setImageWithURL:[NSURL URLWithString:videoModel.cover]];
 }
 
+- (void)setIsDownload:(BOOL)isDownload {
+    
+    _isDownload = isDownload;
+    if (isDownload) {
+        [self.downloadBtn setTitle:@"已下载" forState:UIControlStateNormal];
+    }else{
+        [self.downloadBtn setTitle:@"下载" forState:UIControlStateNormal];
+    }
+}
+
 
 - (IBAction)downloadBtnClick:(id)sender {
     if ([self.delegate respondsToSelector:@selector(videoListCell:downloadVideo:)]) {

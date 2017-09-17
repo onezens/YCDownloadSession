@@ -9,7 +9,7 @@
 #import "DownloadViewController.h"
 #import "YCDownloadSession.h"
 
-@interface DownloadViewController ()<YCDownloadSessionDelegate>
+@interface DownloadViewController ()<YCDownloadTaskDelegate>
 
 @property (nonatomic, copy) NSString *downloadURL;
 @property (nonatomic, weak) UILabel *progressLbl;

@@ -11,7 +11,6 @@
 
 @implementation YCDownloadItem
 
-
 #pragma mark - YCDownloadSessionDelegate
 - (void)downloadProgress:(YCDownloadTask *)task totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     self.downloadedSize = totalBytesWritten;
@@ -21,9 +20,11 @@
 }
 - (void)downloadFailed:(YCDownloadTask *)task {
     self.downloadStatus = YCDownloadStatusFailed;
+    [self saveDownloadStatusNoti];
 }
 - (void)downloadFinished:(YCDownloadTask *)task {
     self.downloadStatus = YCDownloadStatusFinished;
+    [self saveDownloadStatusNoti];
 }
 - (void)downloadCreated:(YCDownloadTask *)task {
     self.downloadStatus = YCDownloadStatusDownloading;
@@ -31,7 +32,11 @@
         self.fileSize = task.fileSize;
     }
     _saveName = task.saveName;
+    [self saveDownloadStatusNoti];
+}
 
+- (void)downloadPaused:(YCDownloadTask *)task {
+    [self saveDownloadStatusNoti];
 }
 
 
@@ -50,6 +55,12 @@
 
 
 #pragma mark - private
+
+- (void)saveDownloadStatusNoti {
+    [[NSNotificationCenter defaultCenter] postNotificationName:kYCDownloadSessionSaveDownloadStatus object:nil];
+}
+
+
 ///  解档
 - (instancetype)initWithCoder:(NSCoder *)coder
 {

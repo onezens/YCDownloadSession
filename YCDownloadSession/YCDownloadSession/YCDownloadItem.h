@@ -26,7 +26,7 @@ typedef enum : NSUInteger {
 
 @end
 
-@interface YCDownloadItem : NSObject<YCDownloadSessionDelegate>
+@interface YCDownloadItem : NSObject<YCDownloadTaskDelegate>
 
 @property (nonatomic, copy) NSString *fileName;
 @property (nonatomic, copy) NSString *thumbImageUrl;

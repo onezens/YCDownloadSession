@@ -7,10 +7,10 @@
 //
 
 #import "YCDownloadSession.h"
-
 #import "NSURLSession+CorrectedResumeData.h"
 
 #define IS_IOS10ORLATER ([[[UIDevice currentDevice] systemVersion] floatValue] >= 10)
+static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 
 @interface YCDownloadSession ()<NSURLSessionDownloadDelegate>
 
@@ -62,8 +62,8 @@ static YCDownloadSession *_instance;
             }
         }];
         
-        BOOL wifiOnly = [[NSUserDefaults standardUserDefaults] boolForKey:@"WifiOnly"];
-        [self changeStatusIsAllowCellar:wifiOnly];
+        BOOL isAllowCellar = [[NSUserDefaults standardUserDefaults] boolForKey:kIsAllowCellar];
+        [self changeStatusIsAllowCellar:isAllowCellar];
         
         NSLog(@"%@", dictM);
     }
@@ -103,7 +103,7 @@ static YCDownloadSession *_instance;
 
 
 
-- (void)startDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadSessionDelegate>)delegate{
+- (void)startDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadTaskDelegate>)delegate{
     if (downloadURLString.length == 0)  return;
     
     YCDownloadTask *task = [self getDownloadTaskWithUrl:downloadURLString isDownloadList:false];
@@ -118,7 +118,6 @@ static YCDownloadSession *_instance;
     task = [self getDownloadTaskWithUrl:downloadURLString isDownloadList:true];
     
     if (!task) {
-//        [self pauseAllDownloadTask];
         [self createDownloadTaskWithUrl:downloadURLString delegate:delegate];
     }else{
         if (task.delegate == nil ) task.delegate = delegate;
@@ -143,7 +142,7 @@ static YCDownloadSession *_instance;
     
 }
 
-- (void)createDownloadTaskWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadSessionDelegate>)delegate{
+- (void)createDownloadTaskWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadTaskDelegate>)delegate{
     NSURL *downloadURL = [NSURL URLWithString:downloadURLString];
     NSURLRequest *request = [NSURLRequest requestWithURL:downloadURL];
     NSURLSessionDownloadTask *downloadTask = [self.downloadSession downloadTaskWithRequest:request];
@@ -156,11 +155,22 @@ static YCDownloadSession *_instance;
     [self saveDownloadStatus];
 }
 
+
+
+- (void)resumeDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadTaskDelegate>)delegate{
+    YCDownloadTask *task = [self getDownloadTaskWithUrl:downloadURLString isDownloadList:true];
+    if(delegate) task.delegate = delegate;
+    [self resumeDownloadTask: task];
+}
+
 - (void)pauseDownloadTask:(YCDownloadTask *)task {
     [task.downloadTask cancelByProducingResumeData:^(NSData * resumeData) {
         if(resumeData.length>0) task.resumeData = resumeData;
         [self saveDownloadStatus];
         NSLog(@"pause ----->   %@     --->%zd", task.downloadURL, resumeData.length);
+        if ([task.delegate respondsToSelector:@selector(downloadPaused:)]) {
+            [task.delegate downloadPaused:task];
+        }
     }];
 }
 
@@ -168,12 +178,6 @@ static YCDownloadSession *_instance;
     [self pauseDownloadTask:[self getDownloadTaskWithUrl:downloadURLString isDownloadList:true]];
     
 }
-- (void)resumeDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadSessionDelegate>)delegate{
-    YCDownloadTask *task = [self getDownloadTaskWithUrl:downloadURLString isDownloadList:true];
-    if(delegate) task.delegate = delegate;
-    [self resumeDownloadTask: task];
-}
-
 
 - (void)pauseAllDownloadTask{
     [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
@@ -340,13 +344,11 @@ didFinishDownloadingToURL:(NSURL *)location {
         [self.downloadedTasks setObject:task forKey:task.downloadURL];
         [self.downloadTasks removeObjectForKey:task.downloadURL];
     }
+    task.resumeData = nil;
+    [self saveDownloadStatus];
     if ([task.delegate respondsToSelector:@selector(downloadFinished:)]) {
         [task.delegate downloadFinished:task];
     }
-    task.resumeData = nil;
-
-    [self saveDownloadStatus];
-    
 }
 
 - (void)URLSession:(NSURLSession *)session

@@ -9,6 +9,9 @@
 #import "YCDownloadManager.h"
 #import "YCDownloadSession.h"
 
+#define kCommonUtilsGigabyte (1024 * 1024 * 1024)
+#define kCommonUtilsMegabyte (1024 * 1024)
+#define kCommonUtilsKilobyte 1024
 
 @interface YCDownloadManager ()
 
@@ -34,6 +37,7 @@ static id _instance;
     if (self = [super init]) {
         [self getDownloadItems];
         if(!self.itemsDictM) self.itemsDictM = [NSMutableDictionary dictionary];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(saveDownloadItems) name:kYCDownloadSessionSaveDownloadStatus object:nil];
     }
     return self;
 }
@@ -43,7 +47,18 @@ static id _instance;
 }
 
 - (void)getDownloadItems {
-    self.itemsDictM = [NSKeyedUnarchiver unarchiveObjectWithFile:[self downloadItemSavePath]];
+    NSMutableDictionary *items = [NSKeyedUnarchiver unarchiveObjectWithFile:[self downloadItemSavePath]];;
+    
+    //app闪退或者手动杀死app，会继续下载。APP再次启动默认暂停所有下载
+    [items enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        YCDownloadItem *item = obj;
+        if (item.downloadStatus == YCDownloadStatusDownloading) {
+            item.downloadStatus = YCDownloadStatusPaused;
+        }
+    }];
+    
+    self.itemsDictM = items;
+    
 }
 
 - (NSString *)downloadItemSavePath {
@@ -110,6 +125,21 @@ static id _instance;
     return [[YCDownloadManager manager] finishList];
 }
 
+
++ (BOOL)isDownloadWithUrl:(NSString *)downloadURLString {
+    
+    return [[self manager] isDownloadWithUrl:downloadURLString];
+}
+
++ (YCDownloadStatus)downloasStatusWithUrl:(NSString *)downloadURLString {
+    return [[self manager] downloasStatusWithUrl:downloadURLString];
+}
+
++ (YCDownloadItem *)downloadItemWithUrl:(NSString *)downloadURLString {
+    return [[self manager] downloadItemWithUrl:downloadURLString];
+}
+
+
 + (NSUInteger)videoCacheSize {
     NSUInteger size = 0;
     NSArray *downloadList = [self downloadList];
@@ -151,7 +181,8 @@ static id _instance;
     }
     return [NSString stringWithFormat:@"%zdB", byteSize];
 }
-// output the string with max %.2f string, if the 0 got
+
+
 + (NSString *)numberStringFromDouble:(const double)num {
     NSInteger section = round((num - (NSInteger)num) * 100);
     if (section % 10) {
@@ -233,7 +264,21 @@ static id _instance;
 }
 
 
+- (BOOL)isDownloadWithUrl:(NSString *)downloadURLString {
+    
+    YCDownloadItem *item = [self.itemsDictM valueForKey:downloadURLString];
+    return item.downloadStatus == YCDownloadStatusFinished;
+}
 
+- (YCDownloadStatus)downloasStatusWithUrl:(NSString *)downloadURLString {
+    YCDownloadItem *item = [self.itemsDictM valueForKey:downloadURLString];
+    return item.downloadStatus;
+}
+
+- (YCDownloadItem *)downloadItemWithUrl:(NSString *)downloadURLString {
+    YCDownloadItem *item = [self.itemsDictM valueForKey:downloadURLString];
+    return item;
+}
 
 
 @end
