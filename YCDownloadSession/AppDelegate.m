@@ -8,7 +8,7 @@
 
 #import "AppDelegate.h"
 #import "YCDownloadSession.h"
-#import "VideoListInfoController.h"
+#import "MainTableViewController.h"
 
 typedef void(^CompletionHandlerType)();
 
@@ -28,26 +28,15 @@ typedef void(^CompletionHandlerType)();
     // Override point for customization after application launch.
     NSLog(@"%@", NSHomeDirectory());
     
-    
-    
+    //root vc
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-    
-    UIViewController *rootVc = nil;
-    
-    if (/* DISABLES CODE */ (0)) {
-        UIStoryboard *sb = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
-        rootVc = [sb instantiateInitialViewController];
-    }else{
-        VideoListInfoController *listVc = [[VideoListInfoController alloc] init];
-        rootVc = [[UINavigationController alloc] initWithRootViewController:listVc];
-    }
-    
-
+    MainTableViewController *vc = [[MainTableViewController alloc] init];
+    UIViewController *rootVc = [[UINavigationController alloc] initWithRootViewController:vc];
     self.window.rootViewController = rootVc;
     [self.window makeKeyAndVisible];
-    
+
+    //init downloader
     [YCDownloadSession downloadSession];
-    
     
     return YES;
 }

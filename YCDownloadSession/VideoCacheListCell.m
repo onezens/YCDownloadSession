@@ -81,10 +81,18 @@
 
 
 - (void)changeSizeLblDownloadedSize:(int64_t)downloadedSize totalSize:(int64_t)totalSize {
+    
+    if (totalSize == 0) {
+        NSLog(@"break");
+    }
 
     self.sizeLbl.text = [NSString stringWithFormat:@"%@ / %@",[YCDownloadManager fileSizeStringFromBytes:downloadedSize], [YCDownloadManager fileSizeStringFromBytes:totalSize]];
     
-    self.progressView.progress = (float)downloadedSize / totalSize;
+    float progress = 0;
+    if (totalSize != 0) {
+        progress = (float)downloadedSize / totalSize;
+    }
+    self.progressView.progress = progress;
 }
 
 - (void)downloadItemStatusChanged:(YCDownloadItem *)item {

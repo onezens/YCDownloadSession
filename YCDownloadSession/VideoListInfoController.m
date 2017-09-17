@@ -22,7 +22,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.title = @"网易视频";
+    self.title = @"视频列表";
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self getVideoList];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"缓存" style:UIBarButtonItemStylePlain target:self action:@selector(goCache)];

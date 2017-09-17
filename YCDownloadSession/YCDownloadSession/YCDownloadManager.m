@@ -114,11 +114,11 @@ static id _instance;
     NSUInteger size = 0;
     NSArray *downloadList = [self downloadList];
     NSArray *finishList = [self finishList];
-    for (YCDownloadTask *item in downloadList) {
-        size += item.downloadedSize;
+    for (YCDownloadTask *task in downloadList) {
+        size += task.downloadedSize;
     }
-    for (YCDownloadTask *item in finishList) {
-        size += item.fileSize;
+    for (YCDownloadTask *task in finishList) {
+        size += task.fileSize;
     }
     return size;
     

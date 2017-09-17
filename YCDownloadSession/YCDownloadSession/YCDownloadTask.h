@@ -12,10 +12,10 @@
 @protocol YCDownloadSessionDelegate <NSObject>
 
 @optional
-- (void)downloadProgress:(YCDownloadTask *)downloadItem totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite;
-- (void)downloadFailed:(YCDownloadTask *)downloadItem;
-- (void)downloadFinished:(YCDownloadTask *)downloadItem;
-- (void)downloadCreated:(YCDownloadTask *)downloadItem;
+- (void)downloadProgress:(YCDownloadTask *)task totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite;
+- (void)downloadFailed:(YCDownloadTask *)task;
+- (void)downloadFinished:(YCDownloadTask *)task;
+- (void)downloadCreated:(YCDownloadTask *)task;
 
 @end
 
@@ -35,7 +35,7 @@
 
 + (NSString *)getURLFromTask:(NSURLSessionTask *)task;
 
-- (void)updateItem;
+- (void)updateTask;
 
 + (NSString *)savePathWithSaveName:(NSString *)saveName;
 

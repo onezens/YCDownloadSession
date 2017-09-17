@@ -6,21 +6,23 @@
 //  Copyright © 2017年 onezen.cc. All rights reserved.
 //
 
-#import "ViewController.h"
+#import "DownloadViewController.h"
 #import "YCDownloadSession.h"
 
-@interface ViewController ()<YCDownloadSessionDelegate>
+@interface DownloadViewController ()<YCDownloadSessionDelegate>
 
 @property (nonatomic, copy) NSString *downloadURL;
 @property (nonatomic, weak) UILabel *progressLbl;
 
 @end
 
-@implementation ViewController
+@implementation DownloadViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+    
+    self.view.backgroundColor = [UIColor whiteColor];
+    
     UIButton *btn = [[UIButton alloc] initWithFrame:CGRectMake(100, 100, 100, 36)];
     [btn setTitle:@"start" forState:UIControlStateNormal];
     [btn setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
@@ -58,16 +60,16 @@
     
 }
 
-- (void)downloadProgress:(YCDownloadTask *)downloadItem totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
+- (void)downloadProgress:(YCDownloadTask *)task totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     self.progressLbl.text = [NSString stringWithFormat:@"%f",(float)totalBytesWritten / totalBytesExpectedToWrite * 100];
 }
 
-- (void)downloadFailed:(YCDownloadTask *)downloadItem {
+- (void)downloadFailed:(YCDownloadTask *)task {
     
     self.progressLbl.text = @"download failed!";
 }
 
-- (void)downloadinished:(YCDownloadTask *)downloadItem {
+- (void)downloadinished:(YCDownloadTask *)task {
     self.progressLbl.text = @"download success!";
 }
 

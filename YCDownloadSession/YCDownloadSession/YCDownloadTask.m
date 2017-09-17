@@ -16,7 +16,7 @@
 
 #pragma mark - public
 
-- (void)updateItem {
+- (void)updateTask {
     
     _fileSize = (NSInteger)[_downloadTask.response expectedContentLength];
     [[YCDownloadSession downloadSession] saveDownloadStatus];
