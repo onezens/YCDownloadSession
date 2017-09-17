@@ -375,7 +375,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     }
     
     NSString *url = downloadTask.response.URL.absoluteString;
-//    NSLog(@"downloadURL: %@  downloadedSize: %zd totalSize: %zd  progress: %f", url, bytesWritten, totalBytesWritten, (float)totalBytesWritten / totalBytesExpectedToWrite);
+    NSLog(@"downloadURL: %@  downloadedSize: %zd totalSize: %zd  progress: %f", url, bytesWritten, totalBytesWritten, (float)totalBytesWritten / totalBytesExpectedToWrite);
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task

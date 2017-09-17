@@ -34,7 +34,7 @@ typedef void(^CompletionHandlerType)();
     
     UIViewController *rootVc = nil;
     
-    if (0) {
+    if (/* DISABLES CODE */ (0)) {
         UIStoryboard *sb = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
         rootVc = [sb instantiateInitialViewController];
     }else{

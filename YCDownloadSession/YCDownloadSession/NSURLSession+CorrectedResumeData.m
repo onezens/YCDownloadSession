@@ -28,17 +28,17 @@ static NSData * correctRequestData(NSData *data) {
     }
     NSInteger k = 0;
     id objectss = archive[@"$objects"];
-    while ([objectss[1] objectForKey:[NSString stringWithFormat:@"$%ld",k]] != nil) {
+    while ([objectss[1] objectForKey:[NSString stringWithFormat:@"$%ld",(long)k]] != nil) {
         k += 1;
     }
     NSInteger i = 0;
-    while ([archive[@"$objects"][1] objectForKey:[NSString stringWithFormat:@"__nsurlrequest_proto_prop_obj_%ld",i]] != nil) {
+    while ([archive[@"$objects"][1] objectForKey:[NSString stringWithFormat:@"__nsurlrequest_proto_prop_obj_%ld",(long)i]] != nil) {
         NSMutableArray *arr = archive[@"$objects"];
         NSMutableDictionary *dic = arr[1];
-        id obj = [dic objectForKey:[NSString stringWithFormat:@"__nsurlrequest_proto_prop_obj_%ld",i]];
+        id obj = [dic objectForKey:[NSString stringWithFormat:@"__nsurlrequest_proto_prop_obj_%ld",(long)i]];
         if (obj) {
-            [dic setValue:obj forKey:[NSString stringWithFormat:@"$%ld",i+k]];
-            [dic removeObjectForKey:[NSString stringWithFormat:@"__nsurlrequest_proto_prop_obj_%ld",i]];
+            [dic setValue:obj forKey:[NSString stringWithFormat:@"$%d",i+k]];
+            [dic removeObjectForKey:[NSString stringWithFormat:@"__nsurlrequest_proto_prop_obj_%ld",(long)i]];
             [arr replaceObjectAtIndex:1 withObject:dic];
             archive[@"$objects"] = arr;
         }
@@ -49,7 +49,7 @@ static NSData * correctRequestData(NSData *data) {
         NSMutableDictionary *dic = arr[1];
         id obj = [dic objectForKey:@"__nsurlrequest_proto_props"];
         if (obj) {
-            [dic setValue:obj forKey:[NSString stringWithFormat:@"$%ld",i+k]];
+            [dic setValue:obj forKey:[NSString stringWithFormat:@"$%d",i+k]];
             [dic removeObjectForKey:@"__nsurlrequest_proto_props"];
             [arr replaceObjectAtIndex:1 withObject:dic];
             archive[@"$objects"] = arr;

@@ -124,14 +124,14 @@ static id _instance;
     
 }
 + (NSUInteger)fileSystemFreeSize {
-    uint64_t totalFreeSpace = 0;
+    NSUInteger totalFreeSpace = 0;
     NSError *error = nil;
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSDictionary *dictionary = [[NSFileManager defaultManager] attributesOfFileSystemForPath:[paths lastObject] error: &error];
     
     if (dictionary) {
         NSNumber *freeFileSystemSizeInBytes = [dictionary objectForKey:NSFileSystemFreeSize];
-        totalFreeSpace = [freeFileSystemSizeInBytes floatValue];
+        totalFreeSpace = [freeFileSystemSizeInBytes unsignedIntegerValue];
     }
     return totalFreeSpace;
 }
