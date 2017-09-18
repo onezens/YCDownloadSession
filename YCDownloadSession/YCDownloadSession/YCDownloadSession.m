@@ -79,7 +79,7 @@ static YCDownloadSession *_instance;
         NSString *bundleId = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
         NSString *identifier = [NSString stringWithFormat:@"%@.BackgroundSession", bundleId];
         NSURLSessionConfiguration* sessionConfig = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:identifier];
-        sessionConfig.allowsCellularAccess = true;
+        sessionConfig.allowsCellularAccess = false;
         session = [NSURLSession sessionWithConfiguration:sessionConfig
                                                 delegate:self
                                            delegateQueue:[NSOperationQueue mainQueue]];

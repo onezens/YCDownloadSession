@@ -1,8 +1,8 @@
 # YCDownloadSession
-后台下载视频，通过NSURLSession的后台下载任务下载视频的时候，保证在APP后台或者退出的状态下，依然能后进行下载任务，下载完成后能够唤醒APP来将下载完成的数据保存到需要的位置。
+通过NSURLSession的创建后台下载任务时，保证了APP在后台或者退出的状态下，依然能后进行下载任务，下载完成后能够唤醒APP来将下载完成的数据保存到需要的位置。
 
 ### 功能点介绍
-创建一个后台下载的session（创建的task为私有API：NSDownloadBackgroundTask）：  
+创建一个后台下载的session（创建的task为私有__NSCFBackgroundDownloadTask）：  
 
 ```
 NSString *bundleId = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
@@ -50,6 +50,7 @@ YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YC
 1. 4G/流量下载管理
 2. 对下载任务个数进一步优化和管理
 3. 下载完成后添加本地通知
+4. Swift 版的下载
 
 
 ### 下载代码详解
