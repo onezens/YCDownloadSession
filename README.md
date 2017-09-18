@@ -1,6 +1,24 @@
 # YCDownloadSession
 后台下载视频，通过NSURLSession的后台下载任务下载视频的时候，保证在APP后台或者退出的状态下，依然能后进行下载任务，下载完成后能够唤醒APP来将下载完成的数据保存到需要的位置。
 
+### 功能点介绍
+创建一个后台下载的session（创建的task为私有API：NSDownloadBackgroundTask）：  
+
+```
+NSString *bundleId = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
+        NSString *identifier = [NSString stringWithFormat:@"%@.BackgroundSession", bundleId];
+        NSURLSessionConfiguration* sessionConfig = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:identifier];
+        sessionConfig.allowsCellularAccess = true;
+        session = [NSURLSession sessionWithConfiguration:sessionConfig
+                                                delegate:self
+                                           delegateQueue:[NSOperationQueue mainQueue]];
+
+
+```
+
+1. 在APP处于后台、锁屏状态下依然能后下载
+2. 最强大的是：APP在手动退出，闪退的状态下依然能够进行下载任务，下载完成后自动激活APP，进行相关的逻辑处理
+
 ### 结构介绍
 该视频下载库库主要有四个核心类：YCDownloadSession，YCDownloadTask，YCDownloadItem，YCDownloadManager  
 
@@ -19,15 +37,30 @@ YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YC
 ### 使用效果图
 
 1. 单文件下载测试
-![单文件下载测试](http://src.onezen.cc/demo/download/1.gif)
+
+  ![单文件下载测试](http://src.onezen.cc/demo/download/1.gif)
 
 2. 多视频下载测试
-![多视频下载测试](http://src.onezen.cc/demo/download/2.gif)
+
+  ![多视频下载测试](http://src.onezen.cc/demo/download/2.gif)
 
 
 ### TODO
 
 1. 4G/流量下载管理
 2. 对下载任务个数进一步优化和管理
+3. 下载完成后添加本地通知
+
+
+### 下载代码详解
+
+简书blog： [http://www.jianshu.com/p/2ccb34c460fd](http://www.jianshu.com/p/2ccb34c460fd)
+
+
+使用APP：[https://itunes.apple.com/cn/app/id975958413](https://itunes.apple.com/cn/app/id975958413)
+
+**欢迎各位关注该库，如果你有任何问题请issues我，将会随时更新新功能和解决存在的问题。**
+
+**技术交流QQ群： 304468625**
 
 
