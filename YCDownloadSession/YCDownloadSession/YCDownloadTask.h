@@ -8,6 +8,14 @@
 
 #import <Foundation/Foundation.h>
 
+typedef enum : NSUInteger {
+    YCDownloadStatusWaiting,
+    YCDownloadStatusDownloading,
+    YCDownloadStatusPaused,
+    YCDownloadStatusFinished,
+    YCDownloadStatusFailed
+} YCDownloadStatus;
+
 static NSString * const kYCDownloadSessionSaveDownloadStatus = @"kYCDownloadSessionSaveDownloadStatus";
 
 @class YCDownloadTask;
@@ -19,6 +27,7 @@ static NSString * const kYCDownloadSessionSaveDownloadStatus = @"kYCDownloadSess
 - (void)downloadFinished:(YCDownloadTask *)task;
 - (void)downloadCreated:(YCDownloadTask *)task;
 - (void)downloadPaused:(YCDownloadTask *)task;
+- (void)downloadWaiting:(YCDownloadTask *)task;
 
 @end
 
@@ -32,6 +41,7 @@ static NSString * const kYCDownloadSessionSaveDownloadStatus = @"kYCDownloadSess
 @property (nonatomic, copy) NSString *tempPath;
 @property (nonatomic, weak) id <YCDownloadTaskDelegate>delegate;
 @property (nonatomic, assign) BOOL needToRestart;
+@property (nonatomic, assign) YCDownloadStatus downloadStatus;
 
 @property (nonatomic, assign, readonly) NSInteger fileSize;
 

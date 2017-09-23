@@ -10,14 +10,6 @@
 #import "YCDownloadTask.h"
 @class YCDownloadItem;
 
-typedef enum : NSUInteger {
-    YCDownloadStatusWaiting,
-    YCDownloadStatusDownloading,
-    YCDownloadStatusPaused,
-    YCDownloadStatusFinished,
-    YCDownloadStatusFailed
-} YCDownloadStatus;
-
 @protocol YCDownloadItemDelegate <NSObject>
 
 @optional

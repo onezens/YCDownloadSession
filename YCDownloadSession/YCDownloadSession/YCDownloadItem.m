@@ -36,6 +36,11 @@
 }
 
 - (void)downloadPaused:(YCDownloadTask *)task {
+    self.downloadStatus = YCDownloadStatusPaused;
+    [self saveDownloadStatusNoti];
+}
+- (void)downloadWaiting:(YCDownloadTask *)task {
+    self.downloadStatus = YCDownloadStatusWaiting;
     [self saveDownloadStatusNoti];
 }
 
