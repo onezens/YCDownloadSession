@@ -11,11 +11,12 @@
 
 #define IS_IOS10ORLATER ([[[UIDevice currentDevice] systemVersion] floatValue] >= 10)
 static NSString * const kIsAllowCellar = @"kIsAllowCellar";
-
 @interface YCDownloadSession ()<NSURLSessionDownloadDelegate>
 
 @property (nonatomic, strong) NSMutableDictionary *downloadTasks;//正在下载的task
 @property (nonatomic, strong) NSMutableDictionary *downloadedTasks;//下载完成的task
+@property (nonatomic, strong, readonly) NSURLSession *downloadSession;
+@property (nonatomic, assign) BOOL isNeedCreateSession;
 
 @end
 
@@ -34,8 +35,8 @@ static YCDownloadSession *_instance;
 
 - (instancetype)init {
     if (self = [super init]) {
+        //初始化
         _downloadSession = [self getDownloadURLSession];
-        NSMutableDictionary *dictM = [self.downloadSession valueForKey:@"tasks"];
         self.downloadTasks = [NSKeyedUnarchiver unarchiveObjectWithFile:[self getArchiverPathIsDownloaded:false]];
         self.downloadedTasks = [NSKeyedUnarchiver unarchiveObjectWithFile:[self getArchiverPathIsDownloaded:true]];
         
@@ -43,7 +44,8 @@ static YCDownloadSession *_instance;
         if(!self.downloadedTasks) self.downloadedTasks = [NSMutableDictionary dictionary];
         if(!self.downloadTasks) self.downloadTasks = [NSMutableDictionary dictionary];
         
-        //获取背景session正在运行的task
+        //获取背景session正在运行的(app重启，或者闪退会有任务)
+        NSMutableDictionary *dictM = [self.downloadSession valueForKey:@"tasks"];
         [dictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
             YCDownloadTask *task = [self getDownloadTaskWithUrl:[YCDownloadTask getURLFromTask:obj] isDownloadList:true];
             if(!task){
@@ -51,57 +53,60 @@ static YCDownloadSession *_instance;
             }else{
                 task.downloadTask = obj;
             }
-            
         }];
         //获取后台下载缓存在本地的数据
         [self.downloadedTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, YCDownloadTask *obj, BOOL * _Nonnull stop) {
             if ([[NSFileManager defaultManager] fileExistsAtPath:obj.tempPath]) {
                 [[NSFileManager defaultManager] moveItemAtPath:obj.tempPath toPath:[YCDownloadTask savePathWithSaveName:obj.saveName] error:nil];
-                
-                NSLog(@"------>>>>>>> file move to ---->>>>>");
             }
         }];
         
-        BOOL isAllowCellar = [[NSUserDefaults standardUserDefaults] boolForKey:kIsAllowCellar];
-        [self changeStatusIsAllowCellar:isAllowCellar];
+        //app重启，或者闪退的任务全部暂停
+        [self pauseAllDownloadTask];
         
-        NSLog(@"%@", dictM);
     }
     return self;
 }
 
 - (NSURLSession *)getDownloadURLSession {
     
-    static NSURLSession *session = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        
-        NSString *bundleId = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
-        NSString *identifier = [NSString stringWithFormat:@"%@.BackgroundSession", bundleId];
-        NSURLSessionConfiguration* sessionConfig = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:identifier];
-        sessionConfig.allowsCellularAccess = false;
-        session = [NSURLSession sessionWithConfiguration:sessionConfig
-                                                delegate:self
-                                           delegateQueue:[NSOperationQueue mainQueue]];
-    });
-    
+    NSURLSession *session = nil;
+    NSString *bundleId = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
+    NSString *identifier = [NSString stringWithFormat:@"%@.BackgroundSession", bundleId];
+    NSURLSessionConfiguration* sessionConfig = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:identifier];
+    sessionConfig.allowsCellularAccess = [[NSUserDefaults standardUserDefaults] boolForKey:kIsAllowCellar];
+    session = [NSURLSession sessionWithConfiguration:sessionConfig
+                                            delegate:self
+                                       delegateQueue:[NSOperationQueue mainQueue]];
     return session;
 }
 
 
-- (void)changeStatusIsAllowCellar:(BOOL)isAllow {
+- (void)allowsCellularAccess:(BOOL)isAllow {
     
+    [[NSUserDefaults standardUserDefaults] setBool:isAllow forKey:kIsAllowCellar];
     [self pauseAllDownloadTask];
-    self.downloadSession.configuration.allowsCellularAccess = isAllow;
+    [_downloadSession invalidateAndCancel];
+    self.isNeedCreateSession = true;
+}
+
+- (void)recreateSession {
+    
     [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
         YCDownloadTask *task = obj;
         task.downloadTask = nil;
     }];
+    _downloadSession = [self getDownloadURLSession];
+    NSLog(@"recreate Session success");
+    //TODO: 恢复正在下载的task状态
+}
+
+- (BOOL)isAllowsCellularAccess {
+    
+    return [[NSUserDefaults standardUserDefaults] boolForKey:kIsAllowCellar];
 }
 
 #pragma mark - event
-
-
 
 - (void)startDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadTaskDelegate>)delegate{
     if (downloadURLString.length == 0)  return;
@@ -293,14 +298,19 @@ static YCDownloadSession *_instance;
             *stop = true;
         }
     }];
-    
     return task;
-    
 }
 
 
 #pragma mark -  NSURLSessionDelegate
 
+//将一个后台session作废完成后的回调，用来切换是否允许使用蜂窝煤网络，重新创建session
+- (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(nullable NSError *)error {
+    
+    if (self.isNeedCreateSession) {
+        [self recreateSession];
+    }
+}
 
 - (void)URLSession:(NSURLSession *)session
       downloadTask:(NSURLSessionDownloadTask *)downloadTask
@@ -338,8 +348,6 @@ didFinishDownloadingToURL:(NSURL *)location {
     
     [[NSFileManager defaultManager] moveItemAtPath:locationString toPath:[YCDownloadTask savePathWithSaveName:task.saveName] error:&error];
 
-    NSLog(@"downloadTask:%lu didFinishDownloadingToURL:%@      \n---->to Path:  %@", (unsigned long)downloadTask.taskIdentifier, location, [YCDownloadTask savePathWithSaveName:task.saveName]);
-    
     if (task.downloadURL.length != 0) {
         [self.downloadedTasks setObject:task forKey:task.downloadURL];
         [self.downloadTasks removeObjectForKey:task.downloadURL];
@@ -393,8 +401,6 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
 
 - (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session {
     NSLog(@"Background URL session %@ finished events.\n", session);
-    
-    
 }
 
 
@@ -416,10 +422,8 @@ didCompleteWithError:(NSError *)error {
             yctask.resumeData = resumeData;
             //id obj = [NSPropertyListSerialization propertyListWithData:resumeData options:0 format:0 error:nil];
             //NSString *str = [[NSString alloc] initWithData:resumeData encoding:NSUTF8StringEncoding];
-            NSLog(@"error ----->   %@     --->%zd", yctask.downloadURL, resumeData.length);
             
         }else{
-            NSLog(@"%@", error);
             if ([yctask.delegate respondsToSelector:@selector(downloadFailed:)]) {
                 [yctask.delegate downloadFailed:yctask];
             }

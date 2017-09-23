@@ -34,6 +34,82 @@ NSString *bundleId = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBu
 YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YCDownloadItem相互独立。大家和可以通过YCDownloadSession和YCDownloadTask自定义需要的下载管理类的信息类。
 
 
+
+### 用法
+
+1. 直接使用YCDownloadSession
+
+	```
+	self.downloadURL = @"http://dldir1.qq.com/qqfile/QQforMac/QQ_V6.0.1.dmg";
+	
+	- (void)start {
+	    [[YCDownloadSession downloadSession] startDownloadWithUrl:self.downloadURL delegate:self];
+	}
+	- (void)resume {
+	    [[YCDownloadSession downloadSession] resumeDownloadWithUrl:self.downloadURL delegate:self];
+	}
+	
+	- (void)pause {
+	    [[YCDownloadSession downloadSession] pauseDownloadWithUrl:self.downloadURL];
+	}
+
+	- (void)stop {
+	    [[YCDownloadSession downloadSession] stopDownloadWithUrl:self.downloadURL];
+	}
+	
+	//代理
+	- (void)downloadProgress:(YCDownloadTask *)task totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
+	    self.progressLbl.text = [NSString stringWithFormat:@"%f",(float)totalBytesWritten / totalBytesExpectedToWrite * 100];
+	}
+	
+	- (void)downloadFailed:(YCDownloadTask *)task {
+	    self.progressLbl.text = @"download failed!";
+	}
+	
+	- (void)downloadinished:(YCDownloadTask *)task {
+	    self.progressLbl.text = @"download success!";
+	}
+
+	```
+	
+2. 使用自定义的管理类(YCDownloadManager 视频类型文件专用下载管理类)下载
+
+	```
+	//下载列表页面
+	VideoListInfoModel *model = [VideoListInfoModel alloc] init];
+	//设置model的数据
+	...
+	[YCDownloadManager startDownloadWithUrl:model.mp4_url fileName:model.title thumbImageUrl:model.cover];
+	
+	
+	//缓存列表页面 
+	//YCDownloadItem(存储下载的视频的详细信息，和下载进度回调)
+	[YCDownloadManager downloadList]; //正在下载列表
+	[YCDownloadManager finishList]; 	//下载完成列表
+
+	
+	```
+
+3. 蜂窝煤是否允许下载的方法(YCDownloadSession, YCDownloadManager)
+
+	```
+	/**
+	 是否允许蜂窝煤网络下载，以及网络状态变为蜂窝煤是否允许下载，必须把所有的downloadTask全部暂停，然后重新创建。否则，原先创建的
+	 下载task依旧在网络切换为蜂窝煤网络时会继续下载
+	 
+	 @param isAllow 是否允许蜂窝煤网络下载
+	 */
+	- (void)allowsCellularAccess:(BOOL)isAllow;
+	
+	
+	/**
+	 获取当前是否允许蜂窝煤访问状态
+	 */
+	- (BOOL)isAllowsCellularAccess;
+	```
+
+
+
 ### 使用效果图
 
 1. 单文件下载测试
@@ -47,7 +123,7 @@ YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YC
 
 ### TODO
 
-1. 4G/流量下载管理
+1. 4G/流量下载管理（完成）
 2. 对下载任务个数进一步优化和管理
 3. 下载完成后添加本地通知
 4. Swift 版的下载

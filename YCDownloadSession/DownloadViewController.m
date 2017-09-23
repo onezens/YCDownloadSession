@@ -67,7 +67,6 @@
 }
 
 - (void)downloadFailed:(YCDownloadTask *)task {
-    
     self.progressLbl.text = @"download failed!";
 }
 

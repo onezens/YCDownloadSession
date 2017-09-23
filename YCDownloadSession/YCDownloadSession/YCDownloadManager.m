@@ -69,8 +69,6 @@ static id _instance;
 
 #pragma mark - public
 
-
-
 /**
  开始一个后台下载任务
  
@@ -108,15 +106,12 @@ static id _instance;
     [[YCDownloadManager manager] stopDownloadWithUrl:downloadURLString];
 }
 
-
-
 /**
  暂停所有的下载
  */
 + (void)pauseAllDownloadTask {
     [[YCDownloadManager manager] pauseAllDownloadTask];
 }
-
 
 + (NSArray *)downloadList {
     return [[YCDownloadManager manager] downloadList];
@@ -127,7 +122,6 @@ static id _instance;
 
 
 + (BOOL)isDownloadWithUrl:(NSString *)downloadURLString {
-    
     return [[self manager] isDownloadWithUrl:downloadURLString];
 }
 
@@ -137,6 +131,14 @@ static id _instance;
 
 + (YCDownloadItem *)downloadItemWithUrl:(NSString *)downloadURLString {
     return [[self manager] downloadItemWithUrl:downloadURLString];
+}
+
++(void)allowsCellularAccess:(BOOL)isAllow {
+    [[YCDownloadManager manager] allowsCellularAccess:isAllow];
+}
+
++(BOOL)isAllowsCellularAccess{
+    return [[YCDownloadManager manager] isAllowsCellularAccess];
 }
 
 
@@ -193,6 +195,7 @@ static id _instance;
     }
     return [NSString stringWithFormat:@"%.0f", num];
 }
+
 #pragma mark - private
 
 
@@ -263,6 +266,13 @@ static id _instance;
     return arrM;
 }
 
+-(void)allowsCellularAccess:(BOOL)isAllow {
+    [[YCDownloadSession downloadSession] allowsCellularAccess:isAllow];
+}
+
+- (BOOL)isAllowsCellularAccess {
+    return [[YCDownloadSession downloadSession] isAllowsCellularAccess];
+}
 
 - (BOOL)isDownloadWithUrl:(NSString *)downloadURLString {
     
