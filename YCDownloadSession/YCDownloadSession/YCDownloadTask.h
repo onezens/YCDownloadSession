@@ -31,6 +31,7 @@ static NSString * const kYCDownloadSessionSaveDownloadStatus = @"kYCDownloadSess
 @property (nonatomic, copy, readonly) NSString *saveName;
 @property (nonatomic, copy) NSString *tempPath;
 @property (nonatomic, weak) id <YCDownloadTaskDelegate>delegate;
+@property (nonatomic, assign) BOOL needToRestart;
 
 @property (nonatomic, assign, readonly) NSInteger fileSize;
 

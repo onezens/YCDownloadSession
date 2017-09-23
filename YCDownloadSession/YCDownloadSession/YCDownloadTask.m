@@ -59,7 +59,6 @@
 
 - (void)setDownloadTask:(NSURLSessionDownloadTask *)downloadTask {
     if (_downloadTask && downloadTask && ![_downloadTask isEqual:downloadTask]) { //防止重复下载
-        [_downloadTask suspend];
         [_downloadTask cancel];
     }
     _downloadTask = downloadTask;

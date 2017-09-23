@@ -85,20 +85,30 @@ static YCDownloadSession *_instance;
 - (void)allowsCellularAccess:(BOOL)isAllow {
     
     [[NSUserDefaults standardUserDefaults] setBool:isAllow forKey:kIsAllowCellar];
-    [self pauseAllDownloadTask];
+    [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        YCDownloadTask *task = obj;
+        if (task.downloadTask.state == NSURLSessionTaskStateRunning) {
+            task.needToRestart = true;
+            [self pauseDownloadTask:task];
+        }
+    }];
     [_downloadSession invalidateAndCancel];
     self.isNeedCreateSession = true;
 }
 
 - (void)recreateSession {
     
+    _downloadSession = [self getDownloadURLSession];
+    NSLog(@"recreate Session success");
+    //恢复正在下载的task状态
     [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
         YCDownloadTask *task = obj;
         task.downloadTask = nil;
+        if (task.needToRestart) {
+            task.needToRestart = false;
+            [self resumeDownloadTask:task];
+        }
     }];
-    _downloadSession = [self getDownloadURLSession];
-    NSLog(@"recreate Session success");
-    //TODO: 恢复正在下载的task状态
 }
 
 - (BOOL)isAllowsCellularAccess {
@@ -308,6 +318,7 @@ static YCDownloadSession *_instance;
 - (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(nullable NSError *)error {
     
     if (self.isNeedCreateSession) {
+        self.isNeedCreateSession = false;
         [self recreateSession];
     }
 }
