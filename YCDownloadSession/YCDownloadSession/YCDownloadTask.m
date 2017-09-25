@@ -47,7 +47,6 @@
 }
 
 
-
 #pragma mark - setter
 
 - (void)setDownloadURL:(NSString *)downloadURL {

@@ -18,14 +18,16 @@
         [self.delegate downloadItem:self downloadedSize:totalBytesWritten totalSize:totalBytesExpectedToWrite];
     }
 }
-- (void)downloadFailed:(YCDownloadTask *)task {
-    self.downloadStatus = YCDownloadStatusFailed;
+
+- (void)downloadStatusChanged:(YCDownloadStatus)status downloadTask:(YCDownloadTask *)task {
+    
+    self.downloadStatus = status;
     [self saveDownloadStatusNoti];
+    if ([self.delegate respondsToSelector:@selector(downloadItemStatusChanged:)]) {
+        [self.delegate downloadItemStatusChanged:self];
+    }
 }
-- (void)downloadFinished:(YCDownloadTask *)task {
-    self.downloadStatus = YCDownloadStatusFinished;
-    [self saveDownloadStatusNoti];
-}
+
 - (void)downloadCreated:(YCDownloadTask *)task {
     self.downloadStatus = YCDownloadStatusDownloading;
     if(task.fileSize > 0){
@@ -35,23 +37,8 @@
     [self saveDownloadStatusNoti];
 }
 
-- (void)downloadPaused:(YCDownloadTask *)task {
-    self.downloadStatus = YCDownloadStatusPaused;
-    [self saveDownloadStatusNoti];
-}
-- (void)downloadWaiting:(YCDownloadTask *)task {
-    self.downloadStatus = YCDownloadStatusWaiting;
-    [self saveDownloadStatusNoti];
-}
-
 
 #pragma mark - public
-- (void)setDownloadStatus:(YCDownloadStatus)downloadStatus {
-    _downloadStatus = downloadStatus;
-    if ([self.delegate respondsToSelector:@selector(downloadItemStatusChanged:)]) {
-        [self.delegate downloadItemStatusChanged:self];
-    }
-}
 
 - (NSString *)savePath {
     return [YCDownloadTask savePathWithSaveName:self.saveName];

@@ -125,7 +125,8 @@ static YCDownloadSession *_instance;
     //判断是否是下载完成的任务
     YCDownloadTask *task = [self getDownloadTaskWithUrl:downloadURLString isDownloadList:false];
     if (task) {
-        [self downloadFinishedWithTask:task];
+        task.delegate = delegate;
+        [self downloadStatusChanged:YCDownloadStatusFinished task:task];
         return;
     }
     //读取正在下载的任务
@@ -135,22 +136,20 @@ static YCDownloadSession *_instance;
         //判断任务的个数，如果达到最大值则返回，回调等待
         if([self currentTaskCount] >= self.maxTaskCount){
             [self createDownloadTaskItemWithUrl:downloadURLString delegate:delegate];
-            if([delegate respondsToSelector:@selector(downloadWaiting:)]) {
-                [delegate downloadWaiting:nil];
-            }
+            [self downloadStatusChanged:YCDownloadStatusWaiting task:task];
         }else {
             [self createDownloadTaskWithUrl:downloadURLString delegate:delegate];
         }
     }else{
         task.delegate = delegate;
         if ([self detectDownloadTaskIsFinished:task]) {
-            [self downloadFinishedWithTask:task];
+            [self downloadStatusChanged:YCDownloadStatusFinished task:task];
             return;
         }
         
         if (task.downloadTask && task.downloadTask.state == NSURLSessionTaskStateRunning && task.resumeData.length == 0) {
-            task.downloadStatus = YCDownloadStatusDownloading;
             [task.downloadTask resume];
+            [self downloadStatusChanged:YCDownloadStatusDownloading task:task];
             return;
         }
         //        if(task.downloadedSize == 0) {
@@ -172,7 +171,14 @@ static YCDownloadSession *_instance;
 }
 
 - (void)resumeDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadTaskDelegate>)delegate{
-    YCDownloadTask *task = [self getDownloadTaskWithUrl:downloadURLString isDownloadList:true];
+    //判断是否是下载完成的任务
+    YCDownloadTask *task = [self getDownloadTaskWithUrl:downloadURLString isDownloadList:false];
+    if (task) {
+        task.delegate = delegate;
+        [self downloadStatusChanged:YCDownloadStatusFinished task:task];
+        return;
+    }
+    task = [self getDownloadTaskWithUrl:downloadURLString isDownloadList:true];
     if(delegate) task.delegate = delegate;
     [self resumeDownloadTask: task];
 }
@@ -216,8 +222,7 @@ static YCDownloadSession *_instance;
     YCDownloadTask *task = [self createDownloadTaskItemWithUrl:downloadURLString delegate:delegate];
     task.downloadTask = downloadTask;
     [downloadTask resume];
-    task.downloadStatus = YCDownloadStatusDownloading;
-    [self saveDownloadStatus];
+    [self downloadStatusChanged:YCDownloadStatusDownloading task:task];
 }
 
 - (YCDownloadTask *)createDownloadTaskItemWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadTaskDelegate>)delegate{
@@ -225,25 +230,20 @@ static YCDownloadSession *_instance;
     YCDownloadTask *task = [[YCDownloadTask alloc] init];
     task.downloadURL = downloadURLString;
     task.delegate = delegate;
-    task.downloadStatus = YCDownloadStatusWaiting;
     [self.downloadTasks setObject:task forKey:task.downloadURL];
+    [self downloadStatusChanged:YCDownloadStatusWaiting task:task];
     return task;
 }
 
 - (void)pauseDownloadTask:(YCDownloadTask *)task toNextTask:(BOOL)toNext{
     self.isStartNextTask = toNext;
     [task.downloadTask cancelByProducingResumeData:^(NSData * resumeData) {
-        task.downloadStatus = YCDownloadStatusPaused;
         if(resumeData.length>0) task.resumeData = resumeData;
-        [self saveDownloadStatus];
-        if ([task.delegate respondsToSelector:@selector(downloadPaused:)]) {
-            [task.delegate downloadPaused:task];
-        }
         task.downloadTask = nil;
+        [self saveDownloadStatus];
+        [self downloadStatusChanged:YCDownloadStatusPaused task:task];
         if (toNext) {
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                [self startNextDownloadTask];
-            });
+            [self startNextDownloadTask];
         }
     }];
 }
@@ -252,22 +252,19 @@ static YCDownloadSession *_instance;
 - (void)resumeDownloadTask:(YCDownloadTask *)task {
     
     if(!task) return;
-    if (([self currentTaskCount] >= self.maxTaskCount)) {
-        if ([task.delegate respondsToSelector:@selector(downloadWaiting:)]) {
-            [task.delegate downloadWaiting:task];
-        }
-        task.downloadStatus = YCDownloadStatusWaiting;
+    if (([self currentTaskCount] >= self.maxTaskCount) && task.downloadStatus != YCDownloadStatusDownloading) {
+        [self downloadStatusChanged:YCDownloadStatusWaiting task:task];
         return;
     }
     if ([self detectDownloadTaskIsFinished:task]) {
-        [self downloadFinishedWithTask:task];
+        [self downloadStatusChanged:YCDownloadStatusFinished task:task];
         return;
     }
     
     NSData *data = task.resumeData;
     if (data.length > 0) {
         if(task.downloadTask && task.downloadTask.state == NSURLSessionTaskStateRunning){
-            task.downloadStatus = YCDownloadStatusDownloading;
+            [self downloadStatusChanged:YCDownloadStatusDownloading task:task];
             return;
         }
         NSURLSessionDownloadTask *downloadTask = nil;
@@ -282,9 +279,8 @@ static YCDownloadSession *_instance;
         }
         task.downloadTask = downloadTask;
         [downloadTask resume];
-        task.downloadStatus = YCDownloadStatusDownloading;
-        //这句代码不能省略，否则在点击继续活着开始的时候会重复下载任务,下载进度混乱
         task.resumeData = nil;
+        [self downloadStatusChanged:YCDownloadStatusDownloading task:task];
         
     }else{
         //没有下载任务，那么重新创建下载任务；  部分下载暂停异常 NSURLSessionTaskStateCompleted ，但并没有完成，所以重新下载
@@ -295,7 +291,7 @@ static YCDownloadSession *_instance;
             [self createDownloadTaskWithUrl:url delegate:task.delegate];
         }else{
             [task.downloadTask resume];
-            task.downloadStatus = YCDownloadStatusDownloading;
+            [self downloadStatusChanged:YCDownloadStatusDownloading task:task];
         }
     }
 }
@@ -305,25 +301,45 @@ static YCDownloadSession *_instance;
     [task.downloadTask cancel];
 }
 
-- (void)downloadFinishedWithTask:(YCDownloadTask *)task {
-    task.resumeData = nil;
-    task.downloadStatus = YCDownloadStatusFinished;
-    [self saveDownloadStatus];
-    if ([task.delegate respondsToSelector:@selector(downloadFinished:)]) {
-        [task.delegate downloadFinished:task];
-    }
-    [self startNextDownloadTask];
-}
+
 
 - (void)startNextDownloadTask {
     
-    if ([self currentTaskCount] < self.maxTaskCount) {
-        [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-            YCDownloadTask *task = obj;
-            if (!task.downloadTask || task.downloadTask.state != NSURLSessionTaskStateRunning) {
-                [self resumeDownloadTask:task];
-            }
-        }];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        if ([self currentTaskCount] < self.maxTaskCount) {
+            [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+                YCDownloadTask *task = obj;
+                if ((!task.downloadTask || task.downloadTask.state != NSURLSessionTaskStateRunning) && task.downloadStatus == YCDownloadStatusWaiting) {
+                    [self resumeDownloadTask:task];
+                }
+            }];
+        }
+    });
+}
+
+
+- (void)downloadStatusChanged:(YCDownloadStatus)status task:(YCDownloadTask *)task{
+    
+    task.downloadStatus = status;
+    [self saveDownloadStatus];
+    switch (status) {
+        case YCDownloadStatusWaiting:
+            break;
+        case YCDownloadStatusDownloading:
+            break;
+        case YCDownloadStatusPaused:
+            break;
+        case YCDownloadStatusFailed:
+            break;
+        case YCDownloadStatusFinished:
+            [self startNextDownloadTask];
+            break;
+        default:
+            break;
+    }
+    
+    if ([task.delegate respondsToSelector:@selector(downloadStatusChanged:downloadTask:)]) {
+        [task.delegate downloadStatusChanged:status downloadTask:task];
     }
 }
 
@@ -405,26 +421,18 @@ didFinishDownloadingToURL:(NSURL *)location {
     YCDownloadTask *task = [self getDownloadTaskWithUrl:downloadUrl isDownloadList:true];
     if(!task){
         NSLog(@"download finished , item nil error!!!! url: %@", downloadUrl);
-        if ([task.delegate respondsToSelector:@selector(downloadFailed:)]) {
-            [task.delegate downloadFailed:task];
-        }
-        [self saveDownloadStatus];
+        //TODO: 校验下载url
         return;
     }
     task.tempPath = locationString;
-    
     NSDictionary *dic = [[NSFileManager defaultManager] attributesOfItemAtPath:locationString error:nil];
     NSInteger fileSize = dic ? (NSInteger)[dic fileSize] : 0;
     
     //校验文件大小
     BOOL isCompltedFile = (fileSize>0) && (fileSize == task.fileSize);
     if (!isCompltedFile) {
-        [self pauseDownloadTask:task toNextTask:true];
-        if ([task.delegate respondsToSelector:@selector(downloadFailed:)]) {
-            [task.delegate downloadFailed:task];
-        }
-        task.downloadTask = nil;
-        [self saveDownloadStatus];
+        //文件大小不对，从头开始下载
+        [self downloadStatusChanged:YCDownloadStatusFinished task:task];
         return;
     }
     
@@ -434,7 +442,7 @@ didFinishDownloadingToURL:(NSURL *)location {
         [self.downloadedTasks setObject:task forKey:task.downloadURL];
         [self.downloadTasks removeObjectForKey:task.downloadURL];
     }
-    [self downloadFinishedWithTask:task];
+    [self downloadStatusChanged:YCDownloadStatusFinished task:task];
 }
 
 - (void)URLSession:(NSURLSession *)session
@@ -504,9 +512,7 @@ didCompleteWithError:(NSError *)error {
             //NSString *str = [[NSString alloc] initWithData:resumeData encoding:NSUTF8StringEncoding];
             
         }else{
-            if ([yctask.delegate respondsToSelector:@selector(downloadFailed:)]) {
-                [yctask.delegate downloadFailed:yctask];
-            }
+            [self downloadStatusChanged:YCDownloadStatusFailed task:yctask];
         }
     }
 }

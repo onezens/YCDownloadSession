@@ -22,12 +22,32 @@ static NSString * const kYCDownloadSessionSaveDownloadStatus = @"kYCDownloadSess
 @protocol YCDownloadTaskDelegate <NSObject>
 
 @optional
+
+/**
+ 下载任务的进度回调方法
+
+ @param task 正在下载的任务
+ @param totalBytesWritten 已经下载的文件大小
+ @param totalBytesExpectedToWrite 期望下载的文件大小
+ */
 - (void)downloadProgress:(YCDownloadTask *)task totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite;
-- (void)downloadFailed:(YCDownloadTask *)task;
-- (void)downloadFinished:(YCDownloadTask *)task;
+
+
+/**
+ 下载任务第一次创建的时候的回调
+
+ @param task 创建的任务
+ */
 - (void)downloadCreated:(YCDownloadTask *)task;
-- (void)downloadPaused:(YCDownloadTask *)task;
-- (void)downloadWaiting:(YCDownloadTask *)task;
+
+
+/**
+ 下载的任务的状态发生改变的回调
+
+ @param status 改变后的状态
+ @param task 状态改变的任务
+ */
+- (void)downloadStatusChanged:(YCDownloadStatus)status downloadTask:(YCDownloadTask *)task;
 
 @end
 

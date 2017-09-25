@@ -97,7 +97,7 @@
     }else if (item.downloadStatus == YCDownloadStatusFailed){
         [YCDownloadManager resumeDownloadWithUrl:item.downloadUrl];
     }else if (item.downloadStatus == YCDownloadStatusWaiting){
-        [YCDownloadManager resumeDownloadWithUrl:item.downloadUrl];
+        [YCDownloadManager pauseDownloadWithUrl:item.downloadUrl];
     }
     [self.tableView reloadData];
 }
