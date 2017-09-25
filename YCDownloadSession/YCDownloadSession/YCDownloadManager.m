@@ -52,7 +52,8 @@ static id _instance;
     //app闪退或者手动杀死app，会继续下载。APP再次启动默认暂停所有下载
     [items enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
         YCDownloadItem *item = obj;
-        if (item.downloadStatus == YCDownloadStatusDownloading) {
+        //app重新启动，将等待和下载的任务的状态变成暂停
+        if (item.downloadStatus == YCDownloadStatusDownloading || item.downloadStatus == YCDownloadStatusWaiting) {
             item.downloadStatus = YCDownloadStatusPaused;
         }
     }];
@@ -68,6 +69,11 @@ static id _instance;
 
 
 #pragma mark - public
+
+
++ (void)setMaxTaskCount:(NSInteger)count {
+    [[YCDownloadManager manager] setMaxTaskCount: count];
+}
 
 /**
  开始一个后台下载任务
@@ -197,6 +203,10 @@ static id _instance;
 }
 
 #pragma mark - private
+
+- (void)setMaxTaskCount:(NSInteger)count{
+    [YCDownloadSession downloadSession].maxTaskCount = count;
+}
 
 
 - (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName thumbImageUrl:(NSString *)imagUrl {

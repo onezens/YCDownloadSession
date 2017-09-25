@@ -11,6 +11,11 @@
 
 @interface YCDownloadManager : NSObject
 
+/**
+ 设置下载任务的个数，最多支持3个下载任务同时进行。
+ */
++ (void)setMaxTaskCount:(NSInteger)count;
+
 
 /**
  开始一个后台下载任务

@@ -17,7 +17,6 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 @property (nonatomic, strong) NSMutableDictionary *downloadedTasks;//下载完成的task
 @property (nonatomic, strong, readonly) NSURLSession *downloadSession;
 @property (nonatomic, assign) BOOL isNeedCreateSession;
-@property (nonatomic, assign) BOOL isStartNextTask;
 
 @end
 
@@ -236,7 +235,6 @@ static YCDownloadSession *_instance;
 }
 
 - (void)pauseDownloadTask:(YCDownloadTask *)task toNextTask:(BOOL)toNext{
-    self.isStartNextTask = toNext;
     [task.downloadTask cancelByProducingResumeData:^(NSData * resumeData) {
         if(resumeData.length>0) task.resumeData = resumeData;
         task.downloadTask = nil;
@@ -304,7 +302,8 @@ static YCDownloadSession *_instance;
 
 
 - (void)startNextDownloadTask {
-    
+    //某一任务下载完成后，或者暂停之后，session的tasks里还是有原先任务，所以保证1秒的延时
+    //延时有不确定性，找到更好的替换方案，可以替换
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         if ([self currentTaskCount] < self.maxTaskCount) {
             [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
@@ -480,7 +479,7 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
         newRequest:(NSURLRequest *)request
  completionHandler:(void (^)(NSURLRequest * _Nullable))completionHandler {
     
-    
+    //TODO: 301/302文件记录和处理, 想办法模拟测试301定向视频
     NSLog(@"willPerformHTTPRedirection ------> %@",response);
     
 }

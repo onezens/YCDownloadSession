@@ -21,6 +21,9 @@
 
 - (void)downloadStatusChanged:(YCDownloadStatus)status downloadTask:(YCDownloadTask *)task {
     
+    if (status == YCDownloadStatusFinished) {
+        self.downloadedSize = self.fileSize;
+    }
     self.downloadStatus = status;
     [self saveDownloadStatusNoti];
     if ([self.delegate respondsToSelector:@selector(downloadItemStatusChanged:)]) {

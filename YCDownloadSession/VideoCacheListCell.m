@@ -68,6 +68,7 @@
             break;
         case YCDownloadStatusFinished:
             self.statusLbl.text = @"下载成功";
+            self.progressView.progress = 1;
             break;
         case YCDownloadStatusFailed:
             self.statusLbl.text = @"下载失败";

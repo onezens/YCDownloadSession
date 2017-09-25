@@ -13,7 +13,8 @@
 @interface YCDownloadSession : NSObject
 
 /**
- 设置下载任务的个数，最多支持3个下载任务同时进行。NSURLSession最多支持5个任务同时进行
+ 设置下载任务的个数，最多支持3个下载任务同时进行。
+ NSURLSession最多支持5个任务同时进行
  但是5个任务，在某些情况下，部分任务会出现等待的状态，所有设置最多支持3个
  */
 @property (nonatomic, assign) NSInteger maxTaskCount;

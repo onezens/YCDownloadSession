@@ -93,6 +93,7 @@ YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YC
 3. 蜂窝煤是否允许下载的方法(YCDownloadSession, YCDownloadManager)
 
 	```
+	YCDownloadSession: 
 	/**
 	 是否允许蜂窝煤网络下载，以及网络状态变为蜂窝煤是否允许下载，必须把所有的downloadTask全部暂停，然后重新创建。否则，原先创建的
 	 下载task依旧在网络切换为蜂窝煤网络时会继续下载
@@ -101,11 +102,31 @@ YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YC
 	 */
 	- (void)allowsCellularAccess:(BOOL)isAllow;
 	
-	
+	YCDownloadManager:
 	/**
 	 获取当前是否允许蜂窝煤访问状态
 	 */
 	- (BOOL)isAllowsCellularAccess;
+	```
+
+4. 设置最大同时进行下载的任务数
+
+	```
+	YCDownloadSession: 
+	/**
+	 设置下载任务的个数，最多支持3个下载任务同时进行。
+	 NSURLSession最多支持5个任务同时进行
+	 但是5个任务，在某些情况下，部分任务会出现等待的状态，所有设置最多支持3个
+	 */
+	@property (nonatomic, assign) NSInteger maxTaskCount;
+	
+	
+	
+	YCDownloadManager:
+	/**
+	 设置下载任务的个数，最多支持3个下载任务同时进行。
+	 */
+	+ (void)setMaxTaskCount:(NSInteger)count;
 	```
 
 
@@ -124,9 +145,10 @@ YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YC
 ### TODO
 
 1. 4G/流量下载管理（完成）
-2. 对下载任务个数进一步优化和管理
+2. 对下载任务个数进一步优化和管理（完成）
 3. 下载完成后添加本地通知
 4. Swift 版的下载
+5. 301/302 视频模拟测试
 
 
 ### 下载代码详解

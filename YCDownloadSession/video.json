@@ -15,13 +15,6 @@
   },
   {
   "mp4_url": "https://vd1.bdstatic.com/mda-hiwgyhhpzdscwkyu/mda-hiwgyhhpzdscwkyu.mp4?playlist=%5B%22hd%22%5D&auth_key=1506159218-0-0-02860d7d3bad11758b123c96aa7271ec&bcevod_channel=searchbox_feed",
-  "cover": "http://boscdn.bpc.baidu.com/v1/mediaspot/fa6bb8d492a2480036514b7ab54e18e7.jpeg",
-  "title": "赵丽颖",
-  "ptime": "2017",
-  "videosource": "测试视频"
-  },
-  {
-  "mp4_url": "https://vd1.bdstatic.com/mda-hiwgyhhpzdscwkyu/mda-hiwgyhhpzdscwkyu.mp4?playlist=%5B%22hd%22%5D&auth_key=1506159218-0-0-02860d7d3bad11758b123c96aa7271ec&bcevod_channel=searchbox_feed",
   "cover": "http://boscdn.bpc.baidu.com/v1/mediaspot/8b7ee815c80dc50c62aa702c1050a07b.png",
   "title": "赵丽颖",
   "ptime": "2017",
@@ -65,7 +58,7 @@
   {
   "mp4_url": "http://vd1.bdstatic.com/mda-hihm59tq2dpzsai2/mda-hihm59tq2dpzsai2.mp4?playlist=%5B%22hd%22%5D&auth_key=1506245685-0-0-66217496c6306e00677b6b7f511581de&bcevod_channel=pae_search",
   "cover": "http://cdn01.baidu-img.cn/timg?wisealaddin&size=f185_125&quality=80&sec=1506159044&di=b15c6720bb597a89bbe17b4c0dbfc6f1&src=http%3A%2F%2Fpic.rmb.bdstatic.com%2Fmda-hiqfs2cxi47zn6sz.jpg",
-  "title": "12万",
+  "title": "12万测试视频",
   "ptime": "2017",
   "videosource": "测试视频"
   },
