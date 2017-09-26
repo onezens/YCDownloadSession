@@ -52,14 +52,30 @@
     [self.coverImgView sd_setImageWithURL:[NSURL URLWithString:videoModel.cover]];
 }
 
-- (void)setIsDownload:(BOOL)isDownload {
-    
-    _isDownload = isDownload;
-    if (isDownload) {
-        [self.downloadBtn setTitle:@"已下载" forState:UIControlStateNormal];
-    }else{
-        [self.downloadBtn setTitle:@"下载" forState:UIControlStateNormal];
+
+- (void)setDownloadStatus:(YCDownloadStatus)status {
+    NSString *statusStr = @"下载";
+    switch (status) {
+        case YCDownloadStatusWaiting:
+            statusStr = @"正在等待";
+            break;
+        case YCDownloadStatusDownloading:
+            statusStr = @"正在下载";
+            break;
+        case YCDownloadStatusPaused:
+            statusStr = @"暂停下载";
+            break;
+        case YCDownloadStatusFinished:
+            statusStr = @"下载成功";
+            break;
+        case YCDownloadStatusFailed:
+            statusStr = @"下载失败";
+            break;
+            
+        default:
+            break;
     }
+    [self.downloadBtn setTitle:statusStr forState:UIControlStateNormal];
 }
 
 

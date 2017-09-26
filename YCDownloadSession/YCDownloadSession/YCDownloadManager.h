@@ -51,7 +51,7 @@
 + (void)pauseAllDownloadTask;
 
 /**
- 根据 downloadURLString 判断该下载是否完成
+ 根据 downloadURLString 判断该下载是否已经创建
  */
 + (BOOL)isDownloadWithUrl:(NSString *)downloadURLString;
 
@@ -74,6 +74,7 @@
  获取所有已完成的下载
  */
 + (NSArray *)finishList;
+
 
 /**
  获取所有下载数据所占用的磁盘空间

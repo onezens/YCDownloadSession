@@ -51,8 +51,7 @@
     [pauseBtn setTitleColor:[UIColor cyanColor] forState:UIControlStateHighlighted];
     [self.view addSubview:pauseBtn];
 
-//    self.downloadURL = @"http://dldir1.qq.com/qqfile/QQforMac/QQ_V6.0.1.dmg";
-    self.downloadURL = @"http://api.onezen.cc";
+    self.downloadURL = @"http://dldir1.qq.com/qqfile/QQforMac/QQ_V6.0.1.dmg";
     
     UILabel *lbl = [[UILabel alloc] init];
     lbl.text = @"0%";

@@ -28,6 +28,12 @@
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"缓存" style:UIBarButtonItemStylePlain target:self action:@selector(goCache)];
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    
+    [super viewWillAppear:animated];
+    [self.tableView reloadData];
+}
+
 - (void)getVideoList {
     
     NSString *dataPath = [[NSBundle mainBundle] pathForResource:@"video.json" ofType:nil];
@@ -50,9 +56,7 @@
  */
 - (void)videoListCell:(VideoListInfoCell *)cell downloadVideo:(VideoListInfoModel *)model {
     NSLog(@"%@", model.mp4_url);
-    
     [YCDownloadManager startDownloadWithUrl:model.mp4_url fileName:model.title thumbImageUrl:model.cover];
-    
     VideoCacheController *vc = [[VideoCacheController alloc] init];
     [self.navigationController pushViewController:vc animated:true];
 }
@@ -70,7 +74,7 @@
     VideoListInfoModel *model = self.videoListArr[indexPath.row];
     [cell setVideoModel:model];
     cell.delegate = self;
-    cell.isDownload = [YCDownloadManager isDownloadWithUrl:model.mp4_url];
+    [cell setDownloadStatus:[YCDownloadManager downloasStatusWithUrl:model.mp4_url]];
     return cell;
 }
 

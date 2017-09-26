@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "VideoListInfoModel.h"
+#import "YCDownloadItem.h"
 @class VideoListInfoCell;
 
 @protocol VideoListInfoCellDelegate <NSObject>
@@ -18,9 +19,8 @@
 
 @interface VideoListInfoCell : UITableViewCell
 @property (nonatomic, strong) VideoListInfoModel *videoModel;
-@property (nonatomic, assign) BOOL isDownload;
 @property (nonatomic, weak) id <VideoListInfoCellDelegate> delegate;
 + (instancetype)videoListInfoCellWithTableView:(UITableView *)tableView;
 + (CGFloat)rowHeight;
-
+- (void)setDownloadStatus:(YCDownloadStatus)status;
 @end

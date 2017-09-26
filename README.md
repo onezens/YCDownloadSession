@@ -29,7 +29,7 @@ NSString *bundleId = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBu
 
 图解：
 
-![图解](http://src.onezen.cc/demo/download3.png)
+![图解](http://src.onezen.cc/demo/download/3.png)
 
 YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YCDownloadItem相互独立。大家和可以通过YCDownloadSession和YCDownloadTask自定义需要的下载管理类的信息类。
 
@@ -171,11 +171,15 @@ YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YC
 
 1. 单文件下载测试
 
-  !s[单文件下载测试](http://src.onezen.cc/demo/download/1.gif)
+  ![单文件下载测试](http://src.onezen.cc/demo/download/1.gif)
 
 2. 多视频下载测试
 
-  !s[多视频下载测试](http://src.onezen.cc/demo/download/2.gif)
+  ![多视频下载测试](http://src.onezen.cc/demo/download/2.gif)
+  
+3. 下载通知
+
+  ![下载通知](http://src.onezen.cc/demo/download/4.png)
 
 
 ### TODO

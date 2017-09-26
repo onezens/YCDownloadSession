@@ -137,7 +137,6 @@ static id _instance;
     return [[YCDownloadManager manager] finishList];
 }
 
-
 + (BOOL)isDownloadWithUrl:(NSString *)downloadURLString {
     return [[self manager] isDownloadWithUrl:downloadURLString];
 }
@@ -303,11 +302,14 @@ static id _instance;
 - (BOOL)isDownloadWithUrl:(NSString *)downloadURLString {
     
     YCDownloadItem *item = [self.itemsDictM valueForKey:downloadURLString];
-    return item.downloadStatus == YCDownloadStatusFinished;
+    return item != nil;
 }
 
 - (YCDownloadStatus)downloasStatusWithUrl:(NSString *)downloadURLString {
     YCDownloadItem *item = [self.itemsDictM valueForKey:downloadURLString];
+    if (!item) {
+        return -1;
+    }
     return item.downloadStatus;
 }
 
