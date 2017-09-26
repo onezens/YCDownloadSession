@@ -37,7 +37,29 @@ YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YC
 
 ### 用法
 
-1. 直接使用YCDownloadSession
+1. AppDelegate设置后台回调方法
+
+	```
+	-(void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler{
+	    [[YCDownloadSession downloadSession] addCompletionHandler:completionHandler];
+	}
+	
+	```
+上面代码，如果想要多个任务在后台同时进行，必须要进行设置的。YCDownloadSession内部会处理该回调方法(completionHandler的作用将会在blog里详细说明)，内部处理逻辑：
+
+	```
+	//后台下载完成后调用。在执行 URLSession:downloadTask:didFinishDownloadingToURL: 之后调用
+	- (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session {
+	
+	    //所有的任务执行结束之后调用completedHanlder
+	    if (self.completedHandler && [self allTaskFinised]) {
+	        self.completedHandler();
+	        self.completedHandler = nil;
+	    }
+	}
+	```
+
+2. 直接使用YCDownloadSession
 
 	```
 	self.downloadURL = @"http://dldir1.qq.com/qqfile/QQforMac/QQ_V6.0.1.dmg";
@@ -72,7 +94,7 @@ YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YC
 
 	```
 	
-2. 使用自定义的管理类(YCDownloadManager 视频类型文件专用下载管理类)下载
+3. 使用自定义的管理类(YCDownloadManager 视频类型文件专用下载管理类)下载
 
 	```
 	//下载列表页面
@@ -90,7 +112,7 @@ YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YC
 	
 	```
 
-3. 蜂窝煤是否允许下载的方法(YCDownloadSession, YCDownloadManager)
+4. 蜂窝煤是否允许下载的方法(YCDownloadSession, YCDownloadManager)
 
 	```
 	YCDownloadSession: 
@@ -109,7 +131,7 @@ YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YC
 	- (BOOL)isAllowsCellularAccess;
 	```
 
-4. 设置最大同时进行下载的任务数
+5. 设置最大同时进行下载的任务数
 
 	```
 	YCDownloadSession: 

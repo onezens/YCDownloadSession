@@ -547,6 +547,7 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
 //后台下载完成后调用。在执行 URLSession:downloadTask:didFinishDownloadingToURL: 之后调用
 - (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session {
     NSLog(@"%s", __func__);
+    //所有的任务执行结束之后调用completedHanlder
     if (self.completedHandler && [self allTaskFinised]) {
         NSLog(@"completedHandler");
         self.completedHandler();
