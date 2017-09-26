@@ -4,6 +4,7 @@
 //
 //  Created by wz on 17/3/24.
 //  Copyright © 2017年 onezen.cc. All rights reserved.
+//  Github: https://github.com/onezens/YCDownloadSession
 //
 
 #import "YCDownloadManager.h"
@@ -16,6 +17,8 @@
 @interface YCDownloadManager ()
 
 @property (nonatomic, strong) NSMutableDictionary *itemsDictM;
+/**本地通知开关，默认关,一般用于测试。可以根据通知名称，自定义*/
+@property (nonatomic, assign) BOOL localPushOn;
 
 @end
 
@@ -37,7 +40,7 @@ static id _instance;
     if (self = [super init]) {
         [self getDownloadItems];
         if(!self.itemsDictM) self.itemsDictM = [NSMutableDictionary dictionary];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(saveDownloadItems) name:kYCDownloadSessionSaveDownloadStatus object:nil];
+        [self addNotification];
     }
     return self;
 }
@@ -65,6 +68,13 @@ static id _instance;
 - (NSString *)downloadItemSavePath {
     NSString *saveDir = [YCDownloadTask saveDir];
     return [saveDir stringByAppendingPathComponent:@"items.data"];
+}
+
+- (void)addNotification {
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(saveDownloadItems) name:kYCDownloadSessionSaveDownloadStatus object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadAllTaskFinished) name:kDownloadAllTaskFinishedNoti object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadTaskFinishedNoti:) name:kDownloadTaskFinishedNoti object:nil];
 }
 
 
@@ -143,6 +153,11 @@ static id _instance;
     [[YCDownloadManager manager] allowsCellularAccess:isAllow];
 }
 
++(void)localPushOn:(BOOL)isOn {
+    [[YCDownloadManager manager] localPushOn:isOn];
+}
+
+#pragma mark tools
 +(BOOL)isAllowsCellularAccess{
     return [[YCDownloadManager manager] isAllowsCellularAccess];
 }
@@ -300,5 +315,64 @@ static id _instance;
     return item;
 }
 
+- (void)localPushOn:(BOOL)isOn {
+    self.localPushOn = isOn;
+}
+
+#pragma mark notificaton
+
+
+- (void)downloadAllTaskFinished{
+    [self localPushWithTitle:@"YCDownloadSession" detail:@"所有的下载任务已完成！"];
+}
+
+- (void)downloadTaskFinishedNoti:(NSNotification *)noti{
+    
+    YCDownloadItem *item = noti.object;
+    if (item) {
+        NSString *detail = [NSString stringWithFormat:@"%@ 视频，已经下载完成！", item.fileName];
+        [self localPushWithTitle:@"YCDownloadSession" detail:detail];
+    }
+}
+
+
+#pragma mark local push
+
+- (void)localPushWithTitle:(NSString *)title detail:(NSString *)body  {
+    
+    if (!self.localPushOn) return;
+    
+    // 1.创建本地通知
+    UILocalNotification *localNote = [[UILocalNotification alloc] init];
+    
+    // 2.设置本地通知的内容
+    // 2.1.设置通知发出的时间
+    localNote.fireDate = [NSDate dateWithTimeIntervalSinceNow:3.0];
+    // 2.2.设置通知的内容
+    localNote.alertBody = body;
+    // 2.3.设置滑块的文字（锁屏状态下：滑动来“解锁”）
+    localNote.alertAction = @"滑动来“解锁”";
+    // 2.4.决定alertAction是否生效
+    localNote.hasAction = NO;
+    // 2.5.设置点击通知的启动图片
+    //    localNote.alertLaunchImage = @"123Abc";
+    // 2.6.设置alertTitle
+    localNote.alertTitle = title;
+    // 2.7.设置有通知时的音效
+    localNote.soundName = @"default";
+    // 2.8.设置应用程序图标右上角的数字
+    localNote.applicationIconBadgeNumber = 0;
+    
+    // 2.9.设置额外信息
+    localNote.userInfo = @{@"type" : @1};
+    
+    // 3.调用通知
+    [[UIApplication sharedApplication] scheduleLocalNotification:localNote];
+    
+}
+
+-(void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
 
 @end

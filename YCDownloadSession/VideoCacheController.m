@@ -27,7 +27,8 @@
     self.view.backgroundColor = [UIColor whiteColor];
     self.cacheVideoList = [NSMutableArray array];
     [self getCacheVideoList];
-//    [YCDownloadManager setMaxTaskCount:3];
+    [YCDownloadManager setMaxTaskCount:2];
+    [YCDownloadManager localPushOn:true];
 }
 
 - (void)getCacheVideoList {

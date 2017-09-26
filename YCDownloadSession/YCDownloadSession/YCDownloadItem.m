@@ -4,6 +4,7 @@
 //
 //  Created by wz on 17/7/28.
 //  Copyright © 2017年 onezen.cc. All rights reserved.
+//  Github: https://github.com/onezens/YCDownloadSession
 //
 
 #import "YCDownloadItem.h"
@@ -28,6 +29,9 @@
     [self saveDownloadStatusNoti];
     if ([self.delegate respondsToSelector:@selector(downloadItemStatusChanged:)]) {
         [self.delegate downloadItemStatusChanged:self];
+    }
+    if (status == YCDownloadStatusFinished) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadTaskFinishedNoti object:self];
     }
 }
 

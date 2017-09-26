@@ -4,6 +4,7 @@
 //
 //  Created by wz on 17/3/15.
 //  Copyright © 2017年 onezen.cc. All rights reserved.
+//  Github: https://github.com/onezens/YCDownloadSession
 //
 
 #import <UIKit/UIKit.h>
@@ -16,6 +17,7 @@ typedef enum : NSUInteger {
     YCDownloadStatusFailed
 } YCDownloadStatus;
 
+//TODO: 优化点
 static NSString * const kYCDownloadSessionSaveDownloadStatus = @"kYCDownloadSessionSaveDownloadStatus";
 
 @class YCDownloadTask;
@@ -48,6 +50,7 @@ static NSString * const kYCDownloadSessionSaveDownloadStatus = @"kYCDownloadSess
  @param task 状态改变的任务
  */
 - (void)downloadStatusChanged:(YCDownloadStatus)status downloadTask:(YCDownloadTask *)task;
+
 
 @end
 

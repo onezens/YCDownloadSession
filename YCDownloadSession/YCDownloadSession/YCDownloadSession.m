@@ -4,6 +4,7 @@
 //
 //  Created by wz on 17/3/14.
 //  Copyright © 2017年 onezen.cc. All rights reserved.
+//  Github: https://github.com/onezens/YCDownloadSession
 //
 
 #import "YCDownloadSession.h"
@@ -13,9 +14,12 @@
 static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 @interface YCDownloadSession ()<NSURLSessionDownloadDelegate>
 
-@property (nonatomic, strong) NSMutableDictionary *downloadTasks;//正在下载的task
-@property (nonatomic, strong) NSMutableDictionary *downloadedTasks;//下载完成的task
-@property (nonatomic, copy) BGCompletedHandler completedHandler;//后台下载回调的handlers，所有的下载任务全部结束后调用
+/**正在下载的task*/
+@property (nonatomic, strong) NSMutableDictionary *downloadTasks;
+/**下载完成的task*/
+@property (nonatomic, strong) NSMutableDictionary *downloadedTasks;
+/**后台下载回调的handlers，所有的下载任务全部结束后调用*/
+@property (nonatomic, copy) BGCompletedHandler completedHandler;
 @property (nonatomic, strong, readonly) NSURLSession *downloadSession;
 @property (nonatomic, assign) BOOL isNeedCreateSession;
 
@@ -74,14 +78,19 @@ static YCDownloadSession *_instance;
 - (NSURLSession *)getDownloadURLSession {
     
     NSURLSession *session = nil;
-    NSString *bundleId = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
-    NSString *identifier = [NSString stringWithFormat:@"%@.BackgroundSession", bundleId];
+    NSString *identifier = [self backgroundSessionIdentifier];
     NSURLSessionConfiguration* sessionConfig = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:identifier];
     sessionConfig.allowsCellularAccess = [[NSUserDefaults standardUserDefaults] boolForKey:kIsAllowCellar];
     session = [NSURLSession sessionWithConfiguration:sessionConfig
                                             delegate:self
                                        delegateQueue:[NSOperationQueue mainQueue]];
     return session;
+}
+
+- (NSString *)backgroundSessionIdentifier {
+    NSString *bundleId = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
+    NSString *identifier = [NSString stringWithFormat:@"%@.BackgroundSession", bundleId];
+    return identifier;
 }
 
 
@@ -113,7 +122,15 @@ static YCDownloadSession *_instance;
 
 - (NSInteger)currentTaskCount {
     NSMutableDictionary *dictM = [self.downloadSession valueForKey:@"tasks"];
-    return dictM.count;
+    __block NSInteger count = 0;
+    [dictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        NSURLSessionTask *task = obj;
+        if (task.state == NSURLSessionTaskStateRunning) {
+            count++;
+        }
+    }];
+    
+    return count;
 }
 
 #pragma mark - public
@@ -212,8 +229,10 @@ static YCDownloadSession *_instance;
     return [[NSUserDefaults standardUserDefaults] boolForKey:kIsAllowCellar];
 }
 
--(void)addCompletionHandler:(BGCompletedHandler)handler{
-    self.completedHandler = handler;
+-(void)addCompletionHandler:(BGCompletedHandler)handler identifier:(NSString *)identifier{
+    if ([[self backgroundSessionIdentifier] isEqualToString:identifier]) {
+        self.completedHandler = handler;
+    }
 }
 
 #pragma mark - private
@@ -307,18 +326,15 @@ static YCDownloadSession *_instance;
 
 
 - (void)startNextDownloadTask {
-    //某一任务下载完成后，或者暂停之后，session的tasks里还是有原先任务，所以保证0.5秒的延时
-    //延时有不确定性，找到更好的替换方案，可以替换
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        if ([self currentTaskCount] < self.maxTaskCount) {
-            [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-                YCDownloadTask *task = obj;
-                if ((!task.downloadTask || task.downloadTask.state != NSURLSessionTaskStateRunning) && task.downloadStatus == YCDownloadStatusWaiting) {
-                    [self resumeDownloadTask:task];
-                }
-            }];
-        }
-    });
+    
+    if ([self currentTaskCount] < self.maxTaskCount) {
+        [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+            YCDownloadTask *task = obj;
+            if ((!task.downloadTask || task.downloadTask.state != NSURLSessionTaskStateRunning) && task.downloadStatus == YCDownloadStatusWaiting) {
+                [self resumeDownloadTask:task];
+            }
+        }];
+    }
 }
 
 
@@ -336,7 +352,6 @@ static YCDownloadSession *_instance;
         case YCDownloadStatusFailed:
             break;
         case YCDownloadStatusFinished:
-            [self localPushWithBody:task.downloadURL alertAction:@"alertAction" title:@"title"];
             [self startNextDownloadTask];
             break;
         default:
@@ -345,6 +360,21 @@ static YCDownloadSession *_instance;
     
     if ([task.delegate respondsToSelector:@selector(downloadStatusChanged:downloadTask:)]) {
         [task.delegate downloadStatusChanged:status downloadTask:task];
+    }
+    //等task delegate方法执行完成后去判断该逻辑
+    //URLSessionDidFinishEventsForBackgroundURLSession 方法在后台执行一次，所以在此判断执行completedHandler
+    if (status == YCDownloadStatusFinished) {
+        
+        if ([self allTaskFinised]) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadAllTaskFinishedNoti object:nil];
+            //所有的任务执行结束之后调用completedHanlder
+            if (self.completedHandler) {
+                NSLog(@"completedHandler");
+                self.completedHandler();
+                self.completedHandler = nil;
+            }
+        }
+
     }
 }
 
@@ -364,36 +394,7 @@ static YCDownloadSession *_instance;
 }
 
 
-- (void)localPushWithBody:(NSString *)body alertAction:(NSString *)action title:(NSString *)title {
-    
-    // 1.创建本地通知
-    UILocalNotification *localNote = [[UILocalNotification alloc] init];
-    
-    // 2.设置本地通知的内容
-    // 2.1.设置通知发出的时间
-    localNote.fireDate = [NSDate dateWithTimeIntervalSinceNow:3.0];
-    // 2.2.设置通知的内容
-    localNote.alertBody = body;
-    // 2.3.设置滑块的文字（锁屏状态下：滑动来“解锁”）
-    localNote.alertAction = action;
-    // 2.4.决定alertAction是否生效
-    localNote.hasAction = NO;
-    // 2.5.设置点击通知的启动图片
-    //    localNote.alertLaunchImage = @"123Abc";
-    // 2.6.设置alertTitle
-    localNote.alertTitle = title;
-    // 2.7.设置有通知时的音效
-    localNote.soundName = @"default";
-    // 2.8.设置应用程序图标右上角的数字
-    localNote.applicationIconBadgeNumber = 0;
-    
-    // 2.9.设置额外信息
-    localNote.userInfo = @{@"type" : @1};
-    
-    // 3.调用通知
-    [[UIApplication sharedApplication] scheduleLocalNotification:localNote];
-    
-}
+
 
 
 #pragma mark - event
@@ -547,12 +548,7 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
 //后台下载完成后调用。在执行 URLSession:downloadTask:didFinishDownloadingToURL: 之后调用
 - (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session {
     NSLog(@"%s", __func__);
-    //所有的任务执行结束之后调用completedHanlder
-    if (self.completedHandler && [self allTaskFinised]) {
-        NSLog(@"completedHandler");
-        self.completedHandler();
-        self.completedHandler = nil;
-    }
+
 }
 
 

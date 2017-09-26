@@ -51,7 +51,7 @@
 
 -(void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler{
     NSLog(@"%s", __func__);
-    [[YCDownloadSession downloadSession] addCompletionHandler:completionHandler];
+    [[YCDownloadSession downloadSession] addCompletionHandler:completionHandler identifier:identifier];
 }
 
 

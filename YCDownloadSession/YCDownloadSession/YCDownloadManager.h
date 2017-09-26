@@ -4,6 +4,7 @@
 //
 //  Created by wz on 17/3/24.
 //  Copyright © 2017年 onezen.cc. All rights reserved.
+//  Github: https://github.com/onezens/YCDownloadSession
 //
 
 #import <UIKit/UIKit.h>
@@ -117,6 +118,13 @@
  获取是否允许蜂窝煤访问
  */
 + (BOOL)isAllowsCellularAccess;
+
+
+
+/**
+ 本地通知的开关，默认是false,可以根据通知名称自定义通知类型
+ */
++ (void)localPushOn:(BOOL)isOn;
 
 
 @end

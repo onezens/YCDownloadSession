@@ -37,7 +37,7 @@ YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YC
 
 ### 用法
 
-1. AppDelegate设置后台回调方法
+1. AppDelegate设置后台下载成功回调方法
 
 	```
 	-(void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler{
@@ -45,21 +45,22 @@ YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YC
 	}
 	
 	```
-上面代码，如果想要多个任务在后台同时进行，必须要进行设置的。YCDownloadSession内部会处理该回调方法(completionHandler的作用将会在blog里详细说明)，内部处理逻辑：
+	
+	如果想要多个任务在后台同时进行，必须要进行设置上述的代理方法。YCDownloadSession内部会处理该回调方法(completionHandler的作用将会在blog里详细说明)，内部处理逻辑：
 
 	```
 	//后台下载完成后调用。在执行 URLSession:downloadTask:didFinishDownloadingToURL: 之后调用
 	- (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session {
-	
+		
 	    //所有的任务执行结束之后调用completedHanlder
 	    if (self.completedHandler && [self allTaskFinised]) {
 	        self.completedHandler();
 	        self.completedHandler = nil;
 	    }
-	}
+	
 	```
 
-2. 直接使用YCDownloadSession
+2. 直接使用YCDownloadSession下载文件
 
 	```
 	self.downloadURL = @"http://dldir1.qq.com/qqfile/QQforMac/QQ_V6.0.1.dmg";
@@ -150,7 +151,18 @@ YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YC
 	 */
 	+ (void)setMaxTaskCount:(NSInteger)count;
 	```
-
+	
+6. 下载完成的通知
+	* 本地通知(YCDownloadManager实现)：
+	
+	```
+	/**
+	 本地通知的开关，默认是false,可以根据通知名称自定义通知类型
+	 */
+	+ (void)localPushOn:(BOOL)isOn;
+	```
+	* 当前session中所有的任务下载完成的通知。 不包括失败、暂停的任务: `kDownloadAllTaskFinishedNoti`
+	* 某一的任务下载完成的通知object为YCDownloadItem：`kDownloadTaskFinishedNoti`
 
 
 ### 使用效果图
@@ -168,7 +180,7 @@ YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YC
 
 1. 4G/流量下载管理（完成）
 2. 对下载任务个数进一步优化和管理（完成）
-3. 下载完成后添加本地通知
+3. 下载完成后添加本地通知（完成）
 4. Swift 版的下载
 5. 301/302 视频模拟测试
 
