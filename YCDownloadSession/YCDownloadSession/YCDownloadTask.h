@@ -25,6 +25,7 @@ static NSString * const kYCDownloadSessionSaveDownloadStatus = @"kYCDownloadSess
 
 @optional
 
+//TODO: 优化点，文件进度回调，太抽象
 /**
  下载任务的进度回调方法
 

@@ -21,7 +21,10 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 /**后台下载回调的handlers，所有的下载任务全部结束后调用*/
 @property (nonatomic, copy) BGCompletedHandler completedHandler;
 @property (nonatomic, strong, readonly) NSURLSession *downloadSession;
+/**重新创建sessio标记位*/
 @property (nonatomic, assign) BOOL isNeedCreateSession;
+/**启动下一个下载任务的标记位*/
+@property (nonatomic, assign) BOOL isStartNextTask;
 
 @end
 
@@ -62,6 +65,7 @@ static YCDownloadSession *_instance;
         }];
         //获取后台下载缓存在本地的数据
         [self.downloadedTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, YCDownloadTask *obj, BOOL * _Nonnull stop) {
+            //TODO: tempPath: tmp/sessiondownload (by hand)
             if ([[NSFileManager defaultManager] fileExistsAtPath:obj.tempPath]) {
                 [[NSFileManager defaultManager] moveItemAtPath:obj.tempPath toPath:[YCDownloadTask savePathWithSaveName:obj.saveName] error:nil];
             }
@@ -178,12 +182,13 @@ static YCDownloadSession *_instance;
 }
 
 - (void)pauseDownloadWithUrl:(NSString *)downloadURLString {
-    [self pauseDownloadTask:[self getDownloadTaskWithUrl:downloadURLString isDownloadList:true] toNextTask:true];
+    self.isStartNextTask = true;
+    [self pauseDownloadTask:[self getDownloadTaskWithUrl:downloadURLString isDownloadList:true]];
 }
 
 - (void)pauseAllDownloadTask{
     [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        [self pauseDownloadTask:obj toNextTask:false];
+        [self pauseDownloadTask:obj];
     }];
 }
 
@@ -207,6 +212,7 @@ static YCDownloadSession *_instance;
         [self.downloadedTasks removeObjectForKey:downloadURLString];
     } @catch (NSException *exception) {  }
     [self saveDownloadStatus];
+    [self startNextDownloadTask];
 }
 
 - (void)allowsCellularAccess:(BOOL)isAllow {
@@ -216,7 +222,7 @@ static YCDownloadSession *_instance;
         YCDownloadTask *task = obj;
         if (task.downloadTask.state == NSURLSessionTaskStateRunning) {
             task.needToRestart = true;
-            [self pauseDownloadTask:task toNextTask:false];
+            [self pauseDownloadTask:task];
         }
     }];
 
@@ -258,13 +264,13 @@ static YCDownloadSession *_instance;
     return task;
 }
 
-- (void)pauseDownloadTask:(YCDownloadTask *)task toNextTask:(BOOL)toNext{
+- (void)pauseDownloadTask:(YCDownloadTask *)task{
     [task.downloadTask cancelByProducingResumeData:^(NSData * resumeData) {
         if(resumeData.length>0) task.resumeData = resumeData;
         task.downloadTask = nil;
         [self saveDownloadStatus];
         [self downloadStatusChanged:YCDownloadStatusPaused task:task];
-        if (toNext) {
+        if (self.isStartNextTask) {
             [self startNextDownloadTask];
         }
     }];
@@ -326,7 +332,7 @@ static YCDownloadSession *_instance;
 
 
 - (void)startNextDownloadTask {
-    
+    self.isStartNextTask = false;
     if ([self currentTaskCount] < self.maxTaskCount) {
         [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
             YCDownloadTask *task = obj;
@@ -531,8 +537,8 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
         [task.delegate downloadProgress:task totalBytesWritten:totalBytesWritten totalBytesExpectedToWrite:totalBytesExpectedToWrite];
     }
     
-    NSString *url = downloadTask.response.URL.absoluteString;
-    NSLog(@"downloadURL: %@  downloadedSize: %zd totalSize: %zd  progress: %f", url, bytesWritten, totalBytesWritten, (float)totalBytesWritten / totalBytesExpectedToWrite);
+    //NSString *url = downloadTask.response.URL.absoluteString;
+    //NSLog(@"downloadURL: %@  downloadedSize: %zd totalSize: %zd  progress: %f", url, bytesWritten, totalBytesWritten, (float)totalBytesWritten / totalBytesExpectedToWrite);
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task
@@ -547,7 +553,7 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
 
 //后台下载完成后调用。在执行 URLSession:downloadTask:didFinishDownloadingToURL: 之后调用
 - (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session {
-    NSLog(@"%s", __func__);
+    //NSLog(@"%s", __func__);
 
 }
 
@@ -575,6 +581,7 @@ didCompleteWithError:(NSError *)error {
             
         }else{
             [self downloadStatusChanged:YCDownloadStatusFailed task:yctask];
+            [self startNextDownloadTask];
         }
     }
 }

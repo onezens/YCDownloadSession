@@ -17,7 +17,6 @@
  */
 + (void)setMaxTaskCount:(NSInteger)count;
 
-
 /**
  开始一个后台下载任务
  
@@ -46,60 +45,50 @@
  */
 + (void)stopDownloadWithUrl:(NSString *)downloadURLString;
 
-
 /**
  暂停所有的下载
  */
 + (void)pauseAllDownloadTask;
-
 
 /**
  根据 downloadURLString 判断该下载是否完成
  */
 + (BOOL)isDownloadWithUrl:(NSString *)downloadURLString;
 
-
 /**
  根据 downloadURLString 获取该资源的下载状态
  */
 + (YCDownloadStatus)downloasStatusWithUrl:(NSString *)downloadURLString;
-
 
 /**
  根据 downloadURLString 获取该资源的下载详细信息
  */
 + (YCDownloadItem *)downloadItemWithUrl:(NSString *)downloadURLString;
 
-
 /**
  获取所有的下载中的资源
  */
 + (NSArray *)downloadList;
-
 
 /**
  获取所有已完成的下载
  */
 + (NSArray *)finishList;
 
-
 /**
  获取所有下载数据所占用的磁盘空间
  */
 + (NSUInteger)videoCacheSize;
-
 
 /**
  获取当前手机的空闲磁盘空间
  */
 + (NSUInteger)fileSystemFreeSize;
 
-
 /**
  保存下载状态，一般不用，下载内部自己处理完成
  */
 + (void)saveDownloadStatus;
-
 
 /**
  将文件的字节大小，转换成更加容易识别的大小KB，MB，GB
@@ -118,8 +107,6 @@
  获取是否允许蜂窝煤访问
  */
 + (BOOL)isAllowsCellularAccess;
-
-
 
 /**
  本地通知的开关，默认是false,可以根据通知名称自定义通知类型

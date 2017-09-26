@@ -155,12 +155,12 @@ YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YC
 6. 下载完成的通知
 	* 本地通知(YCDownloadManager实现)：
 	
-	```
-	/**
-	 本地通知的开关，默认是false,可以根据通知名称自定义通知类型
-	 */
-	+ (void)localPushOn:(BOOL)isOn;
-	```
+		```
+		/**
+		 本地通知的开关，默认是false,可以根据通知名称自定义通知类型
+		 */
+		+ (void)localPushOn:(BOOL)isOn;
+		```
 	* 当前session中所有的任务下载完成的通知。 不包括失败、暂停的任务: `kDownloadAllTaskFinishedNoti`
 	* 某一的任务下载完成的通知object为YCDownloadItem：`kDownloadTaskFinishedNoti`
 

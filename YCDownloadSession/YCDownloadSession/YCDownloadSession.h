@@ -7,8 +7,6 @@
 //  Github: https://github.com/onezens/YCDownloadSession
 //
 
-//TODO: 下载失败，或者删除某一任务， start next task
-
 #import <UIKit/UIKit.h>
 #import "YCDownloadTask.h"
 
