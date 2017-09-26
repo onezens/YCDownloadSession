@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "YCDownloadTask.h"
 
+typedef void (^BGCompletedHandler)(void);
 @class YCDownloadSession;
 @interface YCDownloadSession : NSObject
 
@@ -74,5 +75,7 @@
  获取当前是否允许蜂窝煤访问状态
  */
 - (BOOL)isAllowsCellularAccess;
+
+-(void)addCompletionHandler:(BGCompletedHandler)handler;
 
 @end

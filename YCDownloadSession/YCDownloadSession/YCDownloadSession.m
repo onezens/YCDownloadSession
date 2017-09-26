@@ -15,6 +15,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 
 @property (nonatomic, strong) NSMutableDictionary *downloadTasks;//正在下载的task
 @property (nonatomic, strong) NSMutableDictionary *downloadedTasks;//下载完成的task
+@property (nonatomic, copy) BGCompletedHandler completedHandler;//后台下载回调的handlers，所有的下载任务全部结束后调用
 @property (nonatomic, strong, readonly) NSURLSession *downloadSession;
 @property (nonatomic, assign) BOOL isNeedCreateSession;
 
@@ -211,6 +212,10 @@ static YCDownloadSession *_instance;
     return [[NSUserDefaults standardUserDefaults] boolForKey:kIsAllowCellar];
 }
 
+-(void)addCompletionHandler:(BGCompletedHandler)handler{
+    self.completedHandler = handler;
+}
+
 #pragma mark - private
 
 - (void)createDownloadTaskWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadTaskDelegate>)delegate{
@@ -302,9 +307,9 @@ static YCDownloadSession *_instance;
 
 
 - (void)startNextDownloadTask {
-    //某一任务下载完成后，或者暂停之后，session的tasks里还是有原先任务，所以保证1秒的延时
+    //某一任务下载完成后，或者暂停之后，session的tasks里还是有原先任务，所以保证0.5秒的延时
     //延时有不确定性，找到更好的替换方案，可以替换
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         if ([self currentTaskCount] < self.maxTaskCount) {
             [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
                 YCDownloadTask *task = obj;
@@ -331,6 +336,7 @@ static YCDownloadSession *_instance;
         case YCDownloadStatusFailed:
             break;
         case YCDownloadStatusFinished:
+            [self localPushWithBody:task.downloadURL alertAction:@"alertAction" title:@"title"];
             [self startNextDownloadTask];
             break;
         default:
@@ -341,6 +347,54 @@ static YCDownloadSession *_instance;
         [task.delegate downloadStatusChanged:status downloadTask:task];
     }
 }
+
+- (BOOL)allTaskFinised {
+    
+    if (self.downloadTasks.count == 0) return true;
+    
+    __block BOOL isFinished = true;
+    [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        YCDownloadTask *task = obj;
+        if (task.downloadStatus == YCDownloadStatusWaiting || task.downloadStatus == YCDownloadStatusDownloading) {
+            isFinished = false;
+            *stop = true;
+        }
+    }];
+    return isFinished;
+}
+
+
+- (void)localPushWithBody:(NSString *)body alertAction:(NSString *)action title:(NSString *)title {
+    
+    // 1.创建本地通知
+    UILocalNotification *localNote = [[UILocalNotification alloc] init];
+    
+    // 2.设置本地通知的内容
+    // 2.1.设置通知发出的时间
+    localNote.fireDate = [NSDate dateWithTimeIntervalSinceNow:3.0];
+    // 2.2.设置通知的内容
+    localNote.alertBody = body;
+    // 2.3.设置滑块的文字（锁屏状态下：滑动来“解锁”）
+    localNote.alertAction = action;
+    // 2.4.决定alertAction是否生效
+    localNote.hasAction = NO;
+    // 2.5.设置点击通知的启动图片
+    //    localNote.alertLaunchImage = @"123Abc";
+    // 2.6.设置alertTitle
+    localNote.alertTitle = title;
+    // 2.7.设置有通知时的音效
+    localNote.soundName = @"default";
+    // 2.8.设置应用程序图标右上角的数字
+    localNote.applicationIconBadgeNumber = 0;
+    
+    // 2.9.设置额外信息
+    localNote.userInfo = @{@"type" : @1};
+    
+    // 3.调用通知
+    [[UIApplication sharedApplication] scheduleLocalNotification:localNote];
+    
+}
+
 
 #pragma mark - event
 
@@ -409,9 +463,15 @@ static YCDownloadSession *_instance;
     }
 }
 
+//如果appDelegate实现下面的方法，后台下载完成时，会自动唤醒启动app。如果不实现，那么后台下载完成不唤醒，用户手动启动会调用相关回调方法
+//-[AppDelegate application:handleEventsForBackgroundURLSession:completionHandler:]
+//后台唤醒调用顺序： appdelegate ——> didFinishDownloadingToURL  ——> URLSessionDidFinishEventsForBackgroundURLSession
+//手动启动调用顺序: didFinishDownloadingToURL  ——> URLSessionDidFinishEventsForBackgroundURLSession
 - (void)URLSession:(NSURLSession *)session
       downloadTask:(NSURLSessionDownloadTask *)downloadTask
 didFinishDownloadingToURL:(NSURL *)location {
+    
+    NSLog(@"%s", __func__);
     
     NSString *locationString = [location path];
     NSError *error;
@@ -484,8 +544,14 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
     
 }
 
+//后台下载完成后调用。在执行 URLSession:downloadTask:didFinishDownloadingToURL: 之后调用
 - (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session {
-    NSLog(@"Background URL session %@ finished events.\n", session);
+    NSLog(@"%s", __func__);
+    if (self.completedHandler && [self allTaskFinised]) {
+        NSLog(@"completedHandler");
+        self.completedHandler();
+        self.completedHandler = nil;
+    }
 }
 
 

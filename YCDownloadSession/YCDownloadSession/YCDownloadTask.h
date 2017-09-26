@@ -6,7 +6,7 @@
 //  Copyright © 2017年 onezen.cc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 typedef enum : NSUInteger {
     YCDownloadStatusWaiting,
