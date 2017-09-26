@@ -19,7 +19,6 @@
 - (void)updateTask {
     
     _fileSize = (NSInteger)[_downloadTask.response expectedContentLength];
-    [[NSNotificationCenter defaultCenter] postNotificationName:kYCDownloadSessionSaveDownloadStatus object:nil];
 }
 
 #pragma mark - getter
@@ -43,7 +42,9 @@
 
 
 + (NSString *)getURLFromTask:(NSURLSessionTask *)task {
-    NSURLRequest *req = [task currentRequest];
+    
+    //301/302定向的originRequest和currentRequest的url不同
+    NSURLRequest *req = [task originalRequest];
     return req.URL.absoluteString;
 }
 

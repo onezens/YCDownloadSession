@@ -17,23 +17,23 @@ typedef enum : NSUInteger {
     YCDownloadStatusFailed
 } YCDownloadStatus;
 
-//TODO: 优化点
-static NSString * const kYCDownloadSessionSaveDownloadStatus = @"kYCDownloadSessionSaveDownloadStatus";
+/**某一任务下载的状态发生变化的通知*/
+static NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
 
 @class YCDownloadTask;
 @protocol YCDownloadTaskDelegate <NSObject>
 
 @optional
 
-//TODO: 优化点，文件进度回调，太抽象
 /**
  下载任务的进度回调方法
 
  @param task 正在下载的任务
- @param totalBytesWritten 已经下载的文件大小
- @param totalBytesExpectedToWrite 期望下载的文件大小
+ @param downloadedSize 已经下载的文件大小
+ @param fileSize 文件实际大小
  */
-- (void)downloadProgress:(YCDownloadTask *)task totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite;
+- (void)downloadProgress:(YCDownloadTask *)task downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize;
+
 
 
 /**
@@ -64,10 +64,12 @@ static NSString * const kYCDownloadSessionSaveDownloadStatus = @"kYCDownloadSess
 @property (nonatomic, copy, readonly) NSString *saveName;
 @property (nonatomic, copy) NSString *tempPath;
 @property (nonatomic, weak) id <YCDownloadTaskDelegate>delegate;
+/**重新创建下载session，恢复下载状态的session*/
 @property (nonatomic, assign) BOOL needToRestart;
 @property (nonatomic, assign) YCDownloadStatus downloadStatus;
-
 @property (nonatomic, assign, readonly) NSInteger fileSize;
+@property (nonatomic, copy) NSString *tmpName;
+@property (nonatomic, copy) NSString *redirectURL;
 
 
 

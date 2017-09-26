@@ -13,6 +13,9 @@
 /**某一的任务下载完成的通知*/
 static NSString * const kDownloadTaskFinishedNoti = @"kDownloadTaskFinishedNoti";
 
+/**保存下载数据通知*/
+static NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti";
+
 @protocol YCDownloadItemDelegate <NSObject>
 
 @optional

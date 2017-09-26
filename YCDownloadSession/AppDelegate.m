@@ -37,8 +37,6 @@
         [application registerUserNotificationSettings:settings];
     }
     
-    
-    
     return YES;
 }
 
@@ -71,11 +69,13 @@
 
 
 - (void)testTimer {
-    self.timer = [NSTimer scheduledTimerWithTimeInterval:1 repeats:true block:^(NSTimer * _Nonnull timer) {
-        _duration += 1;
-        NSLog(@"%zd", _duration);
-    }];
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(timerRun) userInfo:nil repeats:true];
     [self.timer fire];
+}
+
+- (void)timerRun {
+    _duration += 1;
+    NSLog(@"%zd", _duration);
 }
 
 

@@ -82,10 +82,6 @@
 
 
 - (void)changeSizeLblDownloadedSize:(int64_t)downloadedSize totalSize:(int64_t)totalSize {
-    
-    if (totalSize == 0) {
-        NSLog(@"break");
-    }
 
     self.sizeLbl.text = [NSString stringWithFormat:@"%@ / %@",[YCDownloadManager fileSizeStringFromBytes:downloadedSize], [YCDownloadManager fileSizeStringFromBytes:totalSize]];
     

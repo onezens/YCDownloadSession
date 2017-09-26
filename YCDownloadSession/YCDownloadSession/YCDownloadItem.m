@@ -13,10 +13,10 @@
 @implementation YCDownloadItem
 
 #pragma mark - YCDownloadSessionDelegate
-- (void)downloadProgress:(YCDownloadTask *)task totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
-    self.downloadedSize = totalBytesWritten;
+- (void)downloadProgress:(YCDownloadTask *)task downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize {
+    self.downloadedSize = downloadedSize;
     if ([self.delegate respondsToSelector:@selector(downloadItem:downloadedSize:totalSize:)]) {
-        [self.delegate downloadItem:self downloadedSize:totalBytesWritten totalSize:totalBytesExpectedToWrite];
+        [self.delegate downloadItem:self downloadedSize:downloadedSize totalSize:fileSize];
     }
 }
 
@@ -26,10 +26,10 @@
         self.downloadedSize = self.fileSize;
     }
     self.downloadStatus = status;
-    [self saveDownloadStatusNoti];
     if ([self.delegate respondsToSelector:@selector(downloadItemStatusChanged:)]) {
         [self.delegate downloadItemStatusChanged:self];
     }
+    //通知优先级最后，不与上面的finished重合
     if (status == YCDownloadStatusFinished) {
         [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadTaskFinishedNoti object:self];
     }
@@ -41,7 +41,7 @@
         self.fileSize = task.fileSize;
     }
     _saveName = task.saveName;
-    [self saveDownloadStatusNoti];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadNeedSaveDataNoti object:nil userInfo:nil];
 }
 
 
@@ -55,9 +55,6 @@
 
 #pragma mark - private
 
-- (void)saveDownloadStatusNoti {
-    [[NSNotificationCenter defaultCenter] postNotificationName:kYCDownloadSessionSaveDownloadStatus object:nil];
-}
 
 
 ///  解档

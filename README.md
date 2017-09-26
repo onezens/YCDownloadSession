@@ -162,18 +162,20 @@ YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YC
 		+ (void)localPushOn:(BOOL)isOn;
 		```
 	* 当前session中所有的任务下载完成的通知。 不包括失败、暂停的任务: `kDownloadAllTaskFinishedNoti`
-	* 某一的任务下载完成的通知object为YCDownloadItem：`kDownloadTaskFinishedNoti`
+	* 某一的任务下载完成的通知object为YCDownloadItem对象：`kDownloadTaskFinishedNoti`
+
+7. 某一任务下载的状态发生变化的通知: `kDownloadStatusChangedNoti` 主要用于状态改变后，及时保存下载数据信息。
 
 
 ### 使用效果图
 
 1. 单文件下载测试
 
-  ![单文件下载测试](http://src.onezen.cc/demo/download/1.gif)
+  !s[单文件下载测试](http://src.onezen.cc/demo/download/1.gif)
 
 2. 多视频下载测试
 
-  ![多视频下载测试](http://src.onezen.cc/demo/download/2.gif)
+  !s[多视频下载测试](http://src.onezen.cc/demo/download/2.gif)
 
 
 ### TODO
@@ -181,8 +183,9 @@ YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YC
 1. 4G/流量下载管理（完成）
 2. 对下载任务个数进一步优化和管理（完成）
 3. 下载完成后添加本地通知（完成）
-4. Swift 版的下载
-5. 301/302 视频模拟测试
+4. 301/302 视频模拟测试 （完成）
+5. Swift 版的下载 - 第一个稳定版发布后开始
+
 
 
 ### 下载代码详解

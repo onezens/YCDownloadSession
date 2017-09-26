@@ -72,9 +72,10 @@ static id _instance;
 
 - (void)addNotification {
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(saveDownloadItems) name:kYCDownloadSessionSaveDownloadStatus object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(saveDownloadItems) name:kDownloadStatusChangedNoti object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadAllTaskFinished) name:kDownloadAllTaskFinishedNoti object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadTaskFinishedNoti:) name:kDownloadTaskFinishedNoti object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(saveDownloadItems) name:kDownloadNeedSaveDataNoti object:nil];
 }
 
 
