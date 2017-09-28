@@ -258,6 +258,7 @@ static YCDownloadSession *_instance;
 
 - (void)pauseDownloadTask:(YCDownloadTask *)task{
     [task.downloadTask cancelByProducingResumeData:^(NSData * resumeData) {
+        NSLog(@"pause ----->   %zd  ----->   %@", resumeData.length, task.downloadURL);
         if(resumeData.length>0) task.resumeData = resumeData;
         task.downloadTask = nil;
         [self saveDownloadStatus];
@@ -546,7 +547,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     }
     
     NSString *url = downloadTask.response.URL.absoluteString;
-    NSLog(@"downloadURL: %@  downloadedSize: %zd totalSize: %zd  progress: %f", url, bytesWritten, totalBytesWritten, (float)totalBytesWritten / totalBytesExpectedToWrite);
+    NSLog(@"downloadURL: %@  downloadedSize: %zd totalSize: %zd  progress: %f", url, task.downloadedSize, task.fileSize, (float)task.downloadedSize / task.fileSize);
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task
@@ -578,7 +579,7 @@ didCompleteWithError:(NSError *)error {
         // check if resume data are available
         NSData *resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
         YCDownloadTask *yctask = [self getDownloadTaskWithUrl:[YCDownloadTask getURLFromTask:task] isDownloadingList:true];
-        NSLog(@"pause ----->   %@     --->%zd", yctask.downloadURL, resumeData.length);
+        NSLog(@"error ----->   %@  ----->   %@   --->%zd",error, yctask.downloadURL, resumeData.length);
         if (resumeData) {
             //通过之前保存的resumeData，获取断点的NSURLSessionTask，调用resume恢复下载
             yctask.resumeData = resumeData;

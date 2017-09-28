@@ -226,15 +226,17 @@ static id _instance;
 
 - (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName thumbImageUrl:(NSString *)imagUrl {
     
-    YCDownloadItem *item = [[YCDownloadItem alloc] init];
-    item.downloadUrl = downloadURLString;
-    item.downloadStatus = YCDownloadStatusDownloading;
-    item.fileName = fileName;
-    item.thumbImageUrl = imagUrl;
-    [self.itemsDictM setValue:item forKey:downloadURLString];
+    YCDownloadItem *item = [self downloadItemWithUrl:downloadURLString];
+    if (item == nil) {
+        item = [[YCDownloadItem alloc] init];
+        item.downloadUrl = downloadURLString;
+        item.downloadStatus = YCDownloadStatusDownloading;
+        item.fileName = fileName;
+        item.thumbImageUrl = imagUrl;
+        [self.itemsDictM setValue:item forKey:downloadURLString];
+        [self saveDownloadItems];
+    }
     [[YCDownloadSession downloadSession] startDownloadWithUrl:downloadURLString delegate:item];
-    [self saveDownloadItems];
-    
 }
 
 
