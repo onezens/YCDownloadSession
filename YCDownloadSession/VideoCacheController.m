@@ -9,6 +9,7 @@
 #import "VideoCacheController.h"
 #import "VideoCacheListCell.h"
 #import "YCDownloadManager.h"
+#import "PlayerViewController.h"
 
 @interface VideoCacheController ()<UITableViewDelegate, UITableViewDataSource>
 
@@ -100,6 +101,10 @@
         [YCDownloadManager resumeDownloadWithUrl:item.downloadUrl];
     }else if (item.downloadStatus == YCDownloadStatusWaiting){
         [YCDownloadManager pauseDownloadWithUrl:item.downloadUrl];
+    }else if (item.downloadStatus == YCDownloadStatusFinished){
+        PlayerViewController *playerVC = [[PlayerViewController alloc] init];
+        playerVC.playerItem = item;
+        [self.navigationController pushViewController:playerVC animated:true];
     }
     [self.tableView reloadData];
 }

@@ -193,6 +193,13 @@ static YCDownloadSession *_instance;
         return;
     }
     task = [self getDownloadTaskWithUrl:downloadURLString isDownloadingList:true];
+    
+    //如果下载列表和下载完成列表都不存在，则重新创建
+    if (!task) {
+        [self startDownloadWithUrl:downloadURLString delegate:delegate];
+        return;
+    }
+    
     if(delegate) task.delegate = delegate;
     [self resumeDownloadTask: task];
 }
@@ -586,6 +593,7 @@ didCompleteWithError:(NSError *)error {
             id obj = [NSPropertyListSerialization propertyListWithData:resumeData options:0 format:0 error:nil];
             if ([obj isKindOfClass:[NSDictionary class]]) {
                 NSDictionary *resumeDict = obj;
+                NSLog(@"%@", resumeDict);
                 yctask.tmpName = [resumeDict valueForKey:@"NSURLSessionResumeInfoTempFileName"];
             }
            

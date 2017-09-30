@@ -54,7 +54,7 @@
 - (void)setDownloadURL:(NSString *)downloadURL {
     
     _downloadURL = downloadURL;
-    NSString *fileName = [self cachedFileNameForKey:downloadURL isHavePathExtension:true];
+    NSString *fileName = [self cachedFileNameForKey:downloadURL];
     _saveName = fileName;
 }
 
@@ -116,7 +116,7 @@
 /**
  通过md5加密生成->保存文件名
  */
-- (NSString *)cachedFileNameForKey:(NSString *)key isHavePathExtension:(BOOL)isHave {
+- (NSString *)cachedFileNameForKey:(NSString *)key{
     const char *str = [key UTF8String];
     if (str == NULL) {
         str = "";
@@ -126,7 +126,19 @@
     NSString *filename = [NSString stringWithFormat:@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
                           r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9], r[10], r[11], r[12], r[13], r[14], r[15]];
     
-    return isHave ? [filename stringByAppendingPathExtension:key.pathExtension] : filename;
+
+
+    
+    
+    NSString *pathExtension = [key pathExtension];
+    
+    NSRange range = [pathExtension rangeOfString:@"?"];
+    if (range.location>0 && range.length == 1) {
+        pathExtension = [pathExtension substringToIndex:range.location];
+    }
+    
+    return pathExtension.length>0 ? [filename stringByAppendingPathExtension:pathExtension] : filename;
+    
 }
 
 
