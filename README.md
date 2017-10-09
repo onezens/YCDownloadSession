@@ -49,14 +49,21 @@ YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YC
 	如果想要多个任务在后台同时进行，必须要进行设置上述的代理方法。YCDownloadSession内部会处理该回调方法(completionHandler的作用将会在blog里详细说明)，内部处理逻辑：
 
 	```
-	//后台下载完成后调用。在执行 URLSession:downloadTask:didFinishDownloadingToURL: 之后调用
-	- (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session {
-		
-	    //所有的任务执行结束之后调用completedHanlder
-	    if (self.completedHandler && [self allTaskFinised]) {
-	        self.completedHandler();
-	        self.completedHandler = nil;
-	    }
+//等task delegate方法执行完成后去判断该逻辑
+    //URLSessionDidFinishEventsForBackgroundURLSession 方法在后台执行一次，所以在此判断执行completedHandler
+    if (status == YCDownloadStatusFinished) {
+        
+        if ([self allTaskFinised]) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadAllTaskFinishedNoti object:nil];
+            //所有的任务执行结束之后调用completedHanlder
+            if (self.completedHandler) {
+                NSLog(@"completedHandler");
+                self.completedHandler();
+                self.completedHandler = nil;
+            }
+        }
+
+    }
 	
 	```
 
@@ -65,50 +72,55 @@ YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YC
 	```
 	self.downloadURL = @"http://dldir1.qq.com/qqfile/QQforMac/QQ_V6.0.1.dmg";
 	
-	- (void)start {
-	    [[YCDownloadSession downloadSession] startDownloadWithUrl:self.downloadURL delegate:self];
-	}
-	- (void)resume {
-	    [[YCDownloadSession downloadSession] resumeDownloadWithUrl:self.downloadURL delegate:self];
-	}
-	
-	- (void)pause {
-	    [[YCDownloadSession downloadSession] pauseDownloadWithUrl:self.downloadURL];
-	}
-
-	- (void)stop {
-	    [[YCDownloadSession downloadSession] stopDownloadWithUrl:self.downloadURL];
-	}
-	
-	//代理
-	- (void)downloadProgress:(YCDownloadTask *)task totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
-	    self.progressLbl.text = [NSString stringWithFormat:@"%f",(float)totalBytesWritten / totalBytesExpectedToWrite * 100];
-	}
-	
-	- (void)downloadFailed:(YCDownloadTask *)task {
-	    self.progressLbl.text = @"download failed!";
-	}
-	
-	- (void)downloadinished:(YCDownloadTask *)task {
-	    self.progressLbl.text = @"download success!";
-	}
-
-	```
-	
-3. 使用自定义的管理类(YCDownloadManager 视频类型文件专用下载管理类)下载
+    - (void)start {
+        [[YCDownloadSession downloadSession] startDownloadWithUrl:self.downloadURL delegate:self saveName:nil];
+    }
+    - (void)resume {
+        [[YCDownloadSession downloadSession] resumeDownloadWithUrl:self.downloadURL delegate:self saveName:nil];
+    }
+    
+    - (void)pause {
+        [[YCDownloadSession downloadSession] pauseDownloadWithUrl:self.downloadURL];
+    }
+    
+    - (void)stop {
+        [[YCDownloadSession downloadSession] stopDownloadWithUrl:self.downloadURL];
+    }
+    	
+    //代理
+    - (void)downloadProgress:(YCDownloadTask *)task downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize {
+        self.progressLbl.text = [NSString stringWithFormat:@"%f",(float)downloadedSize / fileSize * 100];
+    }
+    
+    	
+    - (void)downloadStatusChanged:(YCDownloadStatus)status downloadTask:(YCDownloadTask *)task {
+        if (status == YCDownloadStatusFinished) {
+            self.progressLbl.text = @"download success!";
+        }else if (status == YCDownloadStatusFailed){
+            self.progressLbl.text = @"download failed!";
+        }
+    }
 
 	```
-	//下载列表页面
-	VideoListInfoModel *model = [VideoListInfoModel alloc] init];
-	//设置model的数据
-	...
-	[YCDownloadManager startDownloadWithUrl:model.mp4_url fileName:model.title thumbImageUrl:model.cover];
 	
-	
-	//缓存列表页面 
-	//YCDownloadItem(存储下载的视频的详细信息，和下载进度回调)
-	[YCDownloadManager downloadList]; //正在下载列表
-	[YCDownloadManager finishList]; 	//下载完成列表
+3. 使用自定义的管理类(YCDownloadManager 视频类型文件专用下载管理类)下载。假如视频下载完成，自定义保存名称，那么使用fileId来标识。如果fileId为空使用下载URL的MD5的值来保存
+
+	```
+    /**
+     开始/创建一个后台下载任务。downloadURLString作为整个下载任务的唯一标识。
+     下载成功后用downloadURLString的MD5的值来保存
+     文件后缀名取downloadURLString的后缀名，[downloadURLString pathExtension]
+    
+     */
+    + (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName imageUrl:(NSString *)imagUrl;
+    
+    /**
+     开始/创建一个后台下载任务。fileId作为整个下载任务的唯一标识。
+     下载成功后用fileId来保存, 要确保fileId唯一
+     文件后缀名取downloadURLString的后缀名，[downloadURLString pathExtension]
+     
+     */
+    + (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName imageUrl:(NSString *)imagUrl fileId:(NSString *)fileId;
 
 	
 	```
@@ -165,6 +177,7 @@ YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YC
 	* 某一的任务下载完成的通知object为YCDownloadItem对象：`kDownloadTaskFinishedNoti`
 
 7. 某一任务下载的状态发生变化的通知: `kDownloadStatusChangedNoti` 主要用于状态改变后，及时保存下载数据信息。
+
 
 
 ### 使用效果图

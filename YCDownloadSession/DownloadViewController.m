@@ -62,16 +62,17 @@
     
 }
 
-- (void)downloadProgress:(YCDownloadTask *)task totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
-    self.progressLbl.text = [NSString stringWithFormat:@"%f",(float)totalBytesWritten / totalBytesExpectedToWrite * 100];
+- (void)downloadProgress:(YCDownloadTask *)task downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize {
+    self.progressLbl.text = [NSString stringWithFormat:@"%f",(float)downloadedSize / fileSize * 100];
 }
 
-- (void)downloadFailed:(YCDownloadTask *)task {
-    self.progressLbl.text = @"download failed!";
-}
 
-- (void)downloadinished:(YCDownloadTask *)task {
-    self.progressLbl.text = @"download success!";
+- (void)downloadStatusChanged:(YCDownloadStatus)status downloadTask:(YCDownloadTask *)task {
+    if (status == YCDownloadStatusFinished) {
+        self.progressLbl.text = @"download success!";
+    }else if (status == YCDownloadStatusFailed){
+        self.progressLbl.text = @"download failed!";
+    }
 }
 
 - (void)start {
