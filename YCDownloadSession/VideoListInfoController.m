@@ -56,7 +56,7 @@
  */
 - (void)videoListCell:(VideoListInfoCell *)cell downloadVideo:(VideoListInfoModel *)model {
     NSLog(@"%@", model.mp4_url);
-    [YCDownloadManager startDownloadWithUrl:model.mp4_url fileName:model.title thumbImageUrl:model.cover];
+    [YCDownloadManager startDownloadWithUrl:model.mp4_url fileName:model.title imageUrl:model.cover fileId:model.file_id];
     VideoCacheController *vc = [[VideoCacheController alloc] init];
     [self.navigationController pushViewController:vc animated:true];
 }
@@ -74,7 +74,7 @@
     VideoListInfoModel *model = self.videoListArr[indexPath.row];
     [cell setVideoModel:model];
     cell.delegate = self;
-    [cell setDownloadStatus:[YCDownloadManager downloasStatusWithUrl:model.mp4_url]];
+    [cell setDownloadStatus:[YCDownloadManager downloasStatusWithId:model.mp4_url]];
     return cell;
 }
 

@@ -60,7 +60,7 @@
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         
         YCDownloadItem *item = _cacheVideoList[indexPath.row];
-        [YCDownloadManager stopDownloadWithUrl:item.downloadUrl];
+        [YCDownloadManager stopDownloadWithId:item.downloadUrl];
         
         [self.cacheVideoList removeObjectAtIndex:indexPath.row];
         // Delete the row from the data source.
@@ -94,13 +94,13 @@
     
     YCDownloadItem *item = self.cacheVideoList[indexPath.row];
     if (item.downloadStatus == YCDownloadStatusDownloading) {
-        [YCDownloadManager pauseDownloadWithUrl:item.downloadUrl];
+        [YCDownloadManager pauseDownloadWithId:item.downloadUrl];
     }else if (item.downloadStatus == YCDownloadStatusPaused){
-        [YCDownloadManager resumeDownloadWithUrl:item.downloadUrl];
+        [YCDownloadManager resumeDownloadWithId:item.downloadUrl];
     }else if (item.downloadStatus == YCDownloadStatusFailed){
-        [YCDownloadManager resumeDownloadWithUrl:item.downloadUrl];
+        [YCDownloadManager resumeDownloadWithId:item.downloadUrl];
     }else if (item.downloadStatus == YCDownloadStatusWaiting){
-        [YCDownloadManager pauseDownloadWithUrl:item.downloadUrl];
+        [YCDownloadManager pauseDownloadWithId:item.downloadUrl];
     }else if (item.downloadStatus == YCDownloadStatusFinished){
         PlayerViewController *playerVC = [[PlayerViewController alloc] init];
         playerVC.playerItem = item;

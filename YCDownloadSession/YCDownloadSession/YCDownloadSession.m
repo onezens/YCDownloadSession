@@ -132,7 +132,7 @@ static YCDownloadSession *_instance;
 #pragma mark - public
 
 
-- (void)startDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadTaskDelegate>)delegate{
+- (void)startDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadTaskDelegate>)delegate saveName:(NSString *)saveName{
     if (downloadURLString.length == 0)  return;
     
     //判断是否是下载完成的任务
@@ -148,10 +148,12 @@ static YCDownloadSession *_instance;
     if (!task) {
         //判断任务的个数，如果达到最大值则返回，回调等待
         if([self currentTaskCount] >= self.maxTaskCount){
-            [self createDownloadTaskItemWithUrl:downloadURLString delegate:delegate];
+            //创建任务，让其处于等待状态
+            [self createDownloadTaskItemWithUrl:downloadURLString delegate:delegate saveName:saveName];
             [self downloadStatusChanged:YCDownloadStatusWaiting task:task];
         }else {
-            [self createDownloadTaskWithUrl:downloadURLString delegate:delegate];
+            //开始下载
+            [self createDownloadTaskWithUrl:downloadURLString delegate:delegate saveName:saveName];
         }
     }else{
         task.delegate = delegate;
@@ -165,10 +167,6 @@ static YCDownloadSession *_instance;
             [self downloadStatusChanged:YCDownloadStatusDownloading task:task];
             return;
         }
-        //        if(task.downloadedSize == 0) {
-        //            [task.downloadTask cancel];
-        //            task.downloadTask = nil;
-        //        }
         [self resumeDownloadTask:task];
     }
 }
@@ -184,7 +182,7 @@ static YCDownloadSession *_instance;
     }];
 }
 
-- (void)resumeDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadTaskDelegate>)delegate{
+- (void)resumeDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadTaskDelegate>)delegate saveName:(NSString *)saveName{
     //判断是否是下载完成的任务
     YCDownloadTask *task = [self getDownloadTaskWithUrl:downloadURLString isDownloadingList:false];
     if (task) {
@@ -196,7 +194,7 @@ static YCDownloadSession *_instance;
     
     //如果下载列表和下载完成列表都不存在，则重新创建
     if (!task) {
-        [self startDownloadWithUrl:downloadURLString delegate:delegate];
+        [self startDownloadWithUrl:downloadURLString delegate:delegate saveName:nil];
         return;
     }
     
@@ -242,20 +240,20 @@ static YCDownloadSession *_instance;
 
 #pragma mark - private
 
-- (void)createDownloadTaskWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadTaskDelegate>)delegate{
+- (void)createDownloadTaskWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadTaskDelegate>)delegate saveName:(NSString *)saveName{
     
     NSURL *downloadURL = [NSURL URLWithString:downloadURLString];
     NSURLRequest *request = [NSURLRequest requestWithURL:downloadURL];
     NSURLSessionDownloadTask *downloadTask = [self.downloadSession downloadTaskWithRequest:request];
-    YCDownloadTask *task = [self createDownloadTaskItemWithUrl:downloadURLString delegate:delegate];
+    YCDownloadTask *task = [self createDownloadTaskItemWithUrl:downloadURLString delegate:delegate saveName:saveName];
     task.downloadTask = downloadTask;
     [downloadTask resume];
     [self downloadStatusChanged:YCDownloadStatusDownloading task:task];
 }
 
-- (YCDownloadTask *)createDownloadTaskItemWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadTaskDelegate>)delegate{
+- (YCDownloadTask *)createDownloadTaskItemWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadTaskDelegate>)delegate saveName:(NSString *)saveName{
     
-    YCDownloadTask *task = [[YCDownloadTask alloc] init];
+    YCDownloadTask *task = [[YCDownloadTask alloc] initWithSaveName:saveName];
     task.downloadURL = downloadURLString;
     task.delegate = delegate;
     [self.downloadTasks setObject:task forKey:task.downloadURL];
@@ -316,7 +314,7 @@ static YCDownloadSession *_instance;
             NSString *url = task.downloadURL;
             if (url.length ==0) return;
             [self.downloadTasks removeObjectForKey:url];
-            [self createDownloadTaskWithUrl:url delegate:task.delegate];
+            [self createDownloadTaskWithUrl:url delegate:task.delegate saveName:task.saveName];
         }else{
             [task.downloadTask resume];
             [self downloadStatusChanged:YCDownloadStatusDownloading task:task];
@@ -328,8 +326,6 @@ static YCDownloadSession *_instance;
 - (void)stopDownloadWithTask:(YCDownloadTask *)task {
     [task.downloadTask cancel];
 }
-
-
 
 - (void)startNextDownloadTask {
     self.isStartNextTask = false;
@@ -401,9 +397,6 @@ static YCDownloadSession *_instance;
     }];
     return isFinished;
 }
-
-
-
 
 
 #pragma mark - event
@@ -597,7 +590,6 @@ didCompleteWithError:(NSError *)error {
                 yctask.tmpName = [resumeDict valueForKey:@"NSURLSessionResumeInfoTempFileName"];
             }
            
-            
         }else{
             [self downloadStatusChanged:YCDownloadStatusFailed task:yctask];
             [self startNextDownloadTask];

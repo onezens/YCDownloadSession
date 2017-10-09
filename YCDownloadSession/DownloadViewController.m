@@ -75,10 +75,10 @@
 }
 
 - (void)start {
-    [[YCDownloadSession downloadSession] startDownloadWithUrl:self.downloadURL delegate:self];
+    [[YCDownloadSession downloadSession] startDownloadWithUrl:self.downloadURL delegate:self saveName:nil];
 }
 - (void)resume {
-    [[YCDownloadSession downloadSession] resumeDownloadWithUrl:self.downloadURL delegate:self];
+    [[YCDownloadSession downloadSession] resumeDownloadWithUrl:self.downloadURL delegate:self saveName:nil];
 }
 
 - (void)pause {

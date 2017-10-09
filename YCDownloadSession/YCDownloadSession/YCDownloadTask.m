@@ -13,6 +13,12 @@
 
 @implementation YCDownloadTask
 
+- (instancetype)initWithSaveName:(NSString *)saveName{
+    if (self = [super init]) {
+        _saveName = saveName;
+    }
+    return self;
+}
 
 #pragma mark - public
 
@@ -54,8 +60,16 @@
 - (void)setDownloadURL:(NSString *)downloadURL {
     
     _downloadURL = downloadURL;
-    NSString *fileName = [self cachedFileNameForKey:downloadURL];
-    _saveName = fileName;
+    if (_saveName.length == 0) {
+        NSString *fileName = [self cachedFileNameForKey:downloadURL];
+        _saveName = fileName;
+    }else{
+        //没有扩展名，根据自动添加
+        if([self.saveName pathExtension].length == 0){
+            NSString *pathExtension =  [self getPathExtensionWithUrl:downloadURL];
+            _saveName = pathExtension.length>0 ? [_saveName stringByAppendingPathExtension:pathExtension] : _saveName;
+        }
+    }
 }
 
 - (void)setDownloadTask:(NSURLSessionDownloadTask *)downloadTask {
@@ -64,8 +78,6 @@
     }
     _downloadTask = downloadTask;
 }
-
-
 
 #pragma mark - private
 
@@ -112,6 +124,16 @@
     free(ivars);
 }
 
+- (NSString *)getPathExtensionWithUrl:(NSString *)url {
+    NSString *pathExtension = [url pathExtension];
+    //过滤url中的参数，取出单独文件名
+    NSRange range = [pathExtension rangeOfString:@"?"];
+    if (range.location>0 && range.length == 1) {
+        pathExtension = [pathExtension substringToIndex:range.location];
+    }
+    return pathExtension;
+}
+
 
 /**
  通过md5加密生成->保存文件名
@@ -125,18 +147,7 @@
     CC_MD5(str, (CC_LONG)strlen(str), r);
     NSString *filename = [NSString stringWithFormat:@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
                           r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9], r[10], r[11], r[12], r[13], r[14], r[15]];
-    
-
-
-    
-    
-    NSString *pathExtension = [key pathExtension];
-    
-    NSRange range = [pathExtension rangeOfString:@"?"];
-    if (range.location>0 && range.length == 1) {
-        pathExtension = [pathExtension substringToIndex:range.location];
-    }
-    
+    NSString *pathExtension =  [self getPathExtensionWithUrl:key];
     return pathExtension.length>0 ? [filename stringByAppendingPathExtension:pathExtension] : filename;
     
 }

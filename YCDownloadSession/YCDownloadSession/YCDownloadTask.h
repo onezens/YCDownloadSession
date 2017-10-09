@@ -64,21 +64,42 @@ static NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNot
 @property (nonatomic, copy, readonly) NSString *saveName;
 @property (nonatomic, copy) NSString *tempPath;
 @property (nonatomic, weak) id <YCDownloadTaskDelegate>delegate;
-/**重新创建下载session，恢复下载状态的session*/
+/**重新创建下载session，恢复下载状态的session的标识*/
 @property (nonatomic, assign) BOOL needToRestart;
 @property (nonatomic, assign) YCDownloadStatus downloadStatus;
 @property (nonatomic, assign, readonly) NSInteger fileSize;
 @property (nonatomic, copy) NSString *tmpName;
-@property (nonatomic, copy) NSString *redirectURL;
 
 
+/**
+ 创建一个task
 
-+ (NSString *)getURLFromTask:(NSURLSessionTask *)task;
+ @param saveName 可以为空，为空的话，savename为下载url的md5加密后的数据
+ */
+- (instancetype)initWithSaveName:(NSString *)saveName;
 
+/**
+ 下载进度第一次回调调用，保存文件大小信息
+ */
 - (void)updateTask;
 
+
+/**
+ 根据NSURLSessionTask获取下载的url
+ 301/302定向的originRequest和currentRequest的url不同，则取原始的
+ */
++ (NSString *)getURLFromTask:(NSURLSessionTask *)task;
+
+
+/**
+ 根据文件的名称获取文件的沙盒存储路径
+ */
 + (NSString *)savePathWithSaveName:(NSString *)saveName;
 
+
+/**
+ 获取文件的存储路径的目录
+ */
 + (NSString *)saveDir;
 
 

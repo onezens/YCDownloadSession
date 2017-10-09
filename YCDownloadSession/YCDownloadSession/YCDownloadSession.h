@@ -36,8 +36,9 @@ typedef void (^BGCompletedHandler)(void);
  
  @param downloadURLString 下载url
  @param delegate 下载任务的代理
+ @param saveName 下载成功后，需要保存的名称，可以为空，为空的话以url生成保存名称
  */
-- (void)startDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadTaskDelegate>)delegate;
+- (void)startDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadTaskDelegate>)delegate saveName:(NSString *)saveName;
 
 /**
  暂停一个后台下载任务
@@ -52,7 +53,7 @@ typedef void (^BGCompletedHandler)(void);
  @param downloadURLString 下载url
  @param delegate 下载任务的代理
  */
-- (void)resumeDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadTaskDelegate>)delegate;
+- (void)resumeDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadTaskDelegate>)delegate saveName:(NSString *)saveName;
 
 /**
  删除一个后台下载任务，同时会删除当前任务下载的缓存数据

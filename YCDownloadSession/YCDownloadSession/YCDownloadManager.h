@@ -17,33 +17,50 @@
  */
 + (void)setMaxTaskCount:(NSInteger)count;
 
+
 /**
- 开始一个后台下载任务
- 
- @param downloadURLString 下载url
+ 开始/创建一个后台下载任务。downloadURLString作为整个下载任务的唯一标识。
+ 下载成功后用downloadURLString的MD5的值来保存
+ 文件后缀名取downloadURLString的后缀名，[downloadURLString pathExtension]
+
+ @param downloadURLString 下载的资源的url
+ @param fileName 资源名称,可以为空
+ @param imagUrl 资源的图片,可以为空
  */
-+ (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName thumbImageUrl:(NSString *)imagUrl;
++ (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName imageUrl:(NSString *)imagUrl;
+
+/**
+ 开始/创建一个后台下载任务。fileId作为整个下载任务的唯一标识。
+ 下载成功后用fileId来保存, 要确保fileId唯一
+ 文件后缀名取downloadURLString的后缀名，[downloadURLString pathExtension]
+ 
+ @param downloadURLString 下载的资源的url
+ @param fileName 资源名称,可以为空
+ @param imagUrl 资源的图片,可以为空
+ @param fileId 资源的标识,可以为空
+ */
++ (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName imageUrl:(NSString *)imagUrl fileId:(NSString *)fileId;
 
 /**
  暂停一个后台下载任务
  
- @param downloadURLString 下载url
+ @param downloadId 创建的下载任务的标识。如果有fileId使用fileId,没有则是downloadURLString
  */
-+ (void)pauseDownloadWithUrl:(NSString *)downloadURLString;
++ (void)pauseDownloadWithId:(NSString *)downloadId;
 
 /**
  继续开始一个后台下载任务
  
- @param downloadURLString 下载url
+ @param downloadId 创建的下载任务的标识。如果有fileId使用fileId,没有则是downloadURLString
  */
-+ (void)resumeDownloadWithUrl:(NSString *)downloadURLString;
++ (void)resumeDownloadWithId:(NSString *)downloadId;
 
 /**
  删除一个后台下载任务，同时会删除当前任务下载的缓存数据
  
- @param downloadURLString 下载url
+ @param downloadId 创建的下载任务的标识。如果有fileId使用fileId,没有则是downloadURLString
  */
-+ (void)stopDownloadWithUrl:(NSString *)downloadURLString;
++ (void)stopDownloadWithId:(NSString *)downloadId;
 
 /**
  暂停所有的下载
@@ -51,19 +68,22 @@
 + (void)pauseAllDownloadTask;
 
 /**
- 根据 downloadURLString 判断该下载是否已经创建
+ 根据 downloadId 判断该下载是否已经创建
+ @param downloadId 创建的下载任务的标识。如果有fileId使用fileId,没有则是downloadURLString
  */
-+ (BOOL)isDownloadWithUrl:(NSString *)downloadURLString;
++ (BOOL)isDownloadWithId:(NSString *)downloadId;
 
 /**
- 根据 downloadURLString 获取该资源的下载状态
+ 根据 downloadId 获取该资源的下载状态
+ @param downloadId 创建的下载任务的标识。如果有fileId使用fileId,没有则是downloadURLString
  */
-+ (YCDownloadStatus)downloasStatusWithUrl:(NSString *)downloadURLString;
++ (YCDownloadStatus)downloasStatusWithId:(NSString *)downloadId;
 
 /**
- 根据 downloadURLString 获取该资源的下载详细信息
+ 根据 downloadId 获取该资源的下载详细信息
+ @param downloadId 创建的下载任务的标识。如果有fileId使用fileId,没有则是downloadURLString
  */
-+ (YCDownloadItem *)downloadItemWithUrl:(NSString *)downloadURLString;
++ (YCDownloadItem *)downloadItemWithId:(NSString *)downloadId;
 
 /**
  获取所有的下载中的资源
