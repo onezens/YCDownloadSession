@@ -60,7 +60,7 @@
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         
         YCDownloadItem *item = _cacheVideoList[indexPath.row];
-        [YCDownloadManager stopDownloadWithId:item.downloadUrl];
+        [YCDownloadManager stopDownloadWithId:item.fileId];
         
         [self.cacheVideoList removeObjectAtIndex:indexPath.row];
         // Delete the row from the data source.

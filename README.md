@@ -48,23 +48,23 @@ YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YC
 	
 	如果想要多个任务在后台同时进行，必须要进行设置上述的代理方法。YCDownloadSession内部会处理该回调方法(completionHandler的作用将会在blog里详细说明)，内部处理逻辑：
 
-```
-  //等task delegate方法执行完成后去判断该逻辑
-  //URLSessionDidFinishEventsForBackgroundURLSession 方法在后台执行一次，所以在此判断执行completedHandler
-  if (status == YCDownloadStatusFinished) {
+    ```
+     //等task delegate方法执行完成后去判断该逻辑
+     //URLSessionDidFinishEventsForBackgroundURLSession 方法在后台执行一次，所以在此判断执行completedHandler
+     if (status == YCDownloadStatusFinished) {
+         
+         if ([self allTaskFinised]) {
+             [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadAllTaskFinishedNoti object:nil];
+             //所有的任务执行结束之后调用completedHanlder
+             if (self.completedHandler) {
+                 NSLog(@"completedHandler");
+                 self.completedHandler();
+                 self.completedHandler = nil;
+             }
+         }
       
-      if ([self allTaskFinised]) {
-          [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadAllTaskFinishedNoti object:nil];
-          //所有的任务执行结束之后调用completedHanlder
-          if (self.completedHandler) {
-              NSLog(@"completedHandler");
-              self.completedHandler();
-              self.completedHandler = nil;
-          }
-      }
-   
-  }
-```
+     }
+    ```
 
 2. 直接使用YCDownloadSession下载文件
 
