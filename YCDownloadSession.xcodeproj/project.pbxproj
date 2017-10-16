@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3536388E1F9496650070CFA3 /* VideoCacheListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3580D6451F8CB8BC00966A3D /* VideoCacheListCell.xib */; };
+		3536388F1F9496700070CFA3 /* VideoListInfoCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3580D6491F8CB8BD00966A3D /* VideoListInfoCell.xib */; };
 		353E94CC1F7F3C5B00B76CDF /* PlayerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 353E94CB1F7F3C5B00B76CDF /* PlayerViewController.m */; };
 		353E94CD1F7F3D0900B76CDF /* WMPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 353E94C81F7F3BC200B76CDF /* WMPlayer.m */; };
 		353E94CE1F7F3D1000B76CDF /* FastForwardView.m in Sources */ = {isa = PBXBuildFile; fileRef = 353E94C21F7F3BC200B76CDF /* FastForwardView.m */; };
@@ -456,6 +458,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3536388F1F9496700070CFA3 /* VideoListInfoCell.xib in Resources */,
+				3536388E1F9496650070CFA3 /* VideoCacheListCell.xib in Resources */,
 				353E94F51F7F478700B76CDF /* WMPlayer.bundle in Resources */,
 				D72C84E31E77D42500EDCEEF /* LaunchScreen.storyboard in Resources */,
 				D75627FE1EE799F200A031FE /* video.json in Resources */,
