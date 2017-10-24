@@ -131,7 +131,7 @@ static id _instance;
 }
 
 + (YCDownloadItem *)downloadItemWithId:(NSString *)downloadId {
-    return [[self manager] downloadItemWithId:downloadId];
+    return [[self manager] itemForDownloadId:downloadId];
 }
 
 +(void)allowsCellularAccess:(BOOL)isAllow {
@@ -243,7 +243,7 @@ static id _instance;
     
     if (downloadURLString.length == 0 && fileId.length == 0) return;
     
-    YCDownloadItem *item = [self downloadItemWithId:fileId];
+    YCDownloadItem *item = [self itemForDownloadId:downloadURLString];
     if (item == nil) {
         item = [[YCDownloadItem alloc] init];
         item.downloadUrl = downloadURLString;
@@ -273,7 +273,9 @@ static id _instance;
 }
 
 - (void)stopDownloadWithId:(NSString *)downloadId {
+    
     YCDownloadItem *item = [self itemForDownloadId:downloadId];
+    if (item == nil )  return;
     [self.itemsDictM removeObjectForKey:downloadId];
     [[YCDownloadSession downloadSession] stopDownloadWithUrl:item.downloadUrl];
     [self saveDownloadItems];
@@ -333,10 +335,6 @@ static id _instance;
     return item.downloadStatus;
 }
 
-- (YCDownloadItem *)downloadItemWithId:(NSString *)downloadId {
-    YCDownloadItem *item = [self itemForDownloadId:downloadId];
-    return item;
-}
 
 - (void)localPushOn:(BOOL)isOn {
     self.localPushOn = isOn;
