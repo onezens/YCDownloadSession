@@ -276,7 +276,7 @@ static id _instance;
     
     YCDownloadItem *item = [self itemForDownloadId:downloadId];
     if (item == nil )  return;
-    [self.itemsDictM removeObjectForKey:downloadId];
+    [self.itemsDictM removeObjectForKey:item.downloadUrl];
     [[YCDownloadSession downloadSession] stopDownloadWithUrl:item.downloadUrl];
     [self saveDownloadItems];
 }
