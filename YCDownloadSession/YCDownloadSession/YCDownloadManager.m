@@ -213,6 +213,32 @@ static id _instance;
     [self startDownloadWithUrl:downloadURLString fileName:fileName imageUrl:imagUrl fileId:downloadURLString];
 }
 
+/*
+ * downloadId 可以为fileId 或者 url
+ */
+- (YCDownloadItem *)itemForDownloadId:(NSString *)downloadId {
+    
+    __block YCDownloadItem *item = [self.itemsDictM valueForKey:downloadId];
+    
+    if (item != nil) return  item;
+    [self.itemsDictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, YCDownloadItem  * _Nonnull obj, BOOL * _Nonnull stop) {
+        if (obj.downloadUrl == downloadId || obj.fileId == downloadId) {
+            item = obj;
+            *stop = true;
+        }
+    }];
+    
+    return item;
+}
+
+//下载文件时候的保存名称，如果没有fileid那么必须 savename = nil
+- (NSString *)saveNameForItem:(YCDownloadItem *)item {
+    
+    NSString *saveName = [item.downloadUrl isEqualToString:item.fileId] ? nil : item.fileId;
+    return saveName;
+}
+
+
 - (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName imageUrl:(NSString *)imagUrl fileId:(NSString *)fileId{
     
     if (downloadURLString.length == 0 && fileId.length == 0) return;
@@ -221,36 +247,35 @@ static id _instance;
     if (item == nil) {
         item = [[YCDownloadItem alloc] init];
         item.downloadUrl = downloadURLString;
-        item.fileId = fileId.length == 0 ? downloadURLString : fileId;
+        item.fileId = fileId;
         item.downloadStatus = YCDownloadStatusDownloading;
         item.fileName = fileName;
         item.thumbImageUrl = imagUrl;
         [self.itemsDictM setValue:item forKey:item.fileId];
         [self saveDownloadItems];
     }
-    NSString *saveName = [item.downloadUrl isEqualToString:item.fileId] ? nil : item.fileId;
-    [[YCDownloadSession downloadSession] startDownloadWithUrl:downloadURLString delegate:item saveName:saveName];
+    [[YCDownloadSession downloadSession] startDownloadWithUrl:downloadURLString delegate:item saveName:[self saveNameForItem:item]];
 }
 
 - (void)resumeDownloadWithId:(NSString *)downloadId {
-    YCDownloadItem *item = [self.itemsDictM valueForKey:downloadId];
+    YCDownloadItem *item = [self itemForDownloadId:downloadId];
     item.downloadStatus = YCDownloadStatusDownloading;
-    NSString *saveName = [item.downloadUrl isEqualToString:item.fileId] ? nil : item.fileId;
-    [[YCDownloadSession downloadSession] resumeDownloadWithUrl:downloadId delegate:item saveName:saveName];
+    [[YCDownloadSession downloadSession] resumeDownloadWithUrl:item.downloadUrl delegate:item saveName:[self saveNameForItem:item]];
     [self saveDownloadItems];
 }
 
 
 - (void)pauseDownloadWithId:(NSString *)downloadId {
-    YCDownloadItem *item = [self.itemsDictM valueForKey:downloadId];
+    YCDownloadItem *item = [self itemForDownloadId:downloadId];
     item.downloadStatus = YCDownloadStatusPaused;
-    [[YCDownloadSession downloadSession] pauseDownloadWithUrl:downloadId];
+    [[YCDownloadSession downloadSession] pauseDownloadWithUrl:item.downloadUrl];
     [self saveDownloadItems];
 }
 
 - (void)stopDownloadWithId:(NSString *)downloadId {
+    YCDownloadItem *item = [self itemForDownloadId:downloadId];
     [self.itemsDictM removeObjectForKey:downloadId];
-    [[YCDownloadSession downloadSession] stopDownloadWithUrl:downloadId];
+    [[YCDownloadSession downloadSession] stopDownloadWithUrl:item.downloadUrl];
     [self saveDownloadItems];
 }
 
@@ -296,12 +321,12 @@ static id _instance;
 
 - (BOOL)isDownloadWithId:(NSString *)downloadId {
     
-    YCDownloadItem *item = [self.itemsDictM valueForKey:downloadId];
+    YCDownloadItem *item = [self itemForDownloadId:downloadId];
     return item != nil;
 }
 
 - (YCDownloadStatus)downloasStatusWithId:(NSString *)downloadId {
-    YCDownloadItem *item = [self.itemsDictM valueForKey:downloadId];
+    YCDownloadItem *item = [self itemForDownloadId:downloadId];
     if (!item) {
         return -1;
     }
@@ -309,7 +334,7 @@ static id _instance;
 }
 
 - (YCDownloadItem *)downloadItemWithId:(NSString *)downloadId {
-    YCDownloadItem *item = [self.itemsDictM valueForKey:downloadId];
+    YCDownloadItem *item = [self itemForDownloadId:downloadId];
     return item;
 }
 

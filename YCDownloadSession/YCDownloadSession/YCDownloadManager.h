@@ -30,14 +30,14 @@
 + (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName imageUrl:(NSString *)imagUrl;
 
 /**
- 开始/创建一个后台下载任务。fileId作为整个下载任务的唯一标识。
+ 开始/创建一个后台下载任务。downloadURLString作为整个下载任务的唯一标识。
  下载成功后用fileId来保存, 要确保fileId唯一
  文件后缀名取downloadURLString的后缀名，[downloadURLString pathExtension]
  
- @param downloadURLString 下载的资源的url
+ @param downloadURLString 下载的资源的url， 不可以为空， 下载任务标识
  @param fileName 资源名称,可以为空
  @param imagUrl 资源的图片,可以为空
- @param fileId 资源的标识,可以为空
+ @param fileId 非资源的标识,可以为空，用作下载文件保存的名称
  */
 + (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName imageUrl:(NSString *)imagUrl fileId:(NSString *)fileId;
 
