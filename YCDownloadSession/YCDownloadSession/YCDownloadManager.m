@@ -251,7 +251,7 @@ static id _instance;
         item.downloadStatus = YCDownloadStatusDownloading;
         item.fileName = fileName;
         item.thumbImageUrl = imagUrl;
-        [self.itemsDictM setValue:item forKey:item.fileId];
+        [self.itemsDictM setValue:item forKey:item.downloadUrl];
         [self saveDownloadItems];
     }
     [[YCDownloadSession downloadSession] startDownloadWithUrl:downloadURLString delegate:item saveName:[self saveNameForItem:item]];
