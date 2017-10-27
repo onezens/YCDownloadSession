@@ -487,7 +487,7 @@ static YCDownloadSession *_instance;
 didFinishDownloadingToURL:(NSURL *)location {
     
     NSLog(@"%s", __func__);
-    
+
     NSString *locationString = [location path];
     NSError *error;
     
@@ -503,9 +503,9 @@ didFinishDownloadingToURL:(NSURL *)location {
     
     //校验文件大小
     BOOL isCompltedFile = (fileSize>0) && (fileSize == task.fileSize);
+    //文件大小不对，回调失败 ios11 多次暂停继续会出现
     if (!isCompltedFile) {
-        //文件大小不对，从头开始下载
-        [self downloadStatusChanged:YCDownloadStatusFinished task:task];
+        [self downloadStatusChanged:YCDownloadStatusFailed task:task];
         return;
     }
     task.downloadedSize = task.fileSize;
