@@ -1,6 +1,16 @@
 # YCDownloadSession
 通过NSURLSession的创建后台下载任务时，保证了APP在后台或者退出的状态下，依然能后进行下载任务，下载完成后能够唤醒APP来将下载完成的数据保存到需要的位置。
 
+## 重要：iOS11 bug 说明
+
+iOS 11.0.2 和iOS 11.0.3以及iOS 11的模拟器，会存在下载的过程中，多次暂停后回调下载成功的方法：`- (void)URLSession:(NSURLSession *)session
+      downloadTask:(NSURLSessionDownloadTask *)downloadTask
+didFinishDownloadingToURL:(NSURL *)location ` 但是下载文件的大小不对的问题， 重新下载后，出现从头开始下载的问题。还有在下载的过程中，文件没有下载完成，也会出现回调成功的方法。快下载完成了，失败后(拿不到resumeData)要重头开始，郁闷！
+
+**目前解决办法：** 回调失败，点击继续后从头开始下载。
+
+该问题我会反馈给苹果官方，看以后版本是否会解决
+
 ### 功能点介绍
 创建一个后台下载的session（创建的task为私有__NSCFBackgroundDownloadTask）：  
 
