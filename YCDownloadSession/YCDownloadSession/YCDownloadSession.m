@@ -205,6 +205,14 @@ static YCDownloadSession *_instance;
 - (void)stopDownloadWithUrl:(NSString *)downloadURLString {
     @try {
         [self stopDownloadWithTask:[self getDownloadTaskWithUrl:downloadURLString isDownloadingList:true]];
+        YCDownloadTask *task = [self getDownloadTaskWithUrl:downloadURLString isDownloadingList:true];
+        if (!task) {
+            task = [self getDownloadTaskWithUrl:downloadURLString isDownloadingList:false];
+        }
+        NSString *filePath = [YCDownloadTask savePathWithSaveName:task.saveName];
+        if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
+            [[NSFileManager defaultManager] removeItemAtPath:filePath error:nil];
+        }
         [self.downloadTasks removeObjectForKey:downloadURLString];
         [self.downloadedTasks removeObjectForKey:downloadURLString];
     } @catch (NSException *exception) {  }
@@ -500,10 +508,9 @@ didFinishDownloadingToURL:(NSURL *)location {
     task.tempPath = locationString;
     NSDictionary *dic = [[NSFileManager defaultManager] attributesOfItemAtPath:locationString error:nil];
     NSInteger fileSize = dic ? (NSInteger)[dic fileSize] : 0;
-    
     //校验文件大小
     BOOL isCompltedFile = (fileSize>0) && (fileSize == task.fileSize);
-    //文件大小不对，回调失败 ios11 多次暂停继续会出现
+    //文件大小不对，回调失败 ios11 多次暂停继续会出现文件大小不对的情况
     if (!isCompltedFile) {
         [self downloadStatusChanged:YCDownloadStatusFailed task:task];
         return;

@@ -46,7 +46,7 @@
     
     
     if (indexPath.row == 0) {
-        cell.textLabel.text = @"单个视频下载";
+        cell.textLabel.text = @"单个文件下载";
         cell.accessoryView = nil;
     }else if (indexPath.row == 1){
         cell.textLabel.text = @"多视频下载";
