@@ -8,7 +8,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <Foundation/Foundation.h>
 #import "YCDownloadTask.h"
 
 /**当前下载session中所有的任务下载完成的通知。 不包括失败、暂停的任务*/
