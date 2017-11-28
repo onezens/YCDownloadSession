@@ -20,7 +20,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 @property (nonatomic, strong) NSMutableDictionary *downloadedTasks;
 /**后台下载回调的handlers，所有的下载任务全部结束后调用*/
 @property (nonatomic, copy) BGCompletedHandler completedHandler;
-@property (nonatomic, strong, readonly) NSURLSession *downloadSession;
+@property (nonatomic, strong, readonly) NSURLSession *session;
 /**重新创建sessio标记位*/
 @property (nonatomic, assign) BOOL isNeedCreateSession;
 /**启动下一个下载任务的标记位*/
@@ -44,7 +44,7 @@ static YCDownloadSession *_instance;
 - (instancetype)init {
     if (self = [super init]) {
         //初始化
-        _downloadSession = [self getDownloadURLSession];
+        _session = [self getDownloadURLSession];
         _maxTaskCount = 1;
         self.downloadTasks = [NSKeyedUnarchiver unarchiveObjectWithFile:[self getArchiverPathIsDownloaded:false]];
         self.downloadedTasks = [NSKeyedUnarchiver unarchiveObjectWithFile:[self getArchiverPathIsDownloaded:true]];
@@ -54,7 +54,7 @@ static YCDownloadSession *_instance;
         if(!self.downloadTasks) self.downloadTasks = [NSMutableDictionary dictionary];
         
         //获取背景session正在运行的(app重启，或者闪退会有任务)
-        NSMutableDictionary *dictM = [self.downloadSession valueForKey:@"tasks"];
+        NSMutableDictionary *dictM = [self.session valueForKey:@"tasks"];
         [dictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
             YCDownloadTask *task = [self getDownloadTaskWithUrl:[YCDownloadTask getURLFromTask:obj] isDownloadingList:true];
             if(!task){
@@ -92,7 +92,7 @@ static YCDownloadSession *_instance;
 
 - (void)recreateSession {
     
-    _downloadSession = [self getDownloadURLSession];
+    _session = [self getDownloadURLSession];
     NSLog(@"recreate Session success");
     //恢复正在下载的task状态
     [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
@@ -117,7 +117,7 @@ static YCDownloadSession *_instance;
 }
 
 - (NSInteger)currentTaskCount {
-    NSMutableDictionary *dictM = [self.downloadSession valueForKey:@"tasks"];
+    NSMutableDictionary *dictM = [self.session valueForKey:@"tasks"];
     __block NSInteger count = 0;
     [dictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
         NSURLSessionTask *task = obj;
@@ -231,7 +231,7 @@ static YCDownloadSession *_instance;
         }
     }];
 
-    [_downloadSession invalidateAndCancel];
+    [_session invalidateAndCancel];
     self.isNeedCreateSession = true;
 }
 
@@ -252,7 +252,7 @@ static YCDownloadSession *_instance;
     
     NSURL *downloadURL = [NSURL URLWithString:downloadURLString];
     NSURLRequest *request = [NSURLRequest requestWithURL:downloadURL];
-    NSURLSessionDownloadTask *downloadTask = [self.downloadSession downloadTaskWithRequest:request];
+    NSURLSessionDownloadTask *downloadTask = [self.session downloadTaskWithRequest:request];
     YCDownloadTask *task = [self createDownloadTaskItemWithUrl:downloadURLString delegate:delegate saveName:saveName];
     task.downloadTask = downloadTask;
     [downloadTask resume];
@@ -304,12 +304,12 @@ static YCDownloadSession *_instance;
         NSURLSessionDownloadTask *downloadTask = nil;
         if (IS_IOS10ORLATER) {
             @try { //非ios10 升级到ios10会引起崩溃
-                downloadTask = [self.downloadSession downloadTaskWithCorrectResumeData:data];
+                downloadTask = [self.session downloadTaskWithCorrectResumeData:data];
             } @catch (NSException *exception) {
-                downloadTask = [self.downloadSession downloadTaskWithResumeData:data];
+                downloadTask = [self.session downloadTaskWithResumeData:data];
             }
         } else {
-            downloadTask = [self.downloadSession downloadTaskWithResumeData:data];
+            downloadTask = [self.session downloadTaskWithResumeData:data];
         }
         task.downloadTask = downloadTask;
         [downloadTask resume];

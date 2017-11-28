@@ -8,15 +8,29 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 #import "YCDownloadTask.h"
 
 /**当前下载session中所有的任务下载完成的通知。 不包括失败、暂停的任务*/
 static NSString * const kDownloadAllTaskFinishedNoti = @"kAllDownloadTaskFinishedNoti";
 
+/**
+ * 在swift中找不到头文件中的方法，在这里定义协议
+ * 经过测试，找不到方法的，一般是类方法和类名类似的类方法
+ */
+@protocol YCDownloadSession
++ (instancetype)downloadSession;
+@end
+
 typedef void (^BGCompletedHandler)(void);
 @class YCDownloadSession;
 
-@interface YCDownloadSession : NSObject
+@interface YCDownloadSession : NSObject<YCDownloadSession>
+
+/**
+ 获取下载session单例
+ */
++ (instancetype)downloadSession;
 
 /**
  设置下载任务的个数，最多支持3个下载任务同时进行。
@@ -24,12 +38,6 @@ typedef void (^BGCompletedHandler)(void);
  但是5个任务，在某些情况下，部分任务会出现等待的状态，所有设置最多支持3个
  */
 @property (nonatomic, assign) NSInteger maxTaskCount;
-
-/**
- 获取下载session单例
- */
-+ (instancetype)downloadSession;
-
 
 /**
  开始一个后台下载任务
