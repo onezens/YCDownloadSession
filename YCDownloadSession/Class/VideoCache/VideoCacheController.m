@@ -11,6 +11,9 @@
 #import "YCDownloadManager.h"
 #import "PlayerViewController.h"
 
+static NSString * const kDefinePauseAllTitle = @"暂停所有";
+static NSString * const kDefineStartAllTitle = @"开始所有";
+
 @interface VideoCacheController ()<UITableViewDelegate, UITableViewDataSource>
 
 @property (nonatomic, strong) UITableView *tableView;
@@ -30,6 +33,7 @@
     [self getCacheVideoList];
     [YCDownloadManager setMaxTaskCount:3];
     [YCDownloadManager localPushOn:true];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:kDefinePauseAllTitle style:UIBarButtonItemStyleDone target:self action:@selector(pauseAll)];
 }
 
 - (void)getCacheVideoList {
@@ -38,6 +42,7 @@
     [self.cacheVideoList addObjectsFromArray:[YCDownloadManager downloadList]];
     [self.cacheVideoList addObjectsFromArray:[YCDownloadManager finishList]];
     [self.tableView reloadData];
+    self.navigationItem.rightBarButtonItem.enabled = self.cacheVideoList.count>0;
 }
 
 - (void)setupTableView {
@@ -47,6 +52,16 @@
     _tableView.frame = self.view.bounds;
     _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self.view addSubview:_tableView];
+}
+
+- (void)pauseAll {
+    if (self.navigationItem.rightBarButtonItem.title == kDefinePauseAllTitle) {
+        [YCDownloadManager pauseAllDownloadTask];
+        self.navigationItem.rightBarButtonItem.title = kDefineStartAllTitle;
+    }else{
+        [YCDownloadManager resumeAllDownloadTask];
+        self.navigationItem.rightBarButtonItem.title = kDefinePauseAllTitle;
+    }
 }
 
 #pragma mark - uitableview datasource & delegate

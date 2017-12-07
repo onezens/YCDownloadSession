@@ -185,8 +185,13 @@ static YCDownloadSession *_instance;
 }
 
 - (void)pauseAllDownloadTask{
-    [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        [self pauseDownloadTask:obj];
+    [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, YCDownloadTask * _Nonnull obj, BOOL * _Nonnull stop) {
+        if(obj.downloadStatus == YCDownloadStatusDownloading){
+            [self pauseDownloadTask:obj];
+        }else if (obj.downloadStatus == YCDownloadStatusWaiting){
+            [self downloadStatusChanged:YCDownloadStatusPaused task:obj];
+        }
+        
     }];
 }
 

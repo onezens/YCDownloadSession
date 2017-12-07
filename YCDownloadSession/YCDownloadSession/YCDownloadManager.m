@@ -115,6 +115,10 @@ static id _instance;
     [[YCDownloadManager manager] pauseAllDownloadTask];
 }
 
++ (void)resumeAllDownloadTask {
+    [[YCDownloadManager manager] resumeAllDownloadTask];
+}
+
 + (NSArray *)downloadList {
     return [[YCDownloadManager manager] downloadList];
 }
@@ -282,12 +286,17 @@ static id _instance;
 }
 
 - (void)pauseAllDownloadTask {
+    [[YCDownloadSession downloadSession] pauseAllDownloadTask];
+}
+
+- (void)resumeAllDownloadTask{
     [self.itemsDictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
         YCDownloadItem *item = obj;
-        item.downloadStatus = YCDownloadStatusPaused;
+        if (item.downloadStatus == YCDownloadStatusPaused || item.downloadStatus == YCDownloadStatusFailed) {
+            NSLog(@"-------> %zd  ---> %@", item.downloadStatus, item.fileName);
+            [self resumeDownloadWithId:item.downloadUrl];
+        }
     }];
-    [[YCDownloadSession downloadSession] pauseAllDownloadTask];
-    [self saveDownloadItems];
 }
 
 -(NSArray *)downloadList {

@@ -68,6 +68,11 @@
 + (void)pauseAllDownloadTask;
 
 /**
+ 开始所有的下载
+ */
++ (void)resumeAllDownloadTask;
+
+/**
  根据 downloadId 判断该下载是否已经创建
  @param downloadId 创建的下载任务的标识。如果有fileId使用fileId,没有则是downloadURLString
  */
