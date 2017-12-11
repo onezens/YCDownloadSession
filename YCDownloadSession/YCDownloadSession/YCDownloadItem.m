@@ -12,6 +12,19 @@
 
 @implementation YCDownloadItem
 
+#pragma mark - init
+-(instancetype)initWithUrl:(NSString *)url fileId:(NSString *)fileId {
+    if (self = [super init]) {
+        _downloadUrl = url;
+        _fileId = fileId;
+        _taskId = [YCDownloadTask taskIdForUrl:url fileId:fileId];
+    }
+    return self;
+}
++(instancetype)itemWithUrl:(NSString *)url fileId:(NSString *)fileId {
+    return [[YCDownloadItem alloc] initWithUrl:url fileId:fileId];
+}
+
 #pragma mark - YCDownloadSessionDelegate
 - (void)downloadProgress:(YCDownloadTask *)task downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize {
     self.downloadedSize = downloadedSize;

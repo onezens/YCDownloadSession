@@ -13,6 +13,7 @@
 
 @property (nonatomic, copy) NSString *downloadURL;
 @property (nonatomic, weak) UILabel *progressLbl;
+@property (nonatomic, weak) YCDownloadTask *downloadTask;
 
 @end
 
@@ -70,24 +71,25 @@
 - (void)downloadStatusChanged:(YCDownloadStatus)status downloadTask:(YCDownloadTask *)task {
     if (status == YCDownloadStatusFinished) {
         self.progressLbl.text = @"download success!";
+        NSLog(@"save file path: %@", task.savePath);
     }else if (status == YCDownloadStatusFailed){
         self.progressLbl.text = @"download failed!";
     }
 }
 
 - (void)start {
-    [[YCDownloadSession downloadSession] startDownloadWithUrl:self.downloadURL delegate:self saveName:nil];
+    self.downloadTask = [YCDownloadSession.downloadSession startDownloadWithUrl:self.downloadURL fileId:nil delegate:self];
 }
 - (void)resume {
-    [[YCDownloadSession downloadSession] resumeDownloadWithUrl:self.downloadURL delegate:self saveName:nil];
+    [self.downloadTask resume];
 }
 
 - (void)pause {
-    [[YCDownloadSession downloadSession] pauseDownloadWithUrl:self.downloadURL];
+    [self.downloadTask pause];
 }
 
 - (void)stop {
-    [[YCDownloadSession downloadSession] stopDownloadWithUrl:self.downloadURL];
+    [self.downloadTask remove];
 }
 
 

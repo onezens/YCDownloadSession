@@ -40,40 +40,67 @@ typedef void (^BGCompletedHandler)(void);
 
 /**
  开始一个后台下载任务
- 
+
  @param downloadURLString 下载url
- @param delegate 下载任务的代理
- @param saveName 下载成功后，需要保存的名称，可以为空，为空的话以url生成保存名称
+ @param fileId 下载文件的标识。可以为空。要想同- downloadURL文件重复下载，可以让fileId不同
+ @param delegate 代理
+ @return 创建或者存在的下载任务
  */
-- (void)startDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadTaskDelegate>)delegate saveName:(NSString *)saveName;
+- (YCDownloadTask *)startDownloadWithUrl:(NSString *)downloadURLString fileId:(NSString *)fileId delegate:(id<YCDownloadTaskDelegate>)delegate;
 
 /**
  暂停一个后台下载任务
  
- @param downloadURLString 下载url
+ @param task 下载task
  */
-- (void)pauseDownloadWithUrl:(NSString *)downloadURLString;
+- (void)pauseDownloadWithTask:(YCDownloadTask *)task;
 
 /**
  继续开始一个后台下载任务
  
- @param downloadURLString 下载url
- @param delegate 下载任务的代理
+ @param task 下载task
  */
-- (void)resumeDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadTaskDelegate>)delegate saveName:(NSString *)saveName;
+- (void)resumeDownloadWithTask:(YCDownloadTask *)task;
 
 /**
  删除一个后台下载任务，同时会删除当前任务下载的缓存数据
 
- @param downloadURLString 下载url
+ @param task 下载task
  */
-- (void)stopDownloadWithUrl:(NSString *)downloadURLString;
+- (void)stopDownloadWithTask:(YCDownloadTask *)task;
+
+/**
+ 暂停一个后台下载任务
+ 
+ @param taskId 下载task的标识
+ */
+- (void)pauseDownloadWithTaskId:(NSString *)taskId;
+
+/**
+ 继续开始一个后台下载任务
+ 
+ @param taskId 下载task的标识
+ */
+- (void)resumeDownloadWithTaskId:(NSString *)taskId;
+
+/**
+ 删除一个后台下载任务，同时会删除当前任务下载的缓存数据
+ 
+ @param taskId 下载task的标识
+ */
+- (void)stopDownloadWithTaskId:(NSString *)taskId;
 
 
 /**
  暂停所有的下载
  */
 - (void)pauseAllDownloadTask;
+
+
+/**
+ 继续所有的下载
+ */
+- (void)resumeAllDownloadTask;
 
 /**
  是否允许蜂窝煤网络下载，以及网络状态变为蜂窝煤是否允许下载，必须把所有的downloadTask全部暂停，然后重新创建。否则，原先创建的

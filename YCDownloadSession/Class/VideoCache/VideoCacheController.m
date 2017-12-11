@@ -75,7 +75,7 @@ static NSString * const kDefineStartAllTitle = @"开始所有";
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         
         YCDownloadItem *item = _cacheVideoList[indexPath.row];
-        [YCDownloadManager stopDownloadWithId:item.fileId];
+        [YCDownloadManager stopDownloadWithItem:item];
         
         [self.cacheVideoList removeObjectAtIndex:indexPath.row];
         // Delete the row from the data source.
@@ -109,13 +109,13 @@ static NSString * const kDefineStartAllTitle = @"开始所有";
     
     YCDownloadItem *item = self.cacheVideoList[indexPath.row];
     if (item.downloadStatus == YCDownloadStatusDownloading) {
-        [YCDownloadManager pauseDownloadWithId:item.downloadUrl];
+        [YCDownloadManager pauseDownloadWithItem:item];
     }else if (item.downloadStatus == YCDownloadStatusPaused){
-        [YCDownloadManager resumeDownloadWithId:item.downloadUrl];
+        [YCDownloadManager resumeDownloadWithItem:item];
     }else if (item.downloadStatus == YCDownloadStatusFailed){
-        [YCDownloadManager resumeDownloadWithId:item.downloadUrl];
+        [YCDownloadManager resumeDownloadWithItem:item];
     }else if (item.downloadStatus == YCDownloadStatusWaiting){
-        [YCDownloadManager pauseDownloadWithId:item.downloadUrl];
+        [YCDownloadManager pauseDownloadWithItem:item];
     }else if (item.downloadStatus == YCDownloadStatusFinished){
         PlayerViewController *playerVC = [[PlayerViewController alloc] init];
         playerVC.playerItem = item;
