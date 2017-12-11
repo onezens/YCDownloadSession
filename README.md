@@ -1,15 +1,19 @@
 # YCDownloadSession
 通过NSURLSession的创建后台下载任务时，保证了APP在后台或者退出的状态下，依然能后进行下载任务，下载完成后能够唤醒APP来将下载完成的数据保存到需要的位置。
 
+## 版本更新说明
+1.YCDownloadSession 内部逻辑更新，头文件中的方式更新
+2. YCDownloadManager 头文件方式更新
+3. 内部逻辑有改变，所以使用新版本的时候，注意新旧版本更换的测试，以及缓存在本地文件的迁移处理和存储数据的处理
+
 ## 重要：iOS11 bug 说明
 
 iOS 11.0.2 和iOS 11.0.3以及iOS 11的模拟器，会存在下载的过程中，多次暂停后回调下载成功的方法：`- (void)URLSession:(NSURLSession *)session
       downloadTask:(NSURLSessionDownloadTask *)downloadTask
 didFinishDownloadingToURL:(NSURL *)location ` 但是下载文件的大小不对的问题， 重新下载后，出现从头开始下载的问题。还有在下载的过程中，文件没有下载完成，也会出现回调成功的方法。快下载完成了，失败后(拿不到resumeData)要重头开始，郁闷！
 
-**目前解决办法：** 回调失败，点击继续后从头开始下载。
+**目前处理方式：** 回调失败，点击继续后从头开始下载。
 
-该问题我会反馈给苹果官方，看以后版本是否会解决
 
 ### 功能点介绍
 创建一个后台下载的session（创建的task为私有__NSCFBackgroundDownloadTask）：  
@@ -27,7 +31,7 @@ NSString *bundleId = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBu
 ```
 
 1. 在APP处于后台、锁屏状态下依然能后下载
-2. 最强大的是：APP在手动退出，闪退的状态下依然能够进行下载任务，下载完成后自动激活APP，进行相关的逻辑处理
+2. 最强大的是：APP在手动退出后暂停，在闪退的状态下依然能够进行下载任务，下载完成后自动唤醒APP，进行任务下载完成后的逻辑处理
 
 ### 结构介绍
 该视频下载库库主要有四个核心类：YCDownloadSession，YCDownloadTask，YCDownloadItem，YCDownloadManager  
@@ -36,12 +40,6 @@ NSString *bundleId = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBu
 2. YCDownloadTask 将YCDownloadSession里的代理方法进一步封装和扩展，保存session生成和所需要的一些下载信息和数据。
 3. YCDownloadItem 存放需要下载的视频的信息
 4. YCDownloadManager 管理下载视频操作，生成一个YCDownloadItem，并且实时保存相关信息(下载状态，文件大小，已下载文件大小，以及其它的需要和UI交互的数据)，然后调用YCDownloadSession去下载该视频。
-
-图解：
-
-![图解](http://src.onezen.cc/demo/download/3.png)
-
-YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YCDownloadItem相互独立。大家和可以通过YCDownloadSession和YCDownloadTask自定义需要的下载管理类的信息类。
 
 
 
@@ -81,19 +79,21 @@ YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YC
 	```
 	self.downloadURL = @"http://dldir1.qq.com/qqfile/QQforMac/QQ_V6.0.1.dmg";
 	
+
+
     - (void)start {
-        [[YCDownloadSession downloadSession] startDownloadWithUrl:self.downloadURL delegate:self saveName:nil];
+        self.downloadTask = [YCDownloadSession.downloadSession startDownloadWithUrl:self.downloadURL fileId:nil delegate:self];
     }
     - (void)resume {
-        [[YCDownloadSession downloadSession] resumeDownloadWithUrl:self.downloadURL delegate:self saveName:nil];
+        [self.downloadTask resume];
     }
     
     - (void)pause {
-        [[YCDownloadSession downloadSession] pauseDownloadWithUrl:self.downloadURL];
+        [self.downloadTask pause];
     }
     
     - (void)stop {
-        [[YCDownloadSession downloadSession] stopDownloadWithUrl:self.downloadURL];
+        [self.downloadTask remove];
     }
     	
     //代理
@@ -101,14 +101,17 @@ YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YC
         self.progressLbl.text = [NSString stringWithFormat:@"%f",(float)downloadedSize / fileSize * 100];
     }
     
-    	
+    
     - (void)downloadStatusChanged:(YCDownloadStatus)status downloadTask:(YCDownloadTask *)task {
         if (status == YCDownloadStatusFinished) {
             self.progressLbl.text = @"download success!";
+            NSLog(@"save file path: %@", task.savePath);
         }else if (status == YCDownloadStatusFailed){
             self.progressLbl.text = @"download failed!";
         }
     }
+    
+    //文件下载完成后的路径通过task.savePath读取
 
 	```
 	
@@ -137,6 +140,33 @@ YCDownloadSession和YCDownloadTask是两个核心类。与YCDownloadManager和YC
      @param fileId 非资源的标识,可以为空，用作下载文件保存的名称
      */
     + (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName imageUrl:(NSString *)imagUrl fileId:(NSString *)fileId;
+
+    
+        /**
+     暂停一个后台下载任务
+     
+     @param item 创建的下载任务item
+     */
+    + (void)pauseDownloadWithItem:(YCDownloadItem *)item;
+    
+    /**
+     继续开始一个后台下载任务
+     
+     @param item 创建的下载任务item
+     */
+    + (void)resumeDownloadWithItem:(YCDownloadItem *)item;
+    
+    /**
+     删除一个后台下载任务，同时会删除当前任务下载的缓存数据
+     
+     @param item 创建的下载任务item
+     */
+    + (void)stopDownloadWithItem:(YCDownloadItem *)item;
+    
+    /**
+     暂停所有的下载
+     */
+    + (void)pauseAllDownloadTask;
 
 	
 	```
