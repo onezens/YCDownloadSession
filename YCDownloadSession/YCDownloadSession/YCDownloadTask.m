@@ -12,6 +12,12 @@
 #import <CommonCrypto/CommonDigest.h>
 #import "YCDownloadSession.h"
 
+@interface YCDownloadTask()
+{
+    NSString *_saveName;
+}
+@end
+
 @implementation YCDownloadTask
 
 - (instancetype)initWithUrl:(NSString *)url fileId:(NSString *)fileId delegate:(id<YCDownloadTaskDelegate>)delegate {
@@ -69,6 +75,11 @@
         return name;
     }
     return _saveName;
+}
+
+- (void)setSaveName:(NSString *)saveName {
+    _saveName = saveName;
+    [YCDownloadSession.downloadSession saveDownloadStatus];
 }
 
 + (NSString *)taskIdForUrl:(NSString *)url fileId:(NSString *)fileId {

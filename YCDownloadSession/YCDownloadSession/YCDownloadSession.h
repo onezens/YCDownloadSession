@@ -142,4 +142,10 @@ typedef void (^BGCompletedHandler)(void);
  */
 -(void)addCompletionHandler:(BGCompletedHandler)handler identifier:(NSString *)identifier;
 
+
+/**
+ 保存下载数据
+ */
+- (void)saveDownloadStatus;
+
 @end
