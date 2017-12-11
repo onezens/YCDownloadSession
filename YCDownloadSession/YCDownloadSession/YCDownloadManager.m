@@ -8,7 +8,6 @@
 //
 
 #import "YCDownloadManager.h"
-#import "YCDownloadSession.h"
 
 #define kCommonUtilsGigabyte (1024 * 1024 * 1024)
 #define kCommonUtilsMegabyte (1024 * 1024)

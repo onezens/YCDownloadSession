@@ -9,6 +9,7 @@
 
 #import <UIKit/UIKit.h>
 #import "YCDownloadItem.h"
+#import "YCDownloadSession.h"
 
 @interface YCDownloadManager : NSObject
 

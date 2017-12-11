@@ -2,8 +2,9 @@
 通过NSURLSession的创建后台下载任务时，保证了APP在后台或者退出的状态下，依然能后进行下载任务，下载完成后能够唤醒APP来将下载完成的数据保存到需要的位置。
 
 ## 版本更新说明
-1.YCDownloadSession 内部逻辑更新，头文件中的方式更新
-2. YCDownloadManager 头文件方式更新
+
+1. YCDownloadSession 内部逻辑更新，头文件中的方式更新 
+2. YCDownloadManager 头文件方式更新 
 3. 内部逻辑有改变，所以使用新版本的时候，注意新旧版本更换的测试，以及缓存在本地文件的迁移处理和存储数据的处理
 
 ## 重要：iOS11 bug 说明

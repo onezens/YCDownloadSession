@@ -8,7 +8,7 @@
 
 #import "AppDelegate.h"
 #import "MainTableViewController.h"
-#import "YCDownloadSession.h"
+#import "YCDownloadManager.h"
 
 @interface AppDelegate ()
 
@@ -52,15 +52,20 @@
     [[YCDownloadSession downloadSession] addCompletionHandler:completionHandler identifier:identifier];
 }
 
+- (void)applicationWillTerminate:(UIApplication *)application {
+    [YCDownloadManager saveDownloadStatus];
+}
+
 
 #pragma mark - test code
 - (void)applicationWillResignActive:(UIApplication *)application{
-    
+    [YCDownloadManager saveDownloadStatus];
     [self testTimer];
     NSLog(@"%s",__func__);
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
+    [YCDownloadManager saveDownloadStatus];
     [self.timer invalidate];
     self.timer = nil;
     self.duration = 0;
