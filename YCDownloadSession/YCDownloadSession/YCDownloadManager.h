@@ -44,21 +44,21 @@
 /**
  暂停一个后台下载任务
  
- @param downloadId 创建的下载任务的标识。如果有fileId使用fileId,没有则是downloadURLString
+ @param item 创建的下载任务item
  */
 + (void)pauseDownloadWithItem:(YCDownloadItem *)item;
 
 /**
  继续开始一个后台下载任务
  
- @param downloadId 创建的下载任务的标识。如果有fileId使用fileId,没有则是downloadURLString
+ @param item 创建的下载任务item
  */
 + (void)resumeDownloadWithItem:(YCDownloadItem *)item;
 
 /**
  删除一个后台下载任务，同时会删除当前任务下载的缓存数据
  
- @param downloadId 创建的下载任务的标识。如果有fileId使用fileId,没有则是downloadURLString
+ @param item 创建的下载任务item
  */
 + (void)stopDownloadWithItem:(YCDownloadItem *)item;
 
@@ -71,6 +71,12 @@
  开始所有的下载
  */
 + (void)resumeAllDownloadTask;
+
+
+/**
+ 清空所有的下载文件缓存，YCDownloadManager所管理的所有文件，不包括YCDownloadSession单独下载的文件
+ */
++ (void)removeAllCache;
 
 /**
  根据 downloadId 判断该下载是否已经创建

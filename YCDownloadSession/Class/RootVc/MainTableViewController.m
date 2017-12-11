@@ -10,6 +10,7 @@
 #import "DownloadViewController.h"
 #import "VideoListInfoController.h"
 #import "YCDownloadManager.h"
+#import "YCDownloadSession.h"
 
 @interface MainTableViewController ()
 
@@ -23,6 +24,11 @@
     [super viewDidLoad];
     
     self.title = @"后台视频下载";
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [self.tableView reloadData];
 }
 
 - (void)cellarSwitch:(UISwitch *)sender {
@@ -41,7 +47,7 @@
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     
     if (!cell) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellID];
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:cellID];
     }
     
     
@@ -51,9 +57,17 @@
     }else if (indexPath.row == 1){
         cell.textLabel.text = @"多视频下载";
         cell.accessoryView = nil;
-    }else{
+    }else if(indexPath.row==2){
         cell.textLabel.text = @"是否允许4G下载";
         cell.accessoryView = self.cellarSwitch;
+    }else if (indexPath.row==3){
+        cell.textLabel.text = @"磁盘剩余空间";
+        cell.detailTextLabel.text = [NSString stringWithFormat:@"%@", [YCDownloadManager fileSizeStringFromBytes:[YCDownloadManager fileSystemFreeSize]]];
+    }else if (indexPath.row==4){
+        cell.textLabel.text = @"当前缓存大小";
+        cell.detailTextLabel.text = [NSString stringWithFormat:@"%@", [YCDownloadManager fileSizeStringFromBytes:[YCDownloadManager videoCacheSize]]];
+    }else if (indexPath.row==5){
+        cell.textLabel.text = @"清空所有下载文件缓存";
     }
     
     return cell;
@@ -61,7 +75,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     
-    return 3;
+    return 6;
 }
 
 
@@ -75,6 +89,20 @@
     }else if (indexPath.row == 1){
         VideoListInfoController *vc = [[VideoListInfoController alloc] init];
         [self.navigationController pushViewController:vc animated:true];
+    }else if (indexPath.row==5){
+        
+        UIAlertController *alertVc = [UIAlertController alertControllerWithTitle:@"是否清空所有下载文件缓存？" message:nil preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *confirm = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            //注意清空缓存的逻辑,YCDownloadSession单独下载的文件单独清理，这里的大小由YCDownloadManager控制
+            [YCDownloadManager removeAllCache];
+            [self.tableView reloadData];
+        }];
+        UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+            
+        }];
+        [alertVc addAction:confirm];
+        [alertVc addAction:cancel];
+        [self presentViewController:alertVc animated:true completion:nil];
     }
 }
 

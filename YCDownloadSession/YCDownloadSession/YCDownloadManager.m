@@ -119,6 +119,10 @@ static id _instance;
     [[YCDownloadManager manager] resumeAllDownloadTask];
 }
 
++ (void)removeAllCache {
+    [[YCDownloadManager manager] removeAllCache];
+}
+
 + (NSArray *)downloadList {
     return [[YCDownloadManager manager] downloadList];
 }
@@ -243,6 +247,8 @@ static id _instance;
 
 - (void)resumeDownloadWithItem:(YCDownloadItem *)item{
     item.downloadStatus = YCDownloadStatusDownloading;
+    YCDownloadTask *task = [YCDownloadSession.downloadSession taskForTaskId:item.taskId];
+    task.delegate = item;
     [YCDownloadSession.downloadSession resumeDownloadWithTaskId:item.taskId];
     [self saveDownloadItems];
 }
@@ -257,13 +263,19 @@ static id _instance;
 
 - (void)stopDownloadWithItem:(YCDownloadItem *)item {
     if (item == nil )  return;
-    [self.itemsDictM removeObjectForKey:item.downloadUrl];
     [YCDownloadSession.downloadSession stopDownloadWithTaskId:item.taskId];
+    [self.itemsDictM removeObjectForKey:item.taskId];
     [self saveDownloadItems];
 }
 
 - (void)pauseAllDownloadTask {
     [[YCDownloadSession downloadSession] pauseAllDownloadTask];
+}
+
+- (void)removeAllCache {
+    [self.itemsDictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, YCDownloadItem *  _Nonnull obj, BOOL * _Nonnull stop) {
+        [self stopDownloadWithItem:obj];
+    }];
 }
 
 - (void)resumeAllDownloadTask{

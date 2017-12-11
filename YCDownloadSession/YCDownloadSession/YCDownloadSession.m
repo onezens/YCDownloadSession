@@ -232,6 +232,34 @@ static YCDownloadSession *_instance;
 - (void)resumeAllDownloadTask {
     
 }
+
+- (void)removeAllCache {
+    [self pauseAllDownloadTask];
+    [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, YCDownloadTask *  _Nonnull obj, BOOL * _Nonnull stop) {
+        if ([[NSFileManager defaultManager] fileExistsAtPath:obj.savePath]) {
+            [[NSFileManager defaultManager] removeItemAtPath:obj.savePath error:nil];
+        }
+    }];
+    
+    [self.downloadedTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, YCDownloadTask *  _Nonnull obj, BOOL * _Nonnull stop) {
+        if ([[NSFileManager defaultManager] fileExistsAtPath:obj.savePath]) {
+            [[NSFileManager defaultManager] removeItemAtPath:obj.savePath error:nil];
+        }
+    }];
+    
+    [self.downloadedTasks removeAllObjects];
+    [self.downloadTasks removeAllObjects];
+    [self saveDownloadStatus];
+    
+}
+
+- (YCDownloadTask *)taskForTaskId:(NSString *)taskId {
+    YCDownloadTask *task = [self.downloadTasks valueForKey:taskId];
+    if(!task){
+        task = [self.downloadedTasks valueForKey:taskId];
+    }
+    return task;
+}
 //- (void)resumeDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadTaskDelegate>)delegate saveName:(NSString *)saveName{
 //    //判断是否是下载完成的任务
 //    YCDownloadTask *task = [self getDownloadTaskWithUrl:downloadURLString isDownloadingList:false];
@@ -546,7 +574,7 @@ didFinishDownloadingToURL:(NSURL *)location {
     [[NSFileManager defaultManager] moveItemAtPath:locationString toPath:task.savePath error:&error];
 
     if (task.downloadURL.length != 0) {
-        [self.downloadedTasks setObject:task forKey:task.downloadURL];
+        [self.downloadedTasks setObject:task forKey:task.taskId];
         [self.downloadTasks removeObjectForKey:task.downloadURL];
     }
     [self downloadStatusChanged:YCDownloadStatusFinished task:task];
