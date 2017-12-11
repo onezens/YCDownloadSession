@@ -64,7 +64,10 @@
 }
 
 -(BOOL)downloadFinished {
-    return [[NSFileManager defaultManager] fileExistsAtPath:self.savePath];
+    
+    NSDictionary *dic = [[NSFileManager defaultManager] attributesOfItemAtPath:self.savePath error:nil];
+    NSInteger fileSize = dic ? (NSInteger)[dic fileSize] : 0;
+    return [[NSFileManager defaultManager] fileExistsAtPath:self.savePath] && (fileSize == self.fileSize);
 }
 
 - (NSString *)saveName {
