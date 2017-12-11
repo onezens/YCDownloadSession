@@ -62,11 +62,13 @@
 }
 
 - (NSString *)saveName {
-    
-    NSString *name = [YCDownloadTask taskIdForUrl:self.downloadURL fileId:self.fileId];
-    NSString *pathExtension =  [YCDownloadTask getPathExtensionWithUrl:self.downloadURL];
-    name = pathExtension.length>0 ? [name stringByAppendingPathExtension:pathExtension] : name;
-    return name;
+    if (_saveName.length==0) {
+        NSString *name = [YCDownloadTask taskIdForUrl:self.downloadURL fileId:self.fileId];
+        NSString *pathExtension =  [YCDownloadTask getPathExtensionWithUrl:self.downloadURL];
+        name = pathExtension.length>0 ? [name stringByAppendingPathExtension:pathExtension] : name;
+        return name;
+    }
+    return _saveName;
 }
 
 + (NSString *)taskIdForUrl:(NSString *)url fileId:(NSString *)fileId {

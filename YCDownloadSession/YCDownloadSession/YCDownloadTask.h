@@ -63,7 +63,7 @@ static NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNot
 @property (nonatomic, strong) NSData *resumeData;
 @property (nonatomic, assign) YCDownloadStatus downloadStatus;
 /**文件本地存储名称*/
-@property (nonatomic, readonly) NSString *saveName;
+@property (nonatomic, copy) NSString *saveName;
 /**下载文件的存储路径，没有下载完成时，该路径下没有文件*/
 @property (nonatomic, readonly) NSString *savePath;
 /**判断文件是否下载完成，savePath路径下存在该文件为true，否则为false*/
