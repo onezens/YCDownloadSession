@@ -40,6 +40,19 @@ static id _instance;
         [self getDownloadItems];
         if(!self.itemsDictM) self.itemsDictM = [NSMutableDictionary dictionary];
         [self addNotification];
+        __block BOOL isNeedSave = false;
+        //waing async callback
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            //get cached file size
+            [self.itemsDictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, YCDownloadItem *  _Nonnull item, BOOL * _Nonnull stop) {
+                if (item.downloadStatus == YCDownloadStatusFailed || item.downloadStatus == YCDownloadStatusPaused) {
+                    YCDownloadTask *task = [YCDownloadSession.downloadSession taskForTaskId:item.taskId];
+                    item.downloadedSize = task.downloadedSize;
+                    isNeedSave = true;
+                }
+            }];
+            if(isNeedSave) [self saveDownloadItems];
+        });
     }
     return self;
 }
@@ -316,7 +329,7 @@ static id _instance;
     __block  YCDownloadItem *item = nil;
     [self.itemsDictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
         YCDownloadItem *dItem = obj;
-        if(dItem.fileId == identifier){
+        if([dItem.fileId isEqualToString:identifier]){
             item = dItem;
             *stop = true;
         }
@@ -326,7 +339,7 @@ static id _instance;
     
     [self.itemsDictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
         YCDownloadItem *dItem = obj;
-        if(dItem.downloadUrl == identifier){
+        if([dItem.downloadUrl isEqualToString:identifier]){
             item = dItem;
             *stop = true;
         }
@@ -362,7 +375,6 @@ static id _instance;
 }
 
 #pragma mark notificaton
-
 
 - (void)downloadAllTaskFinished{
     [self localPushWithTitle:@"YCDownloadSession" detail:@"所有的下载任务已完成！"];

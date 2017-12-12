@@ -68,7 +68,6 @@
             break;
         case YCDownloadStatusFinished:
             self.statusLbl.text = @"下载成功";
-            NSLog(@"%@", [_item savePath]);
             self.progressView.progress = 1;
             break;
         case YCDownloadStatusFailed:

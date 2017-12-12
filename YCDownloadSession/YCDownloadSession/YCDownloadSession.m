@@ -77,10 +77,15 @@ static YCDownloadSession *_instance;
         }];
         
         if (dictM.count>0) {
-            //app重启，或者闪退的任务全部暂停
+            //app重启，或者闪退的任务全部暂停,Xcode连接重启app
             [self pauseAllDownloadTask];
+            YCLog(@"app start default pause all bg runing task! task count: %zd", dictM.count);
+            //waiting async pause task callback
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [self detectAllCacheFileSize];
+            });
         }
-        
+
     }
     return self;
 }
@@ -102,7 +107,6 @@ static YCDownloadSession *_instance;
     NSString *identifier = [NSString stringWithFormat:@"%@.BackgroundSession", bundleId];
     return identifier;
 }
-
 
 - (void)recreateSession {
     
@@ -241,26 +245,6 @@ static YCDownloadSession *_instance;
     YCDownloadTask *task = [self.downloadTasks valueForKey:taskId];
     return task;
 }
-//- (void)resumeDownloadWithUrl:(NSString *)downloadURLString delegate:(id<YCDownloadTaskDelegate>)delegate saveName:(NSString *)saveName{
-//    //判断是否是下载完成的任务
-//    YCDownloadTask *task = [self getDownloadTaskWithUrl:downloadURLString isDownloadingList:false];
-//    if (task) {
-//        task.delegate = delegate;
-//        [self downloadStatusChanged:YCDownloadStatusFinished task:task];
-//        return;
-//    }
-//    task = [self getDownloadTaskWithUrl:downloadURLString isDownloadingList:true];
-//
-//    //如果下载列表和下载完成列表都不存在，则重新创建
-//    if (!task) {
-//        [self startDownloadWithUrl:downloadURLString fileId:nil delegate:delegate];
-//        return;
-//    }
-//
-//    if(delegate) task.delegate = delegate;
-//    [self resumeDownloadTask: task];
-//}
-
 
 - (void)allowsCellularAccess:(BOOL)isAllow {
     
@@ -313,14 +297,19 @@ static YCDownloadSession *_instance;
 }
 
 - (void)pauseDownloadTask:(YCDownloadTask *)task{
-    //- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error 暂停逻辑在这里处理
+    //暂停逻辑在这里处理 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
     [task.downloadTask cancelByProducingResumeData:^(NSData * resumeData) { }];
 }
-
 
 - (void)resumeDownloadTask:(YCDownloadTask *)task {
     
     if(!task) return;
+    
+    if ([self detectDownloadTaskIsFinished:task]) {
+        [self downloadStatusChanged:YCDownloadStatusFinished task:task];
+        return;
+    }
+    
     if (([self currentTaskCount] >= self.maxTaskCount) && task.downloadStatus != YCDownloadStatusDownloading) {
         [self downloadStatusChanged:YCDownloadStatusWaiting task:task];
         return;
@@ -349,10 +338,6 @@ static YCDownloadSession *_instance;
         
     }else{
         
-        if ([self detectDownloadTaskIsFinished:task]) {
-            [self downloadStatusChanged:YCDownloadStatusFinished task:task];
-            return;
-        }
         if (!task.downloadTask || task.downloadTask.state == NSURLSessionTaskStateCompleted || task.downloadTask.state == NSURLSessionTaskStateCanceling) {
             NSURL *downloadURL = [NSURL URLWithString:task.downloadURL];
             NSURLRequest *request = [NSURLRequest requestWithURL:downloadURL];
@@ -463,41 +448,74 @@ static YCDownloadSession *_instance;
     return saveDir;
 }
 
+- (void)detectAllCacheFileSize{
+    
+    [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, YCDownloadTask *  _Nonnull task, BOOL * _Nonnull stop) {
+        if(task.downloadStatus == YCDownloadStatusPaused || task.downloadStatus == YCDownloadStatusFailed){
+            //如果存在取最后一个，基本只有1个
+            NSArray *temps = [self getTmpPathsWithTask:task];
+            if(temps.count>0){
+                NSString *tmpPath = temps.lastObject;
+                task.downloadedSize = [self fileSizeWithPath:tmpPath];
+            }
+        }
+    }];
+    [self saveDownloadStatus];
+}
+
+- (NSInteger)fileSizeWithPath:(NSString *)path {
+    if(![[NSFileManager defaultManager] fileExistsAtPath:path]) return 0;
+    NSDictionary *dic = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:nil];
+    return dic ? (NSInteger)[dic fileSize] : 0;
+}
 
 - (BOOL)detectDownloadTaskIsFinished:(YCDownloadTask *)task {
     
     if (!task) return false;
-    
     if(task.downloadFinished) return true;
-    
-    NSMutableArray *tmpPaths = [NSMutableArray array];
-    if (task.tempPath.length > 0) [tmpPaths addObject:task.tempPath];
-    
-    if (task.tmpName.length > 0) {
-        [tmpPaths addObject:[NSTemporaryDirectory() stringByAppendingPathComponent:task.tmpName]];
-        NSString *downloadPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true).firstObject;
-        NSString *bundleId = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
-        downloadPath = [downloadPath stringByAppendingPathComponent: [NSString stringWithFormat:@"/com.apple.nsurlsessiond/Downloads/%@/", bundleId]];
-        downloadPath = [downloadPath stringByAppendingPathComponent:task.tmpName];
-        [tmpPaths addObject:downloadPath];
-    }
+    NSArray *tmpPaths = [self getTmpPathsWithTask:task];
 
     __block BOOL isFinished = false;
     [tmpPaths enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         NSString *path = obj;
-        if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
-            NSDictionary *dic = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:nil];
-            NSInteger fileSize = dic ? (NSInteger)[dic fileSize] : 0;
-            if (fileSize>0 && fileSize == task.fileSize) {
-                [[NSFileManager defaultManager] moveItemAtPath:path toPath:task.savePath error:nil];
-                isFinished = true;
-                task.downloadStatus = YCDownloadStatusFinished;
-                *stop = true;
-            }
+        NSInteger fileSize = [self fileSizeWithPath:path];
+        if (fileSize>0 && fileSize == task.fileSize) {
+            [[NSFileManager defaultManager] moveItemAtPath:path toPath:task.savePath error:nil];
+            isFinished = true;
+            task.downloadStatus = YCDownloadStatusFinished;
+            *stop = true;
         }
     }];
     
     return isFinished;
+}
+
+- (NSArray *)getTmpPathsWithTask:(YCDownloadTask *)task {
+    
+    if(!task) return nil;
+    NSMutableArray *tmpPaths = [NSMutableArray array];
+    NSFileManager *fileMgr = [NSFileManager defaultManager];
+    //download finish callback -> locationString
+    if (task.tempPath.length > 0 && [fileMgr fileExistsAtPath:task.tempPath]) {
+        [tmpPaths addObject:task.tempPath];
+    }else{
+        task.tempPath = nil;
+    }
+    if (task.tmpName.length > 0) {
+        NSString *downloadPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true).firstObject;
+        NSString *bundleId = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
+        //1. 系统正在下载的文件tmp文件存储路径和部分异常的tmp文件(回调失败)
+        downloadPath = [downloadPath stringByAppendingPathComponent: [NSString stringWithFormat:@"/com.apple.nsurlsessiond/Downloads/%@/", bundleId]];
+        downloadPath = [downloadPath stringByAppendingPathComponent:task.tmpName];
+        if([fileMgr fileExistsAtPath:downloadPath]) [tmpPaths addObject:downloadPath];
+        
+        //2. 暂停下载后，系统从 downloadPath 目录移动到此
+        NSString *tmpPath = [NSTemporaryDirectory() stringByAppendingPathComponent:task.tmpName];
+        if([fileMgr fileExistsAtPath:tmpPath]) [tmpPaths addObject:tmpPath];
+    }
+    if(tmpPaths.count == 0) task.tmpName = nil;
+    return tmpPaths;
+    
 }
 
 
@@ -547,13 +565,14 @@ didFinishDownloadingToURL:(NSURL *)location {
         return;
     }
     task.tempPath = locationString;
-    NSDictionary *dic = [[NSFileManager defaultManager] attributesOfItemAtPath:locationString error:nil];
-    NSInteger fileSize = dic ? (NSInteger)[dic fileSize] : 0;
+    NSInteger fileSize =[self fileSizeWithPath:locationString];
     //校验文件大小
     BOOL isCompltedFile = (fileSize>0) && (fileSize == task.fileSize);
     //文件大小不对，回调失败 ios11 多次暂停继续会出现文件大小不对的情况
     if (!isCompltedFile) {
         [self downloadStatusChanged:YCDownloadStatusFailed task:task];
+        //删除异常的缓存文件
+        [[NSFileManager defaultManager] removeItemAtPath:locationString error:nil];
         return;
     }
     task.downloadedSize = task.fileSize;
@@ -622,7 +641,7 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
     YCDownloadTask *yctask = [self getDownloadTaskWithUrl:[YCDownloadTask getURLFromTask:task]];
     if (error) {
         
-        // check if resume data are available
+        // check whether resume data are available
         NSData *resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
         if (resumeData) {
             //通过之前保存的resumeData，获取断点的NSURLSessionTask，调用resume恢复下载
