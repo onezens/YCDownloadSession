@@ -28,8 +28,6 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 @property (nonatomic, strong, readonly) NSURLSession *session;
 /**重新创建sessio标记位*/
 @property (nonatomic, assign) BOOL isNeedCreateSession;
-/**启动下一个下载任务的标记位*/
-@property (nonatomic, assign) BOOL isStartNextTask;
 
 @end
 
@@ -52,6 +50,7 @@ static YCDownloadSession *_instance;
         //初始化
         _session = [self getDownloadURLSession];
         _maxTaskCount = 1;
+        
         //获取保存在本地的数据是否为空，为空则初始化
         _downloadTasks = [NSKeyedUnarchiver unarchiveObjectWithFile:[self getArchiverPath]];
         if(!_downloadTasks) _downloadTasks = [NSMutableDictionary dictionary];
@@ -202,7 +201,6 @@ static YCDownloadSession *_instance;
     if (task && [[NSFileManager defaultManager] fileExistsAtPath:task.savePath]) {
         [[NSFileManager defaultManager] removeItemAtPath:task.savePath error:nil];
     }
-    task = [self.downloadTasks valueForKey:taskId];
     [task.downloadTask cancel];
     [self.downloadTasks removeObjectForKey:taskId];
     [self saveDownloadStatus];
@@ -214,6 +212,7 @@ static YCDownloadSession *_instance;
 
     [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, YCDownloadTask * _Nonnull obj, BOOL * _Nonnull stop) {
         if(obj.downloadStatus == YCDownloadStatusDownloading){
+            obj.noNeedToStartNext = true;
             [self pauseDownloadTask:obj];
         }else if (obj.downloadStatus == YCDownloadStatusWaiting){
             [self downloadStatusChanged:YCDownloadStatusPaused task:obj];
@@ -270,6 +269,7 @@ static YCDownloadSession *_instance;
         YCDownloadTask *task = obj;
         if (task.downloadTask.state == NSURLSessionTaskStateRunning) {
             task.needToRestart = true;
+            task.noNeedToStartNext = true;
             [self pauseDownloadTask:task];
         }
     }];
@@ -313,14 +313,8 @@ static YCDownloadSession *_instance;
 }
 
 - (void)pauseDownloadTask:(YCDownloadTask *)task{
-    self.isStartNextTask = true;
-    [task.downloadTask cancelByProducingResumeData:^(NSData * resumeData) {
-        YCLog(@"pause ----->   %zd  ----->   %@", resumeData.length, task.downloadURL);
-        if(resumeData.length>0) task.resumeData = resumeData;
-        task.downloadTask = nil;
-        [self saveDownloadStatus];
-        [self downloadStatusChanged:YCDownloadStatusPaused task:task];
-    }];
+    //- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error 暂停逻辑在这里处理
+    [task.downloadTask cancelByProducingResumeData:^(NSData * resumeData) { }];
 }
 
 
@@ -372,8 +366,7 @@ static YCDownloadSession *_instance;
 
 
 - (void)startNextDownloadTask {
-    if (self.isStartNextTask && [self currentTaskCount] < self.maxTaskCount) {
-        self.isStartNextTask = false;
+    if ([self currentTaskCount] < self.maxTaskCount) {
         [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
             YCDownloadTask *task = obj;
             if ((!task.downloadTask || task.downloadTask.state != NSURLSessionTaskStateRunning) && task.downloadStatus == YCDownloadStatusWaiting) {
@@ -624,30 +617,33 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
  * 在下载失败时，error的userinfo属性可以通过NSURLSessionDownloadTaskResumeData
  * 这个key来取到resumeData(和上面的resumeData是一样的)，再通过resumeData恢复下载
  */
-- (void)URLSession:(NSURLSession *)session
-              task:(NSURLSessionTask *)task
-didCompleteWithError:(NSError *)error {
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
     
+    YCDownloadTask *yctask = [self getDownloadTaskWithUrl:[YCDownloadTask getURLFromTask:task]];
     if (error) {
         
         // check if resume data are available
         NSData *resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
-        YCDownloadTask *yctask = [self getDownloadTaskWithUrl:[YCDownloadTask getURLFromTask:task]];
-        YCLog(@"error ----->   %@  ----->   %@   --->%zd",error, yctask.downloadURL, resumeData.length);
         if (resumeData) {
             //通过之前保存的resumeData，获取断点的NSURLSessionTask，调用resume恢复下载
             yctask.resumeData = resumeData;
             id obj = [NSPropertyListSerialization propertyListWithData:resumeData options:0 format:0 error:nil];
             if ([obj isKindOfClass:[NSDictionary class]]) {
                 NSDictionary *resumeDict = obj;
-                YCLog(@"%@", resumeDict);
                 yctask.tmpName = [resumeDict valueForKey:@"NSURLSessionResumeInfoTempFileName"];
             }
+            yctask.resumeData = resumeData;
+            yctask.downloadTask = nil;
+            [self saveDownloadStatus];
+            [self downloadStatusChanged:YCDownloadStatusPaused task:yctask];
            
         }else{
             [self downloadStatusChanged:YCDownloadStatusFailed task:yctask];
         }
     }
+    //需要下载下一个任务则下载下一个，否则还原noNeedToStartNext标识
+    !yctask.noNeedToStartNext ? [self startNextDownloadTask] :  (yctask.noNeedToStartNext = false);
+    
 }
 
 
