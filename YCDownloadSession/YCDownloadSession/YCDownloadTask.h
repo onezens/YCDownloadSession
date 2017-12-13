@@ -16,7 +16,7 @@ typedef NS_ENUM(NSUInteger, YCDownloadStatus) {
     YCDownloadStatusFinished,
     YCDownloadStatusFailed
 };
-
+#define IS_IOS10ORLATER ([[[UIDevice currentDevice] systemVersion] floatValue] >= 10)
 /**某一任务下载的状态发生变化的通知*/
 static NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
 
@@ -163,3 +163,38 @@ static NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNot
 + (NSString *)taskIdForUrl:(NSString *)url fileId:(NSString *)fileId;
 
 @end
+
+
+#pragma mark - YCResumeData
+@interface YCResumeData: NSObject
+
+@property (nonatomic, copy) NSString *downloadUrl;
+@property (nonatomic, strong) NSMutableURLRequest *currentRequest;
+@property (nonatomic, strong) NSMutableURLRequest *originalRequest;
+@property (nonatomic, assign) NSInteger downloadSize;
+@property (nonatomic, copy) NSString *resumeTag;
+@property (nonatomic, assign) NSInteger resumeInfoVersion;
+@property (nonatomic, strong) NSDate *downloadDate;
+@property (nonatomic, copy) NSString *tempName;
+@property (nonatomic, copy) NSString *resumeRange;
+
+- (instancetype)initWithResumeData:(NSData *)resumeData;
+
++ (NSURLSessionDownloadTask *)downloadTaskWithCorrectResumeData:(NSData *)resumeData urlSession:(NSURLSession *)urlSession;
+
+@end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

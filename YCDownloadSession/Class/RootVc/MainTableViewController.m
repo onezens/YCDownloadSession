@@ -81,7 +81,6 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 
-    
     if (indexPath.row == 0) {
         DownloadViewController *vc = [[DownloadViewController alloc] init];
         [self.navigationController pushViewController:vc animated:true];

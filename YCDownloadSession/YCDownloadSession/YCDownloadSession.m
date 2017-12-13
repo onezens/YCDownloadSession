@@ -8,9 +8,7 @@
 //
 
 #import "YCDownloadSession.h"
-#import "NSURLSession+CorrectedResumeData.h"
 
-#define IS_IOS10ORLATER ([[[UIDevice currentDevice] systemVersion] floatValue] >= 10)
 
 #ifdef DEBUG
 #define YCLog(...) NSLog(__VA_ARGS__)
@@ -322,14 +320,11 @@ static YCDownloadSession *_instance;
             return;
         }
         NSURLSessionDownloadTask *downloadTask = nil;
-        if (IS_IOS10ORLATER) {
-            @try { //非ios10 升级到ios10会引起崩溃
-                downloadTask = [self.session downloadTaskWithCorrectResumeData:data];
-            } @catch (NSException *exception) {
-                downloadTask = [self.session downloadTaskWithResumeData:data];
-            }
-        } else {
-            downloadTask = [self.session downloadTaskWithResumeData:data];
+        @try {
+            downloadTask = [YCResumeData downloadTaskWithCorrectResumeData:data urlSession:self.session];
+        } @catch (NSException *exception) {
+            [self downloadStatusChanged:YCDownloadStatusFailed task:task];
+            return;
         }
         task.downloadTask = downloadTask;
         [downloadTask resume];
@@ -348,6 +343,10 @@ static YCDownloadSession *_instance;
         [self downloadStatusChanged:YCDownloadStatusDownloading task:task];
     }
 }
+
+
+
+
 
 
 - (void)startNextDownloadTask {
@@ -612,8 +611,8 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
         [task.delegate downloadProgress:task downloadedSize:task.downloadedSize fileSize:task.fileSize];
     }
     
-    NSString *url = downloadTask.response.URL.absoluteString;
-    YCLog(@"downloadURL: %@  downloadedSize: %zd totalSize: %zd  progress: %f", url, task.downloadedSize, task.fileSize, (float)task.downloadedSize / task.fileSize);
+//    NSString *url = downloadTask.response.URL.absoluteString;
+//    YCLog(@"downloadURL: %@  downloadedSize: %zd totalSize: %zd  progress: %f", url, task.downloadedSize, task.fileSize, (float)task.downloadedSize / task.fileSize);
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task
@@ -646,11 +645,12 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
         if (resumeData) {
             //通过之前保存的resumeData，获取断点的NSURLSessionTask，调用resume恢复下载
             yctask.resumeData = resumeData;
-            id obj = [NSPropertyListSerialization propertyListWithData:resumeData options:0 format:0 error:nil];
-            if ([obj isKindOfClass:[NSDictionary class]]) {
-                NSDictionary *resumeDict = obj;
+            id resumeDataObj = [NSPropertyListSerialization propertyListWithData:resumeData options:0 format:0 error:nil];
+            if ([resumeDataObj isKindOfClass:[NSDictionary class]]) {
+                NSDictionary *resumeDict = resumeDataObj;
                 yctask.tmpName = [resumeDict valueForKey:@"NSURLSessionResumeInfoTempFileName"];
             }
+            [[YCResumeData alloc] initWithResumeData:resumeData];
             yctask.resumeData = resumeData;
             yctask.downloadTask = nil;
             [self saveDownloadStatus];
