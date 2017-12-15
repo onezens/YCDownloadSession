@@ -7,14 +7,6 @@
 2. YCDownloadManager 头文件方式更新 
 3. 内部逻辑有改变，所以使用新版本的时候，注意新旧版本更换的测试，以及缓存在本地文件的迁移处理和存储数据的处理
 
-## 重要：iOS11 bug 说明
-
-iOS 11.0.2 和iOS 11.0.3以及iOS 11的模拟器，会存在下载的过程中，多次暂停后回调下载成功的方法：`- (void)URLSession:(NSURLSession *)session
-      downloadTask:(NSURLSessionDownloadTask *)downloadTask
-didFinishDownloadingToURL:(NSURL *)location ` 但是下载文件的大小不对的问题， 重新下载后，出现从头开始下载的问题。还有在下载的过程中，文件没有下载完成，也会出现回调成功的方法。快下载完成了，失败后(拿不到resumeData)要重头开始，郁闷！
-
-**目前处理方式：** 回调失败，点击继续后从头开始下载。
-
 
 ### 功能点介绍
 创建一个后台下载的session（创建的task为私有__NSCFBackgroundDownloadTask）：  
@@ -255,9 +247,6 @@ NSString *bundleId = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBu
 ### 下载代码详解
 
 简书blog： [http://www.jianshu.com/p/2ccb34c460fd](http://www.jianshu.com/p/2ccb34c460fd)
-
-
-使用APP：[https://itunes.apple.com/cn/app/id975958413](https://itunes.apple.com/cn/app/id975958413)
 
 **欢迎各位关注该库，如果你有任何问题请issues我，将会随时更新新功能和解决存在的问题。**
 

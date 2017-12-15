@@ -10,7 +10,7 @@
 #import "YCDownloadSession.h"
 
 
-#ifdef DEBUG
+#ifdef DEBUG//NSLog(__VA_ARGS__)
 #define YCLog(...) NSLog(__VA_ARGS__)
 #else
 #define YCLog(...)
@@ -650,7 +650,7 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
                 NSDictionary *resumeDict = resumeDataObj;
                 yctask.tmpName = [resumeDict valueForKey:@"NSURLSessionResumeInfoTempFileName"];
             }
-            [[YCResumeData alloc] initWithResumeData:resumeData];
+//            [[YCResumeData alloc] initWithResumeData:resumeData];
             yctask.resumeData = resumeData;
             yctask.downloadTask = nil;
             [self saveDownloadStatus];

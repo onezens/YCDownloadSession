@@ -255,9 +255,10 @@ static NSString * const kNSURLSessionResumeServerDownloadDate = @"NSURLSessionRe
         
         id obj = [NSKeyedUnarchiver unarchiveObjectWithData:currentReqData];
         id obj2= [NSKeyedUnarchiver unarchiveObjectWithData:originalReqData];
-        id obj3 = [NSPropertyListSerialization propertyListWithData:currentReqData options:0 format:0 error:nil];
+//        id obj3 = [NSPropertyListSerialization propertyListWithData:currentReqData options:0 format:0 error:nil];
         NSLog(@"%@", [obj class]);
         NSLog(@"%@", [obj2 class]);
+        NSLog(@"--------->resumeRange:  %@", resumeRange);
     }
 }
 
@@ -287,7 +288,7 @@ static NSString * const kNSURLSessionResumeServerDownloadDate = @"NSURLSessionRe
         NSMutableDictionary *dic = arr[1];
         id obj = [dic objectForKey:[NSString stringWithFormat:@"__nsurlrequest_proto_prop_obj_%ld",(long)i]];
         if (obj) {
-            [dic setValue:obj forKey:[NSString stringWithFormat:@"$%ld",i+k]];
+            [dic setValue:obj forKey:[NSString stringWithFormat:@"$%zd",i+k]];
             [dic removeObjectForKey:[NSString stringWithFormat:@"__nsurlrequest_proto_prop_obj_%ld",(long)i]];
             [arr replaceObjectAtIndex:1 withObject:dic];
             archive[@"$objects"] = arr;
@@ -299,7 +300,7 @@ static NSString * const kNSURLSessionResumeServerDownloadDate = @"NSURLSessionRe
         NSMutableDictionary *dic = arr[1];
         id obj = [dic objectForKey:@"__nsurlrequest_proto_props"];
         if (obj) {
-            [dic setValue:obj forKey:[NSString stringWithFormat:@"$%ld",i+k]];
+            [dic setValue:obj forKey:[NSString stringWithFormat:@"$%zd",i+k]];
             [dic removeObjectForKey:@"__nsurlrequest_proto_props"];
             [arr replaceObjectAtIndex:1 withObject:dic];
             archive[@"$objects"] = arr;
