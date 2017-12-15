@@ -12,19 +12,21 @@ class ViewController: UIViewController {
 
     
     let downloadUrl = "http://dldir1.qq.com/qqfile/QQforMac/QQ_V6.0.1.dmg"
+    var task:YCDownloadTask? = nil
     
     @IBAction func start(_ sender: Any) {
-        YCDownloadSession.downloadSession().startDownload(withUrl: downloadUrl, delegate: self, saveName: "qq.dmg")
+        task = YCDownloadSession.downloadSession().startDownload(withUrl: downloadUrl, fileId: "qq.dmg", delegate: self)
+        
     }
     @IBAction func pause(_ sender: Any) {
-        YCDownloadSession.downloadSession().pauseDownload(withUrl: downloadUrl)
+        task?.pause()
     }
     
     @IBAction func resume(_ sender: Any) {
-        YCDownloadSession.downloadSession().resumeDownload(withUrl: downloadUrl, delegate: self, saveName: "qq.dmg")
+        task?.resume()
     }
     @IBAction func stop(_ sender: Any) {
-        YCDownloadSession.downloadSession().stopDownload(withUrl: downloadUrl)
+        YCDownloadSession.downloadSession().stopDownload(with: task)
     }
 }
 
@@ -41,7 +43,7 @@ extension ViewController : YCDownloadTaskDelegate{
     
     func downloadProgress(_ task: YCDownloadTask!, downloadedSize: UInt, fileSize: UInt) {
         
-        print("download progress: \(downloadedSize / fileSize)")
+        print("download progress: \(Float(downloadedSize) / Float(fileSize))")
     }
     
 }
