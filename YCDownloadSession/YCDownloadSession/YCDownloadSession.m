@@ -223,11 +223,16 @@ static YCDownloadSession *_instance;
 - (void)stopDownloadWithTaskId:(NSString *)taskId {
     
     YCDownloadTask *task = [self.downloadTasks valueForKey:taskId];
+    //TODO: compatiable 1.0.0
+    if(!task){
+        task = [self compatibleOldTaskId:taskId];
+    }
+    //TODO: compatiable 1.0.0 end
     if (task && [[NSFileManager defaultManager] fileExistsAtPath:task.savePath]) {
         [[NSFileManager defaultManager] removeItemAtPath:task.savePath error:nil];
     }
     [task.downloadTask cancel];
-    [self.downloadTasks removeObjectForKey:taskId];
+    if(task.taskId.length>0)[self.downloadTasks removeObjectForKey:task.taskId];
     [self saveDownloadStatus];
     [self startNextDownloadTask];
 }

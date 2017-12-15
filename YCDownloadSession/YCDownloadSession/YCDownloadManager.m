@@ -288,8 +288,9 @@ static id _instance;
 
 - (void)stopDownloadWithItem:(YCDownloadItem *)item {
     if (item == nil )  return;
-    [YCDownloadSession.downloadSession stopDownloadWithTaskId:item.taskId];
-    [self.itemsDictM removeObjectForKey:item.taskId];
+    [YCDownloadSession.downloadSession stopDownloadWithTaskId:item.taskId.length == 0 ? item.downloadUrl : item.taskId];
+    //TODO: compatiable 1.0.0 [self.itemsDictM removeObjectForKey: item.taskId];
+    [self.itemsDictM removeObjectForKey:item.taskId.length == 0 ? item.downloadUrl : item.taskId];
     [self saveDownloadItems];
 }
 
