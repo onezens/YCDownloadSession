@@ -259,17 +259,30 @@ static id _instance;
 
 - (void)resumeDownloadWithItem:(YCDownloadItem *)item{
     item.downloadStatus = YCDownloadStatusDownloading;
-    YCDownloadTask *task = [YCDownloadSession.downloadSession taskForTaskId:item.taskId];
-    task.delegate = item;
-    [YCDownloadSession.downloadSession resumeDownloadWithTaskId:item.taskId];
+
+    if(item.compatibleKey.length>0){
+        YCDownloadTask *task = [YCDownloadSession.downloadSession taskForTaskId:item.taskId];
+        task.delegate = item;
+        [YCDownloadSession.downloadSession resumeDownloadWithTaskId:item.taskId];
+    }else{
+        YCDownloadTask *task = [YCDownloadSession.downloadSession taskForTaskId:item.downloadUrl];
+        task.delegate = item;
+        //TODO: compatiable 1.0.0
+        [YCDownloadSession.downloadSession resumeDownloadWithTaskId:item.taskId.length==0 ? item.downloadUrl : item.taskId];
+    }
     [self saveDownloadItems];
 }
 
 
 - (void)pauseDownloadWithItem:(YCDownloadItem *)item {
-
     item.downloadStatus = YCDownloadStatusPaused;
-    [YCDownloadSession.downloadSession pauseDownloadWithTaskId:item.taskId];
+    
+    if(item.compatibleKey.length>0){
+        [YCDownloadSession.downloadSession pauseDownloadWithTaskId:item.taskId];
+    }else{
+        //TODO: compatiable 1.0.0
+        [YCDownloadSession.downloadSession pauseDownloadWithTaskId:item.taskId.length==0 ? item.downloadUrl : item.taskId];
+    }
     [self saveDownloadItems];
 }
 

@@ -26,6 +26,7 @@
         _downloadURL = url;
         _fileId = fileId;
         _delegate = delegate;
+        _compatibleKey = [YCDownloadSession downloadSession].downloadVersion;
     }
     return self;
 }

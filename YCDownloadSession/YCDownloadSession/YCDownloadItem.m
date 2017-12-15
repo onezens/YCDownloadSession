@@ -9,6 +9,7 @@
 
 #import "YCDownloadItem.h"
 #import <objc/runtime.h>
+#import "YCDownloadSession.h"
 
 @implementation YCDownloadItem
 
@@ -18,6 +19,7 @@
         _downloadUrl = url;
         _fileId = fileId;
         _taskId = [YCDownloadTask taskIdForUrl:url fileId:fileId];
+        _compatibleKey = [YCDownloadSession downloadSession].downloadVersion;
     }
     return self;
 }

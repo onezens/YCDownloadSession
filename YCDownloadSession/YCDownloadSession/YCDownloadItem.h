@@ -42,6 +42,7 @@ static NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti"
 @property (nonatomic, assign) NSUInteger downloadedSize;
 @property (nonatomic, assign) YCDownloadStatus downloadStatus;
 @property (nonatomic, copy, readonly) NSString *saveName;
+@property (nonatomic, copy) NSString *compatibleKey;
 
 
 @end

@@ -82,6 +82,7 @@ static NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNot
 @property (nonatomic, copy) NSString *tempPath;
 @property (nonatomic, weak) id <YCDownloadTaskDelegate>delegate;
 @property (nonatomic, strong) NSURLSessionDownloadTask *downloadTask;
+@property (nonatomic, copy) NSString *compatibleKey;
 
 
 #pragma mark - method

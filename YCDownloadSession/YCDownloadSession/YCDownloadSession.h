@@ -31,6 +31,12 @@ typedef void (^BGCompletedHandler)(void);
  */
 + (instancetype)downloadSession;
 
+
+/**
+ YCDownloadSession版本号，主要用于大版本更新，兼容旧逻辑
+ */
+@property (nonatomic, readonly) NSString *downloadVersion;
+
 /**
  设置下载任务的个数，最多支持3个下载任务同时进行。
  NSURLSession最多支持5个任务同时进行
@@ -82,6 +88,7 @@ typedef void (^BGCompletedHandler)(void);
  @param taskId 下载task的标识
  */
 - (void)resumeDownloadWithTaskId:(NSString *)taskId;
+
 
 /**
  删除一个后台下载任务，同时会删除当前任务下载的缓存数据
