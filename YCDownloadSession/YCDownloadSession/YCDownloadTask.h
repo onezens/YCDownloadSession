@@ -183,6 +183,14 @@ static NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNot
 
 + (NSURLSessionDownloadTask *)downloadTaskWithCorrectResumeData:(NSData *)resumeData urlSession:(NSURLSession *)urlSession;
 
+/**
+ 清除 NSURLSessionResumeByteRange 字段
+ 修正iOS11 多次暂停继续 文件大小不对的问题
+ 
+ @param resumeData 原始resumeData
+ @return 清除后resumeData
+ */
++ (NSData *)cleanResumeData:(NSData *)resumeData;
 @end
 
 

@@ -329,7 +329,11 @@ static YCDownloadSession *_instance;
 
 - (void)pauseDownloadTask:(YCDownloadTask *)task{
     //暂停逻辑在这里处理 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
-    [task.downloadTask cancelByProducingResumeData:^(NSData * resumeData) { }];
+    if (task.downloadTask) {
+        [task.downloadTask cancelByProducingResumeData:^(NSData * resumeData) { }];
+    } else {
+        task.downloadStatus = YCDownloadStatusPaused;
+    }
 }
 
 - (void)resumeDownloadTask:(YCDownloadTask *)task {
@@ -687,6 +691,10 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
         // check whether resume data are available
         NSData *resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
         if (resumeData) {
+            if (IS_IOS10ORLATER) {
+                //修正iOS11 多次暂停继续 文件大小不对的问题
+                resumeData = [YCResumeData cleanResumeData:resumeData];
+            }
             //通过之前保存的resumeData，获取断点的NSURLSessionTask，调用resume恢复下载
             yctask.resumeData = resumeData;
             id resumeDataObj = [NSPropertyListSerialization propertyListWithData:resumeData options:0 format:0 error:nil];
@@ -701,7 +709,11 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
             [self downloadStatusChanged:YCDownloadStatusPaused task:yctask];
            
         }else{
-            [self downloadStatusChanged:YCDownloadStatusFailed task:yctask];
+            if (yctask.fileSize == 0) {
+                [self downloadStatusChanged:YCDownloadStatusPaused task:yctask];
+            } else {
+                [self downloadStatusChanged:YCDownloadStatusFailed task:yctask];
+            }
         }
     }
     //需要下载下一个任务则下载下一个，否则还原noNeedToStartNext标识

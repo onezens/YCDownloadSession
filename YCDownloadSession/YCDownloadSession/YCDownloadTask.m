@@ -385,6 +385,18 @@ static NSString * const kNSURLSessionResumeServerDownloadDate = @"NSURLSessionRe
     return task;
 }
 
-
++ (NSData *)cleanResumeData:(NSData *)resumeData {
+    NSString *dataString = [[NSString alloc] initWithData:resumeData encoding:NSUTF8StringEncoding];
+    if ([dataString containsString:@"<key>NSURLSessionResumeByteRange</key>"]) {
+        NSRange rangeKey = [dataString rangeOfString:@"<key>NSURLSessionResumeByteRange</key>"];
+        NSString *headStr = [dataString substringToIndex:rangeKey.location];
+        NSString *backStr = [dataString substringFromIndex:rangeKey.location];
+        
+        NSRange rangeValue = [backStr rangeOfString:@"</string>\n\t"];
+        NSString *tailStr = [backStr substringFromIndex:rangeValue.location + rangeValue.length];
+        dataString = [headStr stringByAppendingString:tailStr];
+    }
+    return [dataString dataUsingEncoding:NSUTF8StringEncoding];
+}
 
 @end
