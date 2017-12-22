@@ -299,7 +299,7 @@ static id _instance;
 }
 
 - (void)removeAllCache {
-    [self.itemsDictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, YCDownloadItem *  _Nonnull obj, BOOL * _Nonnull stop) {
+    [self.itemsDictM.copy enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, YCDownloadItem *  _Nonnull obj, BOOL * _Nonnull stop) {
         [self stopDownloadWithItem:obj];
     }];
 }
