@@ -185,7 +185,7 @@ static NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNot
 
 /**
  清除 NSURLSessionResumeByteRange 字段
- 修正iOS11 多次暂停继续 文件大小不对的问题
+ 修正iOS11.0 iOS11.1 多次暂停继续 文件大小不对的问题(iOS11.2官方已经修复)
  
  @param resumeData 原始resumeData
  @return 清除后resumeData
