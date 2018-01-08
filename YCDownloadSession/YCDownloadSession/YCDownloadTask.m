@@ -135,15 +135,6 @@
     return md5Result;
 }
 
-#pragma mark - setter
-
-- (void)setDownloadTask:(NSURLSessionDownloadTask *)downloadTask {
-    if (_downloadTask && downloadTask && ![_downloadTask isEqual:downloadTask]) { //防止重复下载
-        [_downloadTask cancel];
-    }
-    _downloadTask = downloadTask;
-}
-
 #pragma mark - private
 
 ///  解档

@@ -371,6 +371,7 @@ static YCDownloadSession *_instance;
     }else{
         
         if (!task.downloadTask || task.downloadTask.state == NSURLSessionTaskStateCompleted || task.downloadTask.state == NSURLSessionTaskStateCanceling) {
+            [task.downloadTask cancel];
             NSURL *downloadURL = [NSURL URLWithString:task.downloadURL];
             NSURLRequest *request = [NSURLRequest requestWithURL:downloadURL];
             NSURLSessionDownloadTask *downloadTask = [self.session downloadTaskWithRequest:request];
