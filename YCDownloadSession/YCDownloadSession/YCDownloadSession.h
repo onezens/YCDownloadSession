@@ -31,7 +31,6 @@ typedef void (^BGCompletedHandler)(void);
  */
 + (instancetype)downloadSession;
 
-
 /**
  YCDownloadSession版本号，主要用于大版本更新，兼容旧逻辑
  */

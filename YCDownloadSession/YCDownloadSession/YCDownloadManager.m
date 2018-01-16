@@ -48,6 +48,7 @@ static id _instance;
                 if (item.downloadStatus == YCDownloadStatusFailed || item.downloadStatus == YCDownloadStatusPaused) {
                     YCDownloadTask *task = [YCDownloadSession.downloadSession taskForTaskId:item.taskId];
                     item.downloadedSize = task.downloadedSize;
+                    item.downloadStatus = task.downloadStatus;
                     isNeedSave = true;
                 }
             }];

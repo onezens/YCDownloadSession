@@ -45,6 +45,7 @@ static YCDownloadSession *_instance;
 
 - (instancetype)init {
     if (self = [super init]) {
+        YCLog(@"YCDownloadSession init");
         //初始化
         _session = [self getDownloadURLSession];
         _maxTaskCount = 1;
@@ -55,6 +56,8 @@ static YCDownloadSession *_instance;
         if(!_downloadTasks) _downloadTasks = [NSMutableDictionary dictionary];
         
         [self compatiableDownloadData];
+        
+        [self addNotification];
         
         //获取背景session正在运行的(app重启，或者闪退会有任务)
         NSMutableDictionary *dictM = [self.session valueForKey:@"tasks"];
@@ -79,6 +82,14 @@ static YCDownloadSession *_instance;
 
     }
     return self;
+}
+
+
+- (void)addNotification {
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive) name:UIApplicationWillResignActiveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillTerminate) name:UIApplicationWillTerminateNotification object:nil];
+    
 }
 
 - (void)compatiableDownloadData {
@@ -156,6 +167,19 @@ static YCDownloadSession *_instance;
     }];
     return count;
 }
+
+- (void)appWillResignActive {
+    [self saveDownloadStatus];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadStatusChangedNoti object:nil];
+    YCLog(@"%s", __func__);
+}
+
+- (void)appWillTerminate {
+    [self saveDownloadStatus];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadStatusChangedNoti object:nil];
+    YCLog(@"%s", __func__);
+}
+
 
 #pragma mark - public
 
@@ -241,7 +265,8 @@ static YCDownloadSession *_instance;
 - (void)pauseAllDownloadTask{
 
     [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, YCDownloadTask * _Nonnull obj, BOOL * _Nonnull stop) {
-        if(obj.downloadStatus == YCDownloadStatusDownloading){
+        YCLog(@"downloadTask:%@ state: %zd  - %zd", obj.downloadTask, obj.downloadTask.state, obj.downloadStatus);
+        if(obj.downloadStatus == YCDownloadStatusDownloading && obj.downloadTask.state != NSURLSessionTaskStateCompleted){
             obj.noNeedToStartNext = true;
             [self pauseDownloadTask:obj];
         }else if (obj.downloadStatus == YCDownloadStatusWaiting){
@@ -382,11 +407,6 @@ static YCDownloadSession *_instance;
     }
 }
 
-
-
-
-
-
 - (void)startNextDownloadTask {
     if ([self currentTaskCount] < self.maxTaskCount) {
         [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
@@ -397,7 +417,6 @@ static YCDownloadSession *_instance;
         }];
     }
 }
-
 
 - (void)downloadStatusChanged:(YCDownloadStatus)status task:(YCDownloadTask *)task{
     
