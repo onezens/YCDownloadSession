@@ -359,6 +359,9 @@ static YCDownloadSession *_instance;
     } else {
         task.downloadStatus = YCDownloadStatusPaused;
     }
+    if(!task.isSupportRange){
+        YCLog(@"Error: resource not support resume, because reponse headers not have the filed of 'Accept-Ranges' and 'ETag' !");
+    }
 }
 
 - (void)resumeDownloadTask:(YCDownloadTask *)task {

@@ -72,7 +72,10 @@ static NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNot
 @property (nonatomic, assign) NSInteger downloadedSize;
 /**重新创建下载session，恢复下载状态的session的标识*/
 @property (nonatomic, assign) BOOL needToRestart;
-
+/**
+ 是否支持断点续传
+ */
+@property (nonatomic, assign, readonly) BOOL isSupportRange;
 /**
  是否 不需要下载下一个任务的标识，用来区分全部暂停和单个任务暂停后的操作
  */

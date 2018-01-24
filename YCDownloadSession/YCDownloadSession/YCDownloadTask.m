@@ -55,6 +55,16 @@
 }
 
 #pragma mark - getter
+    
+- (BOOL)isSupportRange {
+    if([self.downloadTask.response isKindOfClass:[NSHTTPURLResponse class]]){
+        NSHTTPURLResponse *response = (NSHTTPURLResponse *)self.downloadTask.response;
+        NSString *rangeHeader = [response.allHeaderFields valueForKey:@"Accept-Ranges"];
+        NSString *etag = [response.allHeaderFields valueForKey:@"ETag"];
+        return rangeHeader.length>0 && etag.length>0;
+    }
+    return true;
+}
 
 -(NSString *)taskId {
     return [YCDownloadTask taskIdForUrl:self.downloadURL fileId:self.fileId];
