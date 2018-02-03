@@ -9,14 +9,10 @@
 
 #import "YCDownloadSession.h"
 
-
-#ifdef DEBUG//NSLog(__VA_ARGS__)
-#define YCLog(...) NSLog(__VA_ARGS__)
-#else
-#define YCLog(...)
-#endif
-
 static NSString * const kIsAllowCellar = @"kIsAllowCellar";
+
+typedef void(^BGRecreateSessionBlock)(void);
+
 @interface YCDownloadSession ()<NSURLSessionDownloadDelegate>
 
 /**正在下载的task*/
@@ -26,6 +22,8 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 @property (nonatomic, strong, readonly) NSURLSession *session;
 /**重新创建sessio标记位*/
 @property (nonatomic, assign) BOOL isNeedCreateSession;
+@property (nonatomic, strong) NSTimer *timer;
+@property (nonatomic, copy) BGRecreateSessionBlock bgRCSBlock;
 
 @end
 
@@ -45,7 +43,7 @@ static YCDownloadSession *_instance;
 
 - (instancetype)init {
     if (self = [super init]) {
-        YCLog(@"YCDownloadSession init");
+        NSLog(@"YCDownloadSession init");
         //初始化
         _session = [self getDownloadURLSession];
         _maxTaskCount = 1;
@@ -73,7 +71,7 @@ static YCDownloadSession *_instance;
         if (dictM.count>0) {
             //app重启，或者闪退的任务全部暂停,Xcode连接重启app
             [self pauseAllDownloadTask];
-            YCLog(@"app start default pause all bg runing task! task count: %zd", dictM.count);
+            NSLog(@"app start default pause all bg runing task! task count: %zd", dictM.count);
             //waiting async pause task callback
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 [self detectAllCacheFileSize];
@@ -89,6 +87,7 @@ static YCDownloadSession *_instance;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive) name:UIApplicationWillResignActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillTerminate) name:UIApplicationWillTerminateNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillBecomeActive) name:UIApplicationDidBecomeActiveNotification object:nil];
     
 }
 
@@ -133,7 +132,7 @@ static YCDownloadSession *_instance;
 - (void)recreateSession {
     
     _session = [self getDownloadURLSession];
-    YCLog(@"recreate Session success");
+    NSLog(@"recreate Session success");
     //恢复正在下载的task状态
     [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
         YCDownloadTask *task = obj;
@@ -143,6 +142,20 @@ static YCDownloadSession *_instance;
             [self resumeDownloadTask:task];
         }
     }];
+}
+
+- (void)prepareRecreateSession {
+    [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        YCDownloadTask *task = obj;
+        if (task.downloadTask.state == NSURLSessionTaskStateRunning) {
+            task.needToRestart = true;
+            task.noNeedToStartNext = true;
+            [self pauseDownloadTask:task];
+        }
+    }];
+    
+    [_session invalidateAndCancel];
+    self.isNeedCreateSession = true;
 }
 
 
@@ -168,16 +181,20 @@ static YCDownloadSession *_instance;
     return count;
 }
 
+- (void)appWillBecomeActive {
+    [self stopTimer];
+}
+
 - (void)appWillResignActive {
     [self saveDownloadStatus];
     [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadStatusChangedNoti object:nil];
-    YCLog(@"%s", __func__);
+    NSLog(@"%s", __func__);
 }
 
 - (void)appWillTerminate {
     [self saveDownloadStatus];
     [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadStatusChangedNoti object:nil];
-    YCLog(@"%s", __func__);
+    NSLog(@"%s", __func__);
 }
 
 
@@ -265,7 +282,7 @@ static YCDownloadSession *_instance;
 - (void)pauseAllDownloadTask{
 
     [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, YCDownloadTask * _Nonnull obj, BOOL * _Nonnull stop) {
-        YCLog(@"downloadTask:%@ state: %zd  - %zd", obj.downloadTask, obj.downloadTask.state, obj.downloadStatus);
+        NSLog(@"downloadTask:%@ state: %zd  - %zd", obj.downloadTask, obj.downloadTask.state, obj.downloadStatus);
         if(obj.downloadStatus == YCDownloadStatusDownloading && obj.downloadTask.state != NSURLSessionTaskStateCompleted){
             obj.noNeedToStartNext = true;
             [self pauseDownloadTask:obj];
@@ -302,20 +319,12 @@ static YCDownloadSession *_instance;
     return task;
 }
 
+
+
 - (void)allowsCellularAccess:(BOOL)isAllow {
     
     [[NSUserDefaults standardUserDefaults] setBool:isAllow forKey:kIsAllowCellar];
-    [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        YCDownloadTask *task = obj;
-        if (task.downloadTask.state == NSURLSessionTaskStateRunning) {
-            task.needToRestart = true;
-            task.noNeedToStartNext = true;
-            [self pauseDownloadTask:task];
-        }
-    }];
-
-    [_session invalidateAndCancel];
-    self.isNeedCreateSession = true;
+    [self prepareRecreateSession];
 }
 
 - (BOOL)isAllowsCellularAccess {
@@ -326,9 +335,11 @@ static YCDownloadSession *_instance;
 -(void)addCompletionHandler:(BGCompletedHandler)handler identifier:(NSString *)identifier{
     if ([[self backgroundSessionIdentifier] isEqualToString:identifier]) {
         self.completedHandler = handler;
+        //fix a crash in backgroud. for:  reason: backgroundDownload owner pid:252 preventSuspend  preventThrottleDownUI  preventIdleSleep  preventSuspendOnSleep
+        [self startTimer];
+        
     }
 }
-
 #pragma mark - private
 
 - (YCDownloadTask *)startNewTaskWithUrl:(NSString *)downloadURLString fileId:(NSString *)fileId delegate:(id<YCDownloadTaskDelegate>)delegate{
@@ -360,7 +371,7 @@ static YCDownloadSession *_instance;
         task.downloadStatus = YCDownloadStatusPaused;
     }
     if(!task.isSupportRange){
-        YCLog(@"Error: resource not support resume, because reponse headers not have the filed of 'Accept-Ranges' and 'ETag' !");
+        NSLog(@"Error: resource not support resume, because reponse headers not have the filed of 'Accept-Ranges' and 'ETag' !");
     }
 }
 
@@ -454,11 +465,7 @@ static YCDownloadSession *_instance;
         if ([self allTaskFinised]) {
             [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadAllTaskFinishedNoti object:nil];
             //所有的任务执行结束之后调用completedHanlder
-            if (self.completedHandler) {
-                YCLog(@"completedHandler");
-                self.completedHandler();
-                self.completedHandler = nil;
-            }
+            [self callBgCompletedHandler];
         }
     }
 }
@@ -604,6 +611,39 @@ static YCDownloadSession *_instance;
 }
 
 
+#pragma mark - hander
+
+- (void)startTimer {
+    if (!self.timer) {
+        self.timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(timerRun) userInfo:nil repeats:true];
+    }
+}
+- (void)stopTimer {
+    [self.timer invalidate];
+    self.timer = nil;
+}
+
+- (void)timerRun {
+    NSLog(@"background time remain: %f", [UIApplication sharedApplication].backgroundTimeRemaining);
+    //TODO: optimeze the logic for background session
+    if ([UIApplication sharedApplication].backgroundTimeRemaining < 15 && !self.bgRCSBlock) {
+        NSLog(@"background time will up, need to call completed hander!");
+        __weak typeof(self) weakSelf = self;
+        self.bgRCSBlock = ^{
+            [weakSelf callBgCompletedHandler];
+            [weakSelf stopTimer];
+        };
+        [self allowsCellularAccess:false];
+    }
+}
+
+- (void)callBgCompletedHandler {
+    if (self.completedHandler) {
+        self.completedHandler();
+        self.completedHandler = nil;
+    }
+}
+
 #pragma mark -  NSURLSessionDelegate
 
 //将一个后台session作废完成后的回调，用来切换是否允许使用蜂窝煤网络，重新创建session
@@ -612,6 +652,10 @@ static YCDownloadSession *_instance;
     if (self.isNeedCreateSession) {
         self.isNeedCreateSession = false;
         [self recreateSession];
+        if (self.bgRCSBlock) {
+            self.bgRCSBlock();
+            self.bgRCSBlock = nil;
+        }
     }
 }
 
@@ -623,15 +667,15 @@ static YCDownloadSession *_instance;
       downloadTask:(NSURLSessionDownloadTask *)downloadTask
 didFinishDownloadingToURL:(NSURL *)location {
     
-    YCLog(@"%s", __func__);
+    NSLog(@"%s", __func__);
 
     NSString *locationString = [location path];
     NSError *error;
-    
+
     NSString *downloadUrl = [YCDownloadTask getURLFromTask:downloadTask];
     YCDownloadTask *task = [self getDownloadTaskWithUrl:downloadUrl];
     if(!task){
-        YCLog(@"download finished , item nil error!!!! url: %@", downloadUrl);
+        NSLog(@"download finished , item nil error!!!! url: %@", downloadUrl);
         return;
     }
     task.tempPath = locationString;
@@ -682,8 +726,6 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
         [task.delegate downloadProgress:task downloadedSize:task.downloadedSize fileSize:task.fileSize];
     }
     
-//    NSString *url = downloadTask.response.URL.absoluteString;
-//    YCLog(@"downloadURL: %@  downloadedSize: %zd totalSize: %zd  progress: %f", url, task.downloadedSize, task.fileSize, (float)task.downloadedSize / task.fileSize);
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task
@@ -691,13 +733,12 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
         newRequest:(NSURLRequest *)request
  completionHandler:(void (^)(NSURLRequest * _Nullable))completionHandler {
     
-    //YCLog(@"willPerformHTTPRedirection ------> %@",response);
+    //NSLog(@"willPerformHTTPRedirection ------> %@",response);
 }
 
 //后台下载完成后调用。在执行 URLSession:downloadTask:didFinishDownloadingToURL: 之后调用
 - (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session {
-    //YCLog(@"%s", __func__);
-
+    //NSLog(@"%s", __func__);
 }
 
 

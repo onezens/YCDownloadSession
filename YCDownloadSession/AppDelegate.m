@@ -9,11 +9,9 @@
 #import "AppDelegate.h"
 #import "MainTableViewController.h"
 #import "YCDownloadManager.h"
+#import <Bugly/Bugly.h>
 
 @interface AppDelegate ()
-
-@property (nonatomic, strong) NSTimer *timer;
-@property (nonatomic, assign) NSInteger duration;
 
 @end
 
@@ -37,13 +35,19 @@
         [application registerUserNotificationSettings:settings];
     }
     
+    //setup bugly
+    [self setUpBugly];
+    
     return YES;
 }
 
-
-- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification
-{
-    NSLog(@"%s", __func__);
+- (void)setUpBugly {
+    BuglyConfig *config = [BuglyConfig new];
+    config.blockMonitorEnable = true;
+    config.channel = @"git";
+    config.unexpectedTerminatingDetectionEnable = true;
+    config.symbolicateInProcessEnable =  true;
+    [Bugly startWithAppId:@"900036376" config:config];
 }
 
 
@@ -51,32 +55,5 @@
     NSLog(@"%s", __func__);
     [[YCDownloadSession downloadSession] addCompletionHandler:completionHandler identifier:identifier];
 }
-
-#pragma mark - test code
-- (void)applicationWillResignActive:(UIApplication *)application{
-    
-    [self testTimer];
-    NSLog(@"%s",__func__);
-}
-
-- (void)applicationDidBecomeActive:(UIApplication *)application {
-    
-    [self.timer invalidate];
-    self.timer = nil;
-    self.duration = 0;
-    NSLog(@"%s", __func__);
-}
-
-
-- (void)testTimer {
-    self.timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(timerRun) userInfo:nil repeats:true];
-    [self.timer fire];
-}
-
-- (void)timerRun {
-    _duration += 1;
-    NSLog(@"%zd", _duration);
-}
-
 
 @end
