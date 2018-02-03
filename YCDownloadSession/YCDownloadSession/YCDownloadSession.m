@@ -4,13 +4,13 @@
 //
 //  Created by wz on 17/3/14.
 //  Copyright © 2017年 onezen.cc. All rights reserved.
-//  Github: https://github.com/onezens/YCDownloadSession
+//  Contact me: http://www.onezen.cc
+//  Github:     https://github.com/onezens/YCDownloadSession
 //
 
 #import "YCDownloadSession.h"
 
 static NSString * const kIsAllowCellar = @"kIsAllowCellar";
-
 typedef void(^BGRecreateSessionBlock)(void);
 
 @interface YCDownloadSession ()<NSURLSessionDownloadDelegate>
@@ -54,7 +54,6 @@ static YCDownloadSession *_instance;
         if(!_downloadTasks) _downloadTasks = [NSMutableDictionary dictionary];
         
         [self compatiableDownloadData];
-        
         [self addNotification];
         
         //获取背景session正在运行的(app重启，或者闪退会有任务)
@@ -132,7 +131,6 @@ static YCDownloadSession *_instance;
 - (void)recreateSession {
     
     _session = [self getDownloadURLSession];
-    NSLog(@"recreate Session success");
     //恢复正在下载的task状态
     [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
         YCDownloadTask *task = obj;
@@ -142,6 +140,7 @@ static YCDownloadSession *_instance;
             [self resumeDownloadTask:task];
         }
     }];
+    NSLog(@"recreate Session success");
 }
 
 - (void)prepareRecreateSession {
@@ -318,8 +317,6 @@ static YCDownloadSession *_instance;
     
     return task;
 }
-
-
 
 - (void)allowsCellularAccess:(BOOL)isAllow {
     
@@ -633,7 +630,7 @@ static YCDownloadSession *_instance;
             [weakSelf callBgCompletedHandler];
             [weakSelf stopTimer];
         };
-        [self allowsCellularAccess:false];
+        [self prepareRecreateSession];
     }
 }
 
@@ -768,7 +765,6 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
                 NSDictionary *resumeDict = resumeDataObj;
                 yctask.tmpName = [resumeDict valueForKey:@"NSURLSessionResumeInfoTempFileName"];
             }
-//            [[YCResumeData alloc] initWithResumeData:resumeData];
             yctask.resumeData = resumeData;
             yctask.downloadTask = nil;
             [self saveDownloadStatus];

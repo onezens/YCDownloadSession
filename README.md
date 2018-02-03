@@ -1,10 +1,8 @@
 # YCDownloadSession
-通过NSURLSession的创建后台下载任务时，保证了APP在后台或者退出的状态下，依然能后进行下载任务，下载完成后能够唤醒APP来将下载完成的数据保存到需要的位置。
 
 
-
-### 功能点介绍
-创建一个后台下载的session（创建的task为私有__NSCFBackgroundDownloadTask）：  
+### 创建session
+创建一个后台下载的session（创建的后台task为私有__NSCFBackgroundDownloadTask）：  
 
 ```
 NSString *bundleId = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
@@ -18,11 +16,8 @@ NSString *bundleId = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBu
 
 ```
 
-1. 在APP处于后台、锁屏状态下依然能后下载
-2. 最强大的是：APP在手动退出后暂停，在闪退的状态下依然能够进行下载任务，下载完成后自动唤醒APP，进行任务下载完成后的逻辑处理
-
-### 结构介绍
-该视频下载库库主要有四个核心类：YCDownloadSession，YCDownloadTask，YCDownloadItem，YCDownloadManager  
+### 介绍
+下载库主要有四个核心类：YCDownloadSession，YCDownloadTask，YCDownloadItem，YCDownloadManager  
 
 1. YCDownloadSession：对NSURLSession的进一步分装，是一个单例，所有的下载任务都是由其生成和管理。是最主要的核心类。实现了下载的代理方法，通过一个可下载的url，生成一个YCDownloadTask，并且将该task的所有数据进行实时存储。
 2. YCDownloadTask 将YCDownloadSession里的代理方法进一步封装和扩展，保存session生成和所需要的一些下载信息和数据。
@@ -41,26 +36,7 @@ NSString *bundleId = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBu
 	}
 	
 	```
-	
-	如果想要多个任务在后台同时进行，必须要进行设置上述的代理方法。YCDownloadSession内部会处理该回调方法(completionHandler的作用将会在blog里详细说明)，内部处理逻辑：
 
-    ```
-     //等task delegate方法执行完成后去判断该逻辑
-     //URLSessionDidFinishEventsForBackgroundURLSession 方法在后台执行一次，所以在此判断执行completedHandler
-     if (status == YCDownloadStatusFinished) {
-         
-         if ([self allTaskFinised]) {
-             [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadAllTaskFinishedNoti object:nil];
-             //所有的任务执行结束之后调用completedHanlder
-             if (self.completedHandler) {
-                 NSLog(@"completedHandler");
-                 self.completedHandler();
-                 self.completedHandler = nil;
-             }
-         }
-      
-     }
-    ```
 
 2. 直接使用YCDownloadSession下载文件
 
@@ -98,12 +74,10 @@ NSString *bundleId = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBu
             self.progressLbl.text = @"download failed!";
         }
     }
-    
-    //文件下载完成后的路径通过task.savePath读取
 
 	```
 	
-3. 使用自定义的管理类(YCDownloadManager 视频类型文件专用下载管理类)下载。假如视频下载完成，自定义保存名称，那么使用fileId来标识。如果fileId为空使用下载URL的MD5的值来保存
+3. YCDownloadManager 为视频类型文件专用下载管理类
 
 	```
     /**
@@ -235,16 +209,15 @@ NSString *bundleId = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBu
 2. 对下载任务个数进一步优化和管理（完成）
 3. 下载完成后添加本地通知（完成）
 4. 301/302 视频模拟测试 （完成）
-5. Swift 版的下载 - 第一个稳定版发布后开始
+5. Swift 版的下载 - 第一个稳定版发布后开始 (正在进行)
 
 
+### 关于
 
-### 下载代码详解
-
-简书blog： [http://www.jianshu.com/p/2ccb34c460fd](http://www.jianshu.com/p/2ccb34c460fd)
+后台下载详情： [http://www.jianshu.com/p/2ccb34c460fd](http://www.jianshu.com/p/2ccb34c460fd)
 
 **欢迎各位关注该库，如果你有任何问题请issues我，将会随时更新新功能和解决存在的问题。**
 
-**技术交流QQ群： 304468625**
+**技术交流/反馈QQ群： 304468625**
 
 
