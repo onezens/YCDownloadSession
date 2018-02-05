@@ -678,6 +678,11 @@ didFinishDownloadingToURL:(NSURL *)location {
     task.tempPath = locationString;
     NSInteger fileSize =[self fileSizeWithPath:locationString];
     //校验文件大小
+    if (task.fileSize == 0) {
+        task.downloadTask = downloadTask;
+        [task updateTask];
+    }
+    //BOOL isCompltedFile = (fileSize>0) && ((fileSize == task.fileSize) || task.fileSize == 0);
     BOOL isCompltedFile = (fileSize>0) && (fileSize == task.fileSize);
     //文件大小不对，回调失败 ios11 多次暂停继续会出现文件大小不对的情况
     if (!isCompltedFile) {
