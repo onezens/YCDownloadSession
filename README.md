@@ -21,7 +21,7 @@ source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '8.0'
 
 target 'TargetName' do
-pod 'YCDownloadSession', '~> 1.0.1'
+pod 'YCDownloadSession', '~> 1.2.2'
 end
 ```
 
@@ -32,20 +32,7 @@ $ pod install
 ```
 
 
-### 创建session
-创建一个后台下载的session（创建的后台task为私有__NSCFBackgroundDownloadTask）：  
 
-```
-NSString *bundleId = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
-        NSString *identifier = [NSString stringWithFormat:@"%@.BackgroundSession", bundleId];
-        NSURLSessionConfiguration* sessionConfig = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:identifier];
-        sessionConfig.allowsCellularAccess = true;
-        session = [NSURLSession sessionWithConfiguration:sessionConfig
-                                                delegate:self
-                                           delegateQueue:[NSOperationQueue mainQueue]];
-
-
-```
 
 ### 介绍
 下载库主要有四个核心类：YCDownloadSession，YCDownloadTask，YCDownloadItem，YCDownloadManager  
