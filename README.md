@@ -1,4 +1,4 @@
-# YCDownloadSession
+# [YCDownloadSession](https://onezens.github.io/YCDownloadSession/)
 [![GitHub issues](https://img.shields.io/github/issues/onezens/YCDownloadSession.svg)](https://github.com/onezens/YCDownloadSession/issues)
 [![GitHub forks](https://img.shields.io/github/forks/onezens/YCDownloadSession.svg)](https://github.com/onezens/YCDownloadSession/network)
 [![GitHub stars](https://img.shields.io/github/stars/onezens/YCDownloadSession.svg)](https://github.com/onezens/YCDownloadSession/stargazers)
@@ -6,7 +6,7 @@
 [![GitHub license](https://img.shields.io/github/license/onezens/YCDownloadSession.svg)](https://github.com/onezens/YCDownloadSession/blob/master/LICENSE)
 
 
-### 通过Cocoapods安装
+## 通过Cocoapods安装
 
 [安装Cocoapods](http://www.onezen.cc/2016/02/05/iosdev/CocoaPods.html)
 
@@ -21,7 +21,7 @@ source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '8.0'
 
 target 'TargetName' do
-pod 'YCDownloadSession', '~> 1.2.2'
+    pod 'YCDownloadSession', '~> 1.2.2'
 end
 ```
 
@@ -34,7 +34,7 @@ $ pod install
 
 
 
-### 介绍
+## 介绍
 下载库主要有四个核心类：YCDownloadSession，YCDownloadTask，YCDownloadItem，YCDownloadManager  
 
 1. YCDownloadSession：对NSURLSession的进一步分装，是一个单例，所有的下载任务都是由其生成和管理。是最主要的核心类。实现了下载的代理方法，通过一个可下载的url，生成一个YCDownloadTask，并且将该task的所有数据进行实时存储。
@@ -44,7 +44,7 @@ $ pod install
 
 
 
-### 用法
+## 用法
 
 1. AppDelegate设置后台下载成功回调方法
 
@@ -206,7 +206,7 @@ $ pod install
 
 
 
-### 使用效果图
+## 使用效果图
 
 1. 单文件下载测试
 
@@ -221,7 +221,7 @@ $ pod install
   ![下载通知](http://src.onezen.cc/demo/download/4.png)
 
 
-### TODO
+## TODO
 
 1. 4G/流量下载管理（完成）
 2. 对下载任务个数进一步优化和管理（完成）
@@ -230,7 +230,7 @@ $ pod install
 5. Swift 版的下载 - 第一个稳定版发布后开始 (正在进行)
 
 
-### 关于
+## 关于
 
 后台下载详情： [http://www.jianshu.com/p/2ccb34c460fd](http://www.jianshu.com/p/2ccb34c460fd)
 

@@ -325,9 +325,17 @@ static NSString * const kNSURLSessionResumeServerDownloadDate = @"NSURLSessionRe
         id root = nil;
         id  keyedUnarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
         @try {
-            root = [keyedUnarchiver decodeTopLevelObjectForKey:@"NSKeyedArchiveRootObjectKey" error:nil];
+            if (@available(iOS 9.0, *)) {
+                root = [keyedUnarchiver decodeTopLevelObjectForKey:@"NSKeyedArchiveRootObjectKey" error:nil];
+            } else {
+                root = [keyedUnarchiver decodeObjectForKey:@"NSKeyedArchiveRootObjectKey"];
+            }
             if (root == nil) {
-                root = [keyedUnarchiver decodeTopLevelObjectForKey:NSKeyedArchiveRootObjectKey error:nil];
+                if (@available(iOS 9.0, *)) {
+                    root = [keyedUnarchiver decodeTopLevelObjectForKey:NSKeyedArchiveRootObjectKey error:nil];
+                } else {
+                    root = [keyedUnarchiver decodeObjectForKey:NSKeyedArchiveRootObjectKey];
+                }
             }
         } @catch(NSException *exception) {
             
