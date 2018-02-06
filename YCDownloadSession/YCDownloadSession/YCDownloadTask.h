@@ -57,7 +57,7 @@ static NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNot
 
 @interface YCDownloadTask : NSObject
 
-@property (nonatomic, readonly) NSString *taskId;
+@property (nonatomic, copy, readonly) NSString *taskId;
 @property (nonatomic, copy, readonly) NSString *downloadURL;
 /**文件标识，可以为空。要想同- downloadURL文件重复下载，可以让fileId不同*/
 @property (nonatomic, copy, readonly) NSString *fileId;

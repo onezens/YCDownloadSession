@@ -12,12 +12,23 @@
 #import "YCDownloadItem.h"
 #import "YCDownloadSession.h"
 
+#define YCDownloadMgr [YCDownloadManager manager]
+
 @interface YCDownloadManager : NSObject
 
 /**
  设置下载任务的个数，最多支持3个下载任务同时进行。
  */
 + (void)setMaxTaskCount:(NSInteger)count;
+
+/**
+ 开始/创建一个后台下载任务。开发者自己定义/扩展item中的数据和内容
+ 扩展item中的属性时，推荐自定义item，并且继承YCDownloadItem
+ 示例：到demo -> YCDownloadInfo
+ 
+ @param item 下载信息的item
+ */
++ (void)startDownloadWithItem:(YCDownloadItem *)item;
 
 
 /**

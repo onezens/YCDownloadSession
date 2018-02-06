@@ -67,15 +67,15 @@ static YCDownloadSession *_instance;
             }
         }];
         
-        if (dictM.count>0) {
-            //app重启，或者闪退的任务全部暂停,Xcode连接重启app
-            [self pauseAllDownloadTask];
-            NSLog(@"app start default pause all bg runing task! task count: %zd", dictM.count);
-            //waiting async pause task callback
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                [self detectAllCacheFileSize];
-            });
-        }
+//        if (dictM.count>0) {
+//            //app重启，或者闪退的任务全部暂停,Xcode连接重启app
+//            [self pauseAllDownloadTask];
+//            NSLog(@"app start default pause all bg runing task! task count: %zd", dictM.count);
+//            //waiting async pause task callback
+//            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//                [self detectAllCacheFileSize];
+//            });
+//        }
 
     }
     return self;
@@ -321,6 +321,7 @@ static YCDownloadSession *_instance;
 - (void)allowsCellularAccess:(BOOL)isAllow {
     
     [[NSUserDefaults standardUserDefaults] setBool:isAllow forKey:kIsAllowCellar];
+    [[NSUserDefaults standardUserDefaults] synchronize];
     [self prepareRecreateSession];
 }
 
@@ -684,7 +685,7 @@ didFinishDownloadingToURL:(NSURL *)location {
     }
     //BOOL isCompltedFile = (fileSize>0) && ((fileSize == task.fileSize) || task.fileSize == 0);
     BOOL isCompltedFile = (fileSize>0) && (fileSize == task.fileSize);
-    //文件大小不对，回调失败 ios11 多次暂停继续会出现文件大小不对的情况
+    //文件大小不对，回调失败
     if (!isCompltedFile) {
         [self downloadStatusChanged:YCDownloadStatusFailed task:task];
         //删除异常的缓存文件
@@ -692,6 +693,7 @@ didFinishDownloadingToURL:(NSURL *)location {
         return;
     }
     task.downloadedSize = task.fileSize;
+    task.downloadTask = nil;
     [[NSFileManager defaultManager] moveItemAtPath:locationString toPath:task.savePath error:&error];
 
     if (task.downloadURL.length != 0) {

@@ -16,6 +16,7 @@
 
 #pragma mark - init
 -(instancetype)initWithUrl:(NSString *)url fileId:(NSString *)fileId {
+    
     if (self = [super init]) {
         _downloadUrl = url;
         _fileId = fileId;
@@ -30,7 +31,6 @@
 
 #pragma mark - YCDownloadSessionDelegate
 - (void)downloadProgress:(YCDownloadTask *)task downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize {
-    self.downloadedSize = downloadedSize;
     if ([self.delegate respondsToSelector:@selector(downloadItem:downloadedSize:totalSize:)]) {
         [self.delegate downloadItem:self downloadedSize:downloadedSize totalSize:fileSize];
     }
@@ -38,71 +38,96 @@
 
 - (void)downloadStatusChanged:(YCDownloadStatus)status downloadTask:(YCDownloadTask *)task {
     
-    if (status == YCDownloadStatusFinished) {
-        self.downloadedSize = self.fileSize;
-    }
-    self.downloadStatus = status;
     if ([self.delegate respondsToSelector:@selector(downloadItemStatusChanged:)]) {
         [self.delegate downloadItemStatusChanged:self];
     }
     //通知优先级最后，不与上面的finished重合
     if (status == YCDownloadStatusFinished) {
+        _fileSize = task.fileSize;
         [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadTaskFinishedNoti object:self];
     }
 }
 
 - (void)downloadCreated:(YCDownloadTask *)task {
-    self.downloadStatus = YCDownloadStatusDownloading;
     if(task.fileSize > 0){
-        self.fileSize = task.fileSize;
+        _fileSize = task.fileSize;
     }
-    _saveName = task.saveName;
     [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadNeedSaveDataNoti object:nil userInfo:nil];
 }
 
-
 #pragma mark - public
+
+- (NSString *)saveName {
+    YCDownloadTask *task = [[YCDownloadSession downloadSession] taskForTaskId:_taskId];
+    return task.saveName;
+}
 
 - (NSString *)savePath {
     return [YCDownloadTask savePathWithSaveName:self.saveName];
 }
 
+- (NSUInteger)downloadedSize {
+    YCDownloadTask *task = [[YCDownloadSession downloadSession] taskForTaskId:_taskId];
+    return task.downloadedSize;
+}
 
+- (YCDownloadStatus)downloadStatus {
+    YCDownloadTask *task = [[YCDownloadSession downloadSession] taskForTaskId:_taskId];
+    return task.downloadStatus;
+}
+
+- (void)setDelegate:(id<YCDownloadItemDelegate>)delegate {
+    _delegate = delegate;
+    YCDownloadTask *task = [[YCDownloadSession downloadSession] taskForTaskId:_taskId];
+    task.delegate = self;
+}
 
 #pragma mark - private
-
-
 
 ///  解档
 - (instancetype)initWithCoder:(NSCoder *)coder
 {
     if (self = [super init]) {
         
-        unsigned int count = 0;
-        
-        Ivar *ivars = class_copyIvarList([self class], &count);
-        
-        for (NSInteger i=0; i<count; i++) {
-            
-            Ivar ivar = ivars[i];
-            NSString *name = [[NSString alloc] initWithUTF8String:ivar_getName(ivar)];
-            if([name isEqualToString:@"_delegate"]) continue;
-            id value = [coder decodeObjectForKey:name];
-            if(value) [self setValue:value forKey:name];
+        [self decoderWithCoder:coder class:[self class]];
+        if (![NSStringFromClass(self.superclass) isEqualToString:NSStringFromClass([NSObject class])]) {
+            [self decoderWithCoder:coder class:self.superclass];
         }
-        
-        free(ivars);
     }
     return self;
 }
 
+- (void)decoderWithCoder:(NSCoder *)coder class:(Class)cls {
+    unsigned int count = 0;
+    
+    Ivar *ivars = class_copyIvarList(cls, &count);
+    
+    for (NSInteger i=0; i<count; i++) {
+        
+        Ivar ivar = ivars[i];
+        NSString *name = [[NSString alloc] initWithUTF8String:ivar_getName(ivar)];
+        if([name isEqualToString:@"_delegate"]) continue;
+        id value = [coder decodeObjectForKey:name];
+        if(value) [self setValue:value forKey:name];
+    }
+    
+    free(ivars);
+}
+
+
 ///  归档
 - (void)encodeWithCoder:(NSCoder *)coder
 {
-    
+    [self encodeWithCoder:coder class:[self class]];
+    if (![NSStringFromClass(self.superclass) isEqualToString:NSStringFromClass([NSObject class])]) {
+        [self encodeWithCoder:coder class:self.superclass];
+    }
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder class:(Class)cls {
     unsigned int count = 0;
     
-    Ivar *ivars = class_copyIvarList([self class], &count);
+    Ivar *ivars = class_copyIvarList(cls, &count);
     
     for (NSInteger i=0; i<count; i++) {
         
@@ -115,5 +140,6 @@
     
     free(ivars);
 }
+
 
 @end

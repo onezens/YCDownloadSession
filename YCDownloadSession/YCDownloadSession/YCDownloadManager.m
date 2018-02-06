@@ -41,20 +41,6 @@ static id _instance;
         [self getDownloadItems];
         if(!self.itemsDictM) self.itemsDictM = [NSMutableDictionary dictionary];
         [self addNotification];
-        __block BOOL isNeedSave = false;
-        //waing async callback
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            //get cached file size
-            [self.itemsDictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, YCDownloadItem *  _Nonnull item, BOOL * _Nonnull stop) {
-                if (item.downloadStatus == YCDownloadStatusFailed || item.downloadStatus == YCDownloadStatusPaused) {
-                    YCDownloadTask *task = [YCDownloadSession.downloadSession taskForTaskId:item.taskId];
-                    item.downloadedSize = task.downloadedSize;
-                    item.downloadStatus = task.downloadStatus;
-                    isNeedSave = true;
-                }
-            }];
-            if(isNeedSave) [self saveDownloadItems];
-        });
     }
     return self;
 }
@@ -65,18 +51,7 @@ static id _instance;
 
 - (void)getDownloadItems {
     NSMutableDictionary *items = [NSKeyedUnarchiver unarchiveObjectWithFile:[self downloadItemSavePath]];;
-    
-    //app闪退或者手动杀死app，会继续下载。APP再次启动默认暂停所有下载
-    [items enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        YCDownloadItem *item = obj;
-        //app重新启动，将等待和下载的任务的状态变成暂停
-        if (item.downloadStatus == YCDownloadStatusDownloading || item.downloadStatus == YCDownloadStatusWaiting) {
-            item.downloadStatus = YCDownloadStatusPaused;
-        }
-    }];
-    
     self.itemsDictM = items;
-    
 }
 
 - (NSString *)downloadItemSavePath {
@@ -97,76 +72,78 @@ static id _instance;
 
 
 + (void)setMaxTaskCount:(NSInteger)count {
-    [[YCDownloadManager manager] setMaxTaskCount: count];
+    [YCDownloadMgr setMaxTaskCount: count];
 }
 
++ (void)startDownloadWithItem:(YCDownloadItem *)item {
+    [YCDownloadMgr startDownloadWithItem:item];
+}
 
 + (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName imageUrl:(NSString *)imagUrl{
-    [[YCDownloadManager manager] startDownloadWithUrl:downloadURLString fileName:fileName imageUrl:imagUrl];
+    [YCDownloadMgr startDownloadWithUrl:downloadURLString fileName:fileName imageUrl:imagUrl];
 }
 
 + (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName imageUrl:(NSString *)imagUrl fileId:(NSString *)fileId{
-    [[YCDownloadManager manager] startDownloadWithUrl:downloadURLString fileName:fileName imageUrl:imagUrl fileId:fileId];
+    [YCDownloadMgr startDownloadWithUrl:downloadURLString fileName:fileName imageUrl:imagUrl fileId:fileId];
 }
 
 + (void)pauseDownloadWithItem:(YCDownloadItem *)item {
-    [[YCDownloadManager manager] pauseDownloadWithItem:item];
+    [YCDownloadMgr pauseDownloadWithItem:item];
 }
 
-
 + (void)resumeDownloadWithItem:(YCDownloadItem *)item {
-    [[YCDownloadManager manager] resumeDownloadWithItem:item];
+    [YCDownloadMgr resumeDownloadWithItem:item];
 }
 
 + (void)stopDownloadWithItem:(YCDownloadItem *)item {
-    [[YCDownloadManager manager] stopDownloadWithItem:item];
+    [YCDownloadMgr stopDownloadWithItem:item];
 }
 
 /**
  暂停所有的下载
  */
 + (void)pauseAllDownloadTask {
-    [[YCDownloadManager manager] pauseAllDownloadTask];
+    [YCDownloadMgr pauseAllDownloadTask];
 }
 
 + (void)resumeAllDownloadTask {
-    [[YCDownloadManager manager] resumeAllDownloadTask];
+    [YCDownloadMgr resumeAllDownloadTask];
 }
 
 + (void)removeAllCache {
-    [[YCDownloadManager manager] removeAllCache];
+    [YCDownloadMgr removeAllCache];
 }
 
 + (NSArray *)downloadList {
-    return [[YCDownloadManager manager] downloadList];
+    return [YCDownloadMgr downloadList];
 }
 + (NSArray *)finishList {
-    return [[YCDownloadManager manager] finishList];
+    return [YCDownloadMgr finishList];
 }
 
 + (BOOL)isDownloadWithId:(NSString *)downloadId {
-    return [[self manager] isDownloadWithId:downloadId];
+    return [YCDownloadMgr isDownloadWithId:downloadId];
 }
 
 + (YCDownloadStatus)downloasStatusWithId:(NSString *)downloadId {
-    return [[self manager] downloasStatusWithId:downloadId];
+    return [YCDownloadMgr downloasStatusWithId:downloadId];
 }
 
 + (YCDownloadItem *)downloadItemWithId:(NSString *)downloadId {
-    return [[self manager] itemWithIdentifier:downloadId];
+    return [YCDownloadMgr itemWithIdentifier:downloadId];
 }
 
 +(void)allowsCellularAccess:(BOOL)isAllow {
-    [[YCDownloadManager manager] allowsCellularAccess:isAllow];
+    [YCDownloadMgr allowsCellularAccess:isAllow];
 }
 
 +(void)localPushOn:(BOOL)isOn {
-    [[YCDownloadManager manager] localPushOn:isOn];
+    [YCDownloadMgr localPushOn:isOn];
 }
 
 #pragma mark tools
 +(BOOL)isAllowsCellularAccess{
-    return [[YCDownloadManager manager] isAllowsCellularAccess];
+    return [YCDownloadMgr isAllowsCellularAccess];
 }
 
 
@@ -230,8 +207,15 @@ static id _instance;
     [YCDownloadSession downloadSession].maxTaskCount = count;
 }
 
+- (void)startDownloadWithItem:(YCDownloadItem *)item {
+    if(!item) return;
+    YCDownloadItem *oldItem = [self itemWithIdentifier:item.taskId];
+    if (oldItem.downloadStatus == YCDownloadStatusFinished) return;
+    [self.itemsDictM setValue:item forKey:item.taskId];
+    [YCDownloadSession.downloadSession startDownloadWithUrl:item.downloadUrl fileId:item.fileId delegate:item];
+}
+
 - (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName imageUrl:(NSString *)imagUrl {
-    
     [self startDownloadWithUrl:downloadURLString fileName:fileName imageUrl:imagUrl fileId:downloadURLString];
 }
 
@@ -242,26 +226,20 @@ static id _instance;
     return saveName;
 }
 
-
 - (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName imageUrl:(NSString *)imagUrl fileId:(NSString *)fileId{
     
     if (downloadURLString.length == 0 && fileId.length == 0) return;
     NSString *taskId = [YCDownloadTask taskIdForUrl:downloadURLString fileId:fileId];
     YCDownloadItem *item = [self.itemsDictM valueForKey:taskId];
     if (item == nil) {
-        
         item = [[YCDownloadItem alloc] initWithUrl:downloadURLString fileId:fileId];
-        item.downloadStatus = YCDownloadStatusDownloading;
-        item.fileName = fileName;
-        item.thumbImageUrl = imagUrl;
-        [self.itemsDictM setValue:item forKey:taskId];
     }
-    [YCDownloadSession.downloadSession startDownloadWithUrl:downloadURLString fileId:fileId delegate:item];
+    item.fileName = fileName;
+    item.thumbImageUrl = imagUrl;
+    [self startDownloadWithItem:item];
 }
 
 - (void)resumeDownloadWithItem:(YCDownloadItem *)item{
-    item.downloadStatus = YCDownloadStatusDownloading;
-
     if(item.compatibleKey.length>0){
         YCDownloadTask *task = [YCDownloadSession.downloadSession taskForTaskId:item.taskId];
         task.delegate = item;
@@ -277,8 +255,6 @@ static id _instance;
 
 
 - (void)pauseDownloadWithItem:(YCDownloadItem *)item {
-    item.downloadStatus = YCDownloadStatusPaused;
-    
     if(item.compatibleKey.length>0){
         [YCDownloadSession.downloadSession pauseDownloadWithTaskId:item.taskId];
     }else{
@@ -291,8 +267,10 @@ static id _instance;
 - (void)stopDownloadWithItem:(YCDownloadItem *)item {
     if (item == nil )  return;
     [YCDownloadSession.downloadSession stopDownloadWithTaskId:item.taskId.length == 0 ? item.downloadUrl : item.taskId];
+    NSString *itemId = item.taskId.length == 0 ? item.downloadUrl : item.taskId;
+    if (itemId.length == 0) return;
     //TODO: compatiable 1.0.0 [self.itemsDictM removeObjectForKey: item.taskId];
-    [self.itemsDictM removeObjectForKey:item.taskId.length == 0 ? item.downloadUrl : item.taskId];
+    [self.itemsDictM removeObjectForKey:itemId];
     [self saveDownloadItems];
 }
 
@@ -341,8 +319,8 @@ static id _instance;
 /**id 可以是downloadUrl，也可以是fileId，首先从fileId开始找，然后downloadUrl*/
 
 - (YCDownloadItem *)itemWithIdentifier:(NSString *)identifier {
-    
-    __block  YCDownloadItem *item = nil;
+    __block YCDownloadItem *item = [self.itemsDictM valueForKey:identifier];
+    if (item) return item;
     [self.itemsDictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
         YCDownloadItem *dItem = obj;
         if([dItem.fileId isEqualToString:identifier]){
@@ -403,6 +381,7 @@ static id _instance;
         NSString *detail = [NSString stringWithFormat:@"%@ 视频，已经下载完成！", item.fileName];
         [self localPushWithTitle:@"YCDownloadSession" detail:detail];
     }
+    [self saveDownloadItems];
 }
 
 

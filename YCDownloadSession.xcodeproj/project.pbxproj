@@ -34,6 +34,7 @@
 		3580D6521F8CB8DC00966A3D /* VideoListInfoController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3580D64B1F8CB8BD00966A3D /* VideoListInfoController.m */; };
 		3580D6531F8CB8DC00966A3D /* VideoListInfoModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 3580D64D1F8CB8BD00966A3D /* VideoListInfoModel.m */; };
 		3580D6541F8CB8E900966A3D /* DownloadViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3580D63D1F8CB8BC00966A3D /* DownloadViewController.m */; };
+		359B8EC8202941F500CB67E5 /* YCDownloadInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 359B8EC7202941F500CB67E5 /* YCDownloadInfo.m */; };
 		D72C84D51E77D42500EDCEEF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D72C84D41E77D42500EDCEEF /* main.m */; };
 		D72C84D81E77D42500EDCEEF /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D72C84D71E77D42500EDCEEF /* AppDelegate.m */; };
 		D72C84DE1E77D42500EDCEEF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D72C84DC1E77D42500EDCEEF /* Main.storyboard */; };
@@ -128,6 +129,8 @@
 		3580D64B1F8CB8BD00966A3D /* VideoListInfoController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoListInfoController.m; sourceTree = "<group>"; };
 		3580D64C1F8CB8BD00966A3D /* VideoListInfoModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoListInfoModel.h; sourceTree = "<group>"; };
 		3580D64D1F8CB8BD00966A3D /* VideoListInfoModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoListInfoModel.m; sourceTree = "<group>"; };
+		359B8EC6202941F500CB67E5 /* YCDownloadInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YCDownloadInfo.h; sourceTree = "<group>"; };
+		359B8EC7202941F500CB67E5 /* YCDownloadInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YCDownloadInfo.m; sourceTree = "<group>"; };
 		D72C84D01E77D42500EDCEEF /* YCDownloadSession.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YCDownloadSession.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D72C84D41E77D42500EDCEEF /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D72C84D61E77D42500EDCEEF /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = ../AppDelegate.h; sourceTree = "<group>"; };
@@ -313,6 +316,8 @@
 				3580D64B1F8CB8BD00966A3D /* VideoListInfoController.m */,
 				3580D64C1F8CB8BD00966A3D /* VideoListInfoModel.h */,
 				3580D64D1F8CB8BD00966A3D /* VideoListInfoModel.m */,
+				359B8EC6202941F500CB67E5 /* YCDownloadInfo.h */,
+				359B8EC7202941F500CB67E5 /* YCDownloadInfo.m */,
 			);
 			path = VideoList;
 			sourceTree = "<group>";
@@ -563,6 +568,7 @@
 				3580D64F1F8CB8D700966A3D /* VideoCacheController.m in Sources */,
 				3580D6531F8CB8DC00966A3D /* VideoListInfoModel.m in Sources */,
 				D78946C31E83A4B700284B35 /* UIImage+MultiFormat.m in Sources */,
+				359B8EC8202941F500CB67E5 /* YCDownloadInfo.m in Sources */,
 				D78946C41E83A4B700284B35 /* UIImage+WebP.m in Sources */,
 				D78946BF1E83A4B700284B35 /* SDWebImageManager.m in Sources */,
 				3580D64E1F8CB8D000966A3D /* MainTableViewController.m in Sources */,

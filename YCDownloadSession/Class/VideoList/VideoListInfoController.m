@@ -11,10 +11,11 @@
 #import "VideoListInfoModel.h"
 #import "VideoCacheController.h"
 #import "YCDownloadManager.h"
+#import "YCDownloadInfo.h"
 
 @interface VideoListInfoController ()<VideoListInfoCellDelegate>
 
-@property (nonatomic, strong) NSArray *videoListArr;
+@property (nonatomic, strong) NSMutableArray *videoListArr;
 
 @end
 
@@ -39,7 +40,7 @@
     NSString *dataPath = [[NSBundle mainBundle] pathForResource:@"video.json" ofType:nil];
     NSData *videoData = [[NSData alloc] initWithContentsOfFile:dataPath];
     NSArray *videoArr = [NSJSONSerialization JSONObjectWithData:videoData options:0 error:nil];
-    _videoListArr = [VideoListInfoModel getVideoListInfo:videoArr];;
+    _videoListArr = [VideoListInfoModel getVideoListInfo:videoArr];
     [self.tableView reloadData];
 }
 
@@ -55,8 +56,17 @@
  点击下载
  */
 - (void)videoListCell:(VideoListInfoCell *)cell downloadVideo:(VideoListInfoModel *)model {
-    NSLog(@"%@", model.mp4_url);
-    [YCDownloadManager startDownloadWithUrl:model.mp4_url fileName:model.title imageUrl:model.cover fileId:model.file_id];
+
+    if ([model.file_id isEqualToString:@"10000"]) {
+        YCDownloadInfo *info = [[YCDownloadInfo alloc] initWithUrl:model.mp4_url fileId:model.file_id];
+        info.thumbImageUrl = model.cover;
+        info.fileName = model.title;
+        info.desc = @"扩展字段描述";
+        info.date = [NSDate date];
+        [YCDownloadManager startDownloadWithItem:info];
+    }else{
+        [YCDownloadManager startDownloadWithUrl:model.mp4_url fileName:model.title imageUrl:model.cover fileId:model.file_id];
+    }
     VideoCacheController *vc = [[VideoCacheController alloc] init];
     [self.navigationController pushViewController:vc animated:true];
 }

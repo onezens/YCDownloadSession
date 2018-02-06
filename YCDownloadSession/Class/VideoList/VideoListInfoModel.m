@@ -10,7 +10,7 @@
 
 @implementation VideoListInfoModel
 
-+ (NSArray<VideoListInfoModel *> *)getVideoListInfo:(NSArray<NSDictionary *> *)listInfos {
++ (NSMutableArray<VideoListInfoModel *> *)getVideoListInfo:(NSArray<NSDictionary *> *)listInfos {
     
     NSMutableArray *arrM = [NSMutableArray array];
     for (NSDictionary *dict in listInfos) {

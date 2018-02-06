@@ -18,6 +18,6 @@
 @property (nonatomic, copy) NSString *videosource;
 @property (nonatomic, copy) NSString *file_id;
 
-+ (NSArray <VideoListInfoModel *> *)getVideoListInfo:(NSArray <NSDictionary *>*)listInfos;
++ (NSMutableArray <VideoListInfoModel *> *)getVideoListInfo:(NSArray <NSDictionary *>*)listInfos;
 
 @end
