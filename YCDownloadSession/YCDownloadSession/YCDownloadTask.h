@@ -36,6 +36,16 @@ static NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNot
  */
 - (void)downloadProgress:(YCDownloadTask *)task downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize;
 
+
+/**
+ 下载任务的网速回调
+
+ @param task 正在下载的任务
+ @param speed float类型的速度
+ @param speedDesc 附加单位的速度回调
+ */
+- (void)downloadTask:(YCDownloadTask *)task speed:(NSUInteger)speed speedDesc:(NSString *)speedDesc;
+
 /**
  下载任务第一次创建的时候的回调
 
@@ -94,6 +104,12 @@ static NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNot
  */
 @property (nonatomic, assign) float priority;
 
+/**
+ enable calculate download task speed
+ default value: false
+ */
+@property (nonatomic, assign) BOOL enableSpeed;
+
 #pragma mark - method
 
 
@@ -136,6 +152,12 @@ static NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNot
  删除下载任务
  */
 - (void)remove;
+
+
+/**
+ download progress use calculate task speed
+ */
+- (void)downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize;
 
 #pragma mark - class method
 /**

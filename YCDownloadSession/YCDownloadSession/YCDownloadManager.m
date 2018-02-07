@@ -216,7 +216,8 @@ static id _instance;
     YCDownloadItem *oldItem = [self itemWithIdentifier:item.taskId];
     if (oldItem.downloadStatus == YCDownloadStatusFinished) return;
     [self.itemsDictM setValue:item forKey:item.taskId];
-    [YCDownloadSession.downloadSession startDownloadWithUrl:item.downloadUrl fileId:item.fileId delegate:item priority:priority];
+    YCDownloadTask *task =  [YCDownloadSession.downloadSession startDownloadWithUrl:item.downloadUrl fileId:item.fileId delegate:item priority:priority];
+    task.enableSpeed = item.enableSpeed;
 }
 
 - (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName imageUrl:(NSString *)imagUrl {

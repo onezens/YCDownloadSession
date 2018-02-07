@@ -736,6 +736,12 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
         [task.delegate downloadProgress:task downloadedSize:task.downloadedSize fileSize:task.fileSize];
     }
     
+    if (task.enableSpeed) {
+        dispatch_async(dispatch_get_global_queue(0, 0), ^{
+            [task downloadedSize:task.downloadedSize fileSize:task.fileSize];
+        });
+    }
+    
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task

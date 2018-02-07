@@ -22,7 +22,7 @@ static NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti"
 @optional
 - (void)downloadItemStatusChanged:(YCDownloadItem *)item;
 - (void)downloadItem:(YCDownloadItem *)item downloadedSize:(int64_t)downloadedSize totalSize:(int64_t)totalSize;
-
+- (void)downloadItem:(YCDownloadItem *)item speed:(NSUInteger)speed speedDesc:(NSString *)speedDesc;
 @end
 
 @interface YCDownloadItem : NSObject<YCDownloadTaskDelegate>
@@ -45,6 +45,7 @@ static NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti"
 /**下载完成后保存在本地的路径*/
 @property (nonatomic, assign) NSUInteger fileSize;
 @property (nonatomic, copy) NSString *compatibleKey;
+@property (nonatomic, assign) BOOL enableSpeed;
 
 @end
 

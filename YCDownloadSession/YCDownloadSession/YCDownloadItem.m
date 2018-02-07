@@ -55,6 +55,14 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadNeedSaveDataNoti object:nil userInfo:nil];
 }
 
+
+- (void)downloadTask:(YCDownloadTask *)task speed:(NSUInteger)speed speedDesc:(NSString *)speedDesc {
+    
+    if ([self.delegate respondsToSelector:@selector(downloadItem:speed:speedDesc:)]) {
+        [self.delegate downloadItem:self speed:speed speedDesc:speedDesc];
+    }
+    
+}
 #pragma mark - public
 
 - (NSString *)saveName {

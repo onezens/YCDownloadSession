@@ -57,12 +57,13 @@
  */
 - (void)videoListCell:(VideoListInfoCell *)cell downloadVideo:(VideoListInfoModel *)model {
 
-    if ([model.file_id isEqualToString:@"10000"]) {
+    if ([model.file_id isEqualToString:@"10000"] || [model.file_id isEqualToString:@"10002"]) {
         YCDownloadInfo *info = [[YCDownloadInfo alloc] initWithUrl:model.mp4_url fileId:model.file_id];
         info.thumbImageUrl = model.cover;
         info.fileName = model.title;
         info.desc = @"扩展字段描述";
         info.date = [NSDate date];
+        info.enableSpeed = true;
         [YCDownloadManager startDownloadWithItem:info priority:0.8];
     }else{
         [YCDownloadManager startDownloadWithUrl:model.mp4_url fileName:model.title imageUrl:model.cover fileId:model.file_id];

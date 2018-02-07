@@ -101,7 +101,9 @@
     [self changeSizeLblDownloadedSize:downloadedSize totalSize:totalSize];
 }
 
-
+- (void)downloadItem:(YCDownloadItem *)item speed:(NSUInteger)speed speedDesc:(NSString *)speedDesc {
+    NSLog(@"%zd ----- %@", speed, speedDesc);
+}
 
 
 @end

@@ -12,12 +12,16 @@
 #import <objc/runtime.h>
 #import <CommonCrypto/CommonDigest.h>
 #import "YCDownloadSession.h"
+#import "YCDownloadManager.h"
 
 @interface YCDownloadTask()
 {
     NSString *_saveName;
     float _priority;
+    NSUInteger _preDownloadedSize;
 }
+
+@property (nonatomic, strong) NSTimer *timer;
 @end
 
 @implementation YCDownloadTask
@@ -57,10 +61,24 @@
 
 - (void)pause {
     [YCDownloadSession.downloadSession pauseDownloadWithTask:self];
+    if (self.timer) {
+        [self stopTimer];
+    }
 }
 
 - (void)remove {
     [YCDownloadSession.downloadSession stopDownloadWithTask:self];
+    if (self.timer) {
+        [self stopTimer];
+    }
+}
+
+
+- (void)downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize {
+    _downloadedSize = downloadedSize;
+    if (!self.timer) {
+        [self startTimer];
+    }
 }
 
 #pragma mark - setter
@@ -77,6 +95,12 @@
     downloadTask.priority = _priority;
 }
 
+-(void)setDownloadStatus:(YCDownloadStatus)downloadStatus {
+    _downloadStatus = downloadStatus;
+    if(self.timer && (downloadStatus == YCDownloadStatusPaused || downloadStatus == YCDownloadStatusFailed || downloadStatus == YCDownloadStatusFinished)) {
+        [self stopTimer];
+    }
+}
 #pragma mark - getter
 
 - (float)priority {
@@ -174,6 +198,29 @@
 
 #pragma mark - private
 
+
+- (void)startTimer {
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(timerCall) userInfo:nil repeats:true];
+    [self.timer fire];
+    [[NSRunLoop currentRunLoop] addTimer:_timer forMode:NSDefaultRunLoopMode];
+    [[NSRunLoop currentRunLoop] run];
+}
+
+- (void)stopTimer {
+    [self.timer invalidate];
+    self.timer = nil;
+}
+
+- (void)timerCall {
+    NSUInteger speed = _downloadedSize - _preDownloadedSize;
+    _preDownloadedSize = _downloadedSize;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(downloadTask:speed:speedDesc:)]) {
+            [self.delegate downloadTask:self speed:speed speedDesc:[NSString stringWithFormat:@"%@/s",[YCDownloadManager fileSizeStringFromBytes:speed]]];
+        }
+    });
+}
+
 ///  解档
 - (instancetype)initWithCoder:(NSCoder *)coder
 {
@@ -187,7 +234,7 @@
             
             Ivar ivar = ivars[i];
             NSString *name = [[NSString alloc] initWithUTF8String:ivar_getName(ivar)];
-            if ([name isEqualToString:@"_downloadTask"] || [name isEqualToString:@"_delegate"]) continue;
+            if ([name isEqualToString:@"_downloadTask"] || [name isEqualToString:@"_delegate"] || [name isEqualToString:@"_timer"]) continue;
             id value = [coder decodeObjectForKey:name];
             if(value) [self setValue:value forKey:name];
         }
@@ -209,7 +256,7 @@
         
         Ivar ivar = ivars[i];
         NSString *name = [[NSString alloc] initWithUTF8String:ivar_getName(ivar)];
-        if ([name isEqualToString:@"_downloadTask"] || [name isEqualToString:@"_delegate"]) continue;
+        if ([name isEqualToString:@"_downloadTask"] || [name isEqualToString:@"_delegate"] || [name isEqualToString:@"_timer"]) continue;
         id value = [self valueForKey:name];
         if(value) [coder encodeObject:value forKey:name];
     }
@@ -225,6 +272,11 @@
         pathExtension = [pathExtension substringToIndex:range.location];
     }
     return pathExtension;
+}
+
+-(void)dealloc {
+    NSLog(@"%s", __func__);
+    [self stopTimer];
 }
 
 @end
