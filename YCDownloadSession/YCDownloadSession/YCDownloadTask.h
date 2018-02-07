@@ -87,7 +87,12 @@ static NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNot
 @property (nonatomic, weak) id <YCDownloadTaskDelegate>delegate;
 @property (nonatomic, strong) NSURLSessionDownloadTask *downloadTask;
 @property (nonatomic, copy) NSString *compatibleKey;
-
+/**
+ default value: NSURLSessionTaskPriorityDefault
+ option: NSURLSessionTaskPriorityDefault NSURLSessionTaskPriorityLow NSURLSessionTaskPriorityHigh
+ poiority float value range: 0.0 - 1.0
+ */
+@property (nonatomic, assign) float priority;
 
 #pragma mark - method
 
@@ -166,6 +171,7 @@ static NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNot
  @return taskid
  */
 + (NSString *)taskIdForUrl:(NSString *)url fileId:(NSString *)fileId;
+
 
 @end
 

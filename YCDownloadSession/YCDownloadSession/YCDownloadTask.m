@@ -16,10 +16,18 @@
 @interface YCDownloadTask()
 {
     NSString *_saveName;
+    float _priority;
 }
 @end
 
 @implementation YCDownloadTask
+
+- (instancetype)init {
+    if (self = [super init]) {
+        _priority = NSURLSessionTaskPriorityDefault;
+    }
+    return self;
+}
 
 - (instancetype)initWithUrl:(NSString *)url fileId:(NSString *)fileId delegate:(id<YCDownloadTaskDelegate>)delegate {
     
@@ -55,7 +63,25 @@
     [YCDownloadSession.downloadSession stopDownloadWithTask:self];
 }
 
+#pragma mark - setter
+
+-  (void)setPriority:(float)priority {
+    _priority = priority;
+    if (self.downloadTask) {
+        self.downloadTask.priority = priority;
+    }
+}
+
+- (void)setDownloadTask:(NSURLSessionDownloadTask *)downloadTask {
+    _downloadTask = downloadTask;
+    downloadTask.priority = _priority;
+}
+
 #pragma mark - getter
+
+- (float)priority {
+    return _priority;
+}
     
 - (BOOL)isSupportRange {
     if([self.downloadTask.response isKindOfClass:[NSHTTPURLResponse class]]){

@@ -76,7 +76,11 @@ static id _instance;
 }
 
 + (void)startDownloadWithItem:(YCDownloadItem *)item {
-    [YCDownloadMgr startDownloadWithItem:item];
+    [YCDownloadMgr startDownloadWithItem:item priority:NSURLSessionTaskPriorityDefault];
+}
+
++ (void)startDownloadWithItem:(YCDownloadItem *)item priority:(float)priority {
+    [YCDownloadMgr startDownloadWithItem:item priority:priority];
 }
 
 + (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName imageUrl:(NSString *)imagUrl{
@@ -207,12 +211,12 @@ static id _instance;
     [YCDownloadSession downloadSession].maxTaskCount = count;
 }
 
-- (void)startDownloadWithItem:(YCDownloadItem *)item {
+- (void)startDownloadWithItem:(YCDownloadItem *)item priority:(float)priority{
     if(!item) return;
     YCDownloadItem *oldItem = [self itemWithIdentifier:item.taskId];
     if (oldItem.downloadStatus == YCDownloadStatusFinished) return;
     [self.itemsDictM setValue:item forKey:item.taskId];
-    [YCDownloadSession.downloadSession startDownloadWithUrl:item.downloadUrl fileId:item.fileId delegate:item];
+    [YCDownloadSession.downloadSession startDownloadWithUrl:item.downloadUrl fileId:item.fileId delegate:item priority:priority];
 }
 
 - (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName imageUrl:(NSString *)imagUrl {
@@ -236,7 +240,7 @@ static id _instance;
     }
     item.fileName = fileName;
     item.thumbImageUrl = imagUrl;
-    [self startDownloadWithItem:item];
+    [self startDownloadWithItem:item priority:NSURLSessionTaskPriorityDefault];
 }
 
 - (void)resumeDownloadWithItem:(YCDownloadItem *)item{

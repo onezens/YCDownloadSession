@@ -55,6 +55,17 @@ typedef void (^BGCompletedHandler)(void);
 - (YCDownloadTask *)startDownloadWithUrl:(NSString *)downloadURLString fileId:(NSString *)fileId delegate:(id<YCDownloadTaskDelegate>)delegate;
 
 /**
+ 开始一个后台下载任务
+ 
+ @param downloadURLString 下载url
+ @param fileId 下载文件的标识。可以为空。要想同- downloadURL文件重复下载，可以让fileId不同
+ @param delegate 代理
+ @param priority task priority
+ @return 创建或者存在的下载任务
+ */
+- (YCDownloadTask *)startDownloadWithUrl:(NSString *)downloadURLString fileId:(NSString *)fileId delegate:(id<YCDownloadTaskDelegate>)delegate priority:(float)priority;
+
+/**
  暂停一个后台下载任务
  
  @param task 下载task

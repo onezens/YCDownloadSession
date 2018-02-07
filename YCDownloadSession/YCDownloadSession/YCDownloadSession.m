@@ -199,6 +199,12 @@ static YCDownloadSession *_instance;
 
 #pragma mark - public
 
+- (YCDownloadTask *)startDownloadWithUrl:(NSString *)downloadURLString fileId:(NSString *)fileId delegate:(id<YCDownloadTaskDelegate>)delegate priority:(float)priority {
+    YCDownloadTask *task = [self startDownloadWithUrl:downloadURLString fileId:fileId delegate:delegate];
+    task.priority = priority;
+    return task;
+}
+
 - (YCDownloadTask *)startDownloadWithUrl:(NSString *)downloadURLString fileId:(NSString *)fileId delegate:(id<YCDownloadTaskDelegate>)delegate{
     if (downloadURLString.length == 0)  return nil;
     

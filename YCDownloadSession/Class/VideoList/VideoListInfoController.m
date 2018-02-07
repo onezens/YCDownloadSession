@@ -63,7 +63,7 @@
         info.fileName = model.title;
         info.desc = @"扩展字段描述";
         info.date = [NSDate date];
-        [YCDownloadManager startDownloadWithItem:info];
+        [YCDownloadManager startDownloadWithItem:info priority:0.8];
     }else{
         [YCDownloadManager startDownloadWithUrl:model.mp4_url fileName:model.title imageUrl:model.cover fileId:model.file_id];
     }

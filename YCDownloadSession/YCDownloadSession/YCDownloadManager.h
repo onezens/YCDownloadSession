@@ -30,6 +30,16 @@
  */
 + (void)startDownloadWithItem:(YCDownloadItem *)item;
 
+/**
+ 开始/创建一个后台下载任务。开发者自己定义/扩展item中的数据和内容
+ 扩展item中的属性时，推荐自定义item，并且继承YCDownloadItem
+ 示例：到demo -> YCDownloadInfo
+ 
+ @param item 下载信息的item
+ @param priority 下载任务的task，默认：NSURLSessionTaskPriorityDefault 可选参数：NSURLSessionTaskPriorityLow  NSURLSessionTaskPriorityHigh NSURLSessionTaskPriorityDefault 范围：0.0-1.1
+ */
++ (void)startDownloadWithItem:(YCDownloadItem *)item priority:(float)priority;
+
 
 /**
  开始/创建一个后台下载任务。downloadURLString作为整个下载任务的唯一标识。

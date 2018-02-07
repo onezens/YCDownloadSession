@@ -30,8 +30,8 @@ static NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti"
 -(instancetype)initWithUrl:(NSString *)url fileId:(NSString *)fileId;
 +(instancetype)itemWithUrl:(NSString *)url fileId:(NSString *)fileId;
 
-/**下载任务标识*/
 @property (nonatomic, copy, readonly) NSString *fileId;
+/**下载任务标识*/
 @property (nonatomic, copy, readonly) NSString *taskId;
 @property (nonatomic, copy, readonly) NSString *savePath;
 @property (nonatomic, copy, readonly) NSString *saveName;
