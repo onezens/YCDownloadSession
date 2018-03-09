@@ -1,6 +1,5 @@
 # [YCDownloadSession](https://onezens.github.io/YCDownloadSession/)
-[![GitHub issues](https://img.shields.io/github/issues/onezens/YCDownloadSession.svg)](https://github.com/onezens/YCDownloadSession/issues)
-[![GitHub forks](https://img.shields.io/github/forks/onezens/YCDownloadSession.svg)](https://github.com/onezens/YCDownloadSession/network)
+
 [![GitHub stars](https://img.shields.io/github/stars/onezens/YCDownloadSession.svg)](https://github.com/onezens/YCDownloadSession/stargazers)
 [![Platform](https://img.shields.io/badge/platform-iOS-yellowgreen.svg)](https://github.com/onezens/YCDownloadSession)
 [![GitHub license](https://img.shields.io/github/license/onezens/YCDownloadSession.svg)](https://github.com/onezens/YCDownloadSession/blob/master/LICENSE)
@@ -8,10 +7,11 @@
 
 ## 通过Cocoapods安装
 
-[安装Cocoapods](http://www.onezen.cc/2016/02/05/iosdev/CocoaPods.html)
+安装Cocoapods
 
 ```
-$ sudo gem install -n /usr/local/bin cocoapods --pre
+$ brew install ruby
+$ sudo gem install cocoapods
 ```
 
 **Podfile**
@@ -21,7 +21,7 @@ source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '8.0'
 
 target 'TargetName' do
-    pod 'YCDownloadSession', '~> 1.2.2'
+    pod 'YCDownloadSession', '~> 1.2.3'
 end
 ```
 

@@ -411,7 +411,7 @@ static id _instance;
     // 2.5.设置点击通知的启动图片
     //    localNote.alertLaunchImage = @"123Abc";
     // 2.6.设置alertTitle
-    localNote.alertTitle = title;
+//    localNote.alertTitle = title;
     // 2.7.设置有通知时的音效
     localNote.soundName = @"default";
     // 2.8.设置应用程序图标右上角的数字
