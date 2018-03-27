@@ -245,37 +245,21 @@ static id _instance;
 }
 
 - (void)resumeDownloadWithItem:(YCDownloadItem *)item{
-    if(item.compatibleKey.length>0){
-        YCDownloadTask *task = [YCDownloadSession.downloadSession taskForTaskId:item.taskId];
-        task.delegate = item;
-        [YCDownloadSession.downloadSession resumeDownloadWithTaskId:item.taskId];
-    }else{
-        YCDownloadTask *task = [YCDownloadSession.downloadSession taskForTaskId:item.downloadUrl];
-        task.delegate = item;
-        //TODO: compatiable 1.0.0
-        [YCDownloadSession.downloadSession resumeDownloadWithTaskId:item.taskId.length==0 ? item.downloadUrl : item.taskId];
-    }
+    YCDownloadTask *task = [YCDownloadSession.downloadSession taskForTaskId:item.taskId];
+    task.delegate = item;
+    [YCDownloadSession.downloadSession resumeDownloadWithTaskId:item.taskId];
     [self saveDownloadItems];
 }
 
 
 - (void)pauseDownloadWithItem:(YCDownloadItem *)item {
-    if(item.compatibleKey.length>0){
-        [YCDownloadSession.downloadSession pauseDownloadWithTaskId:item.taskId];
-    }else{
-        //TODO: compatiable 1.0.0
-        [YCDownloadSession.downloadSession pauseDownloadWithTaskId:item.taskId.length==0 ? item.downloadUrl : item.taskId];
-    }
+    [YCDownloadSession.downloadSession pauseDownloadWithTaskId:item.taskId];
     [self saveDownloadItems];
 }
 
 - (void)stopDownloadWithItem:(YCDownloadItem *)item {
     if (item == nil )  return;
-    [YCDownloadSession.downloadSession stopDownloadWithTaskId:item.taskId.length == 0 ? item.downloadUrl : item.taskId];
-    NSString *itemId = item.taskId.length == 0 ? item.downloadUrl : item.taskId;
-    if (itemId.length == 0) return;
-    //TODO: compatiable 1.0.0 [self.itemsDictM removeObjectForKey: item.taskId];
-    [self.itemsDictM removeObjectForKey:itemId];
+    [YCDownloadSession.downloadSession stopDownloadWithTaskId: item.taskId];
     [self saveDownloadItems];
 }
 
@@ -394,7 +378,7 @@ static id _instance;
 
 - (void)localPushWithTitle:(NSString *)title detail:(NSString *)body  {
     
-    if (!self.localPushOn) return;
+    if (!self.localPushOn || title.length == 0) return;
     
     // 1.创建本地通知
     UILocalNotification *localNote = [[UILocalNotification alloc] init];

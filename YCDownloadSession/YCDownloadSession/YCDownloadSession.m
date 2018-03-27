@@ -15,7 +15,7 @@ typedef void(^BGRecreateSessionBlock)(void);
 
 @interface YCDownloadSession ()<NSURLSessionDownloadDelegate>
 
-/**正在下载的task*/
+/**task*/
 @property (nonatomic, strong) NSMutableDictionary *downloadTasks;
 /**后台下载回调的handlers，所有的下载任务全部结束后调用*/
 @property (nonatomic, copy) BGCompletedHandler completedHandler;
@@ -47,13 +47,12 @@ static YCDownloadSession *_instance;
         //初始化
         _session = [self getDownloadURLSession];
         _maxTaskCount = 1;
-        _downloadVersion = @"1.2.1";
+        _downloadVersion = @"1.2.3";
         
         //获取保存在本地的数据是否为空，为空则初始化
         _downloadTasks = [NSKeyedUnarchiver unarchiveObjectWithFile:[self getArchiverPath]];
         if(!_downloadTasks) _downloadTasks = [NSMutableDictionary dictionary];
         
-        [self compatiableDownloadData];
         [self addNotification];
         
         //获取背景session正在运行的(app重启，或者闪退会有任务)
@@ -88,26 +87,6 @@ static YCDownloadSession *_instance;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillTerminate) name:UIApplicationWillTerminateNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillBecomeActive) name:UIApplicationDidBecomeActiveNotification object:nil];
     
-}
-
-- (void)compatiableDownloadData {
-    //TODO: compatible version 1.0.0
-    NSString *downloadingDataPath = [self getArchiverPathIsDownloaded:false];
-    NSString *downloadedDataPath = [self getArchiverPathIsDownloaded:true];
-    NSMutableDictionary *downloadingDictM = [NSKeyedUnarchiver unarchiveObjectWithFile:downloadingDataPath];
-    NSMutableDictionary *downloadedDictM = [NSKeyedUnarchiver unarchiveObjectWithFile:downloadedDataPath];
-    
-    [downloadingDictM enumerateKeysAndObjectsUsingBlock:^(NSString *  _Nonnull key, YCDownloadTask *  _Nonnull obj, BOOL * _Nonnull stop) {
-        [self.downloadTasks setValue:obj forKey:[YCDownloadTask taskIdForUrl:key fileId:nil]];
-    }];
-    
-    [downloadedDictM enumerateKeysAndObjectsUsingBlock:^(NSString *  _Nonnull key, YCDownloadTask *   _Nonnull obj, BOOL * _Nonnull stop) {
-        [self.downloadTasks setValue:obj forKey:[YCDownloadTask taskIdForUrl:key fileId:nil]];
-    }];
-    
-    [[NSFileManager defaultManager] removeItemAtPath:downloadingDataPath error:nil];
-    [[NSFileManager defaultManager] removeItemAtPath:downloadedDataPath error:nil];
-    [self saveDownloadStatus];
 }
 
 - (NSURLSession *)getDownloadURLSession {
@@ -248,32 +227,17 @@ static YCDownloadSession *_instance;
 
 - (void)pauseDownloadWithTaskId:(NSString *)taskId {
     YCDownloadTask *task = [self.downloadTasks valueForKey:taskId];
-    //TODO: compatiable 1.0.0
-    if(!task){
-        task = [self compatibleOldTaskId:taskId];
-    }
-    //TODO: compatiable 1.0.0 end
     [self pauseDownloadTask:task];
 }
 
 - (void)resumeDownloadWithTaskId:(NSString *)taskId{
     YCDownloadTask *task = [self.downloadTasks valueForKey:taskId];
-    //TODO: compatiable 1.0.0
-    if(!task){
-        task = [self compatibleOldTaskId:taskId];
-    }
-    //TODO: compatiable 1.0.0 end
     [self resumeDownloadTask:task];
 }
 
 - (void)stopDownloadWithTaskId:(NSString *)taskId {
     
     YCDownloadTask *task = [self.downloadTasks valueForKey:taskId];
-    //TODO: compatiable 1.0.0
-    if(!task){
-        task = [self compatibleOldTaskId:taskId];
-    }
-    //TODO: compatiable 1.0.0 end
     if (task && [[NSFileManager defaultManager] fileExistsAtPath:task.savePath]) {
         [[NSFileManager defaultManager] removeItemAtPath:task.savePath error:nil];
     }
@@ -316,11 +280,6 @@ static YCDownloadSession *_instance;
 
 - (YCDownloadTask *)taskForTaskId:(NSString *)taskId {
     YCDownloadTask *task = [self.downloadTasks valueForKey:taskId];
-    //TODO: compatiable 1.0.0
-    if(!task){
-        task = [self compatibleOldTaskId:taskId];
-    }
-    
     return task;
 }
 
@@ -493,29 +452,6 @@ static YCDownloadSession *_instance;
 - (void)saveDownloadStatus {
     
     [NSKeyedArchiver archiveRootObject:self.downloadTasks toFile:[self getArchiverPath]];
-}
-
-//TODO: compatible old version 1.0.0
-- (NSString *)getArchiverPathIsDownloaded:(BOOL)isDownloaded {
-    NSString *saveDir = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true).firstObject;
-    saveDir = [saveDir stringByAppendingPathComponent:@"YCDownload"];
-    if (![[NSFileManager defaultManager] fileExistsAtPath:saveDir]) {
-        [[NSFileManager defaultManager] createDirectoryAtPath:saveDir withIntermediateDirectories:true attributes:nil error:nil];
-    }
-    saveDir = isDownloaded ? [saveDir stringByAppendingPathComponent:@"YCDownloaded.data"] : [saveDir stringByAppendingPathComponent:@"YCDownloading.data"];
-    return saveDir;
-}
-
--(YCDownloadTask *)compatibleOldTaskId:(NSString *)taskId {
-    
-    __block YCDownloadTask *oldTask = nil;
-    [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, YCDownloadTask *  _Nonnull obj, BOOL * _Nonnull stop) {
-        if([obj.downloadURL isEqualToString:taskId]){
-            oldTask = obj;
-            *stop = true;
-        }
-    }];
-    return oldTask;
 }
 
 
@@ -794,6 +730,7 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
                 [self downloadStatusChanged:YCDownloadStatusPaused task:yctask];
             } else {
                 [self downloadStatusChanged:YCDownloadStatusFailed task:yctask];
+                NSLog(@"[didCompleteWithError] : %@",error);
             }
         }
     }
