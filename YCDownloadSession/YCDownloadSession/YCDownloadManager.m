@@ -56,6 +56,9 @@ static id _instance;
 
 - (NSString *)downloadItemSavePath {
     NSString *saveDir = [YCDownloadTask saveDir];
+    if(self.userIdentify.length>0){
+        return [saveDir stringByAppendingFormat:@"/%@/items.data", self.userIdentify];
+    }
     return [saveDir stringByAppendingPathComponent:@"items.data"];
 }
 
@@ -69,6 +72,11 @@ static id _instance;
 
 
 #pragma mark - public
+
+- (void)setUserIdentify:(NSString *)userIdentify {
+    _userIdentify = userIdentify;
+    [YCDownloadSession downloadSession].userIdentify = userIdentify;
+}
 
 
 + (void)setMaxTaskCount:(NSInteger)count {

@@ -162,7 +162,12 @@
 
 + (NSString *)saveDir {
     NSString *saveDir = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true).firstObject;
-    saveDir = [saveDir stringByAppendingPathComponent:@"YCDownload/video"];
+    NSString *userIdentify =[YCDownloadSession downloadSession].userIdentify;
+    if (userIdentify.length>0) {
+        saveDir = [saveDir stringByAppendingFormat:@"/YCDownload/%@/video", userIdentify];
+    }else{
+        saveDir = [saveDir stringByAppendingPathComponent:@"YCDownload/video"];
+    }
     if (![[NSFileManager defaultManager] fileExistsAtPath:saveDir]) {
         [[NSFileManager defaultManager] createDirectoryAtPath:saveDir withIntermediateDirectories:true attributes:nil error:nil];
     }

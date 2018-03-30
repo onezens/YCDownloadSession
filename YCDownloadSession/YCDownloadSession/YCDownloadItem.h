@@ -46,6 +46,10 @@ static NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti"
 @property (nonatomic, assign) NSUInteger fileSize;
 @property (nonatomic, copy) NSString *compatibleKey;
 @property (nonatomic, assign) BOOL enableSpeed;
+/**
+ 下载的文件在沙盒保存的类型，默认为video.可指定为pdf，image，等自定义类型
+ */
+@property (nonatomic, copy) NSString *saveFileType;
 
 @end
 

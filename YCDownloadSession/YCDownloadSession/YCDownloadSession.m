@@ -457,7 +457,11 @@ static YCDownloadSession *_instance;
 
 - (NSString *)getArchiverPath{
     NSString *saveDir = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true).firstObject;
-    saveDir = [saveDir stringByAppendingPathComponent:@"YCDownload"];
+    if (self.userIdentify.length>0) {
+        saveDir = [saveDir stringByAppendingFormat:@"YCDownload/%@",self.userIdentify];
+    }else{
+        saveDir = [saveDir stringByAppendingPathComponent:@"YCDownload"];
+    }
     if (![[NSFileManager defaultManager] fileExistsAtPath:saveDir]) {
         [[NSFileManager defaultManager] createDirectoryAtPath:saveDir withIntermediateDirectories:true attributes:nil error:nil];
     }

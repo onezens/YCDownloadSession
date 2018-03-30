@@ -110,6 +110,11 @@ static NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNot
  */
 @property (nonatomic, assign) BOOL enableSpeed;
 
+/**
+ 下载的文件在沙盒保存的类型，默认为video.可指定为pdf，image，等自定义类型
+ */
+@property (nonatomic, copy) NSString *saveFileType;
+
 #pragma mark - method
 
 

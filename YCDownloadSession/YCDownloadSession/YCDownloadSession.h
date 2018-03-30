@@ -45,6 +45,11 @@ typedef void (^BGCompletedHandler)(void);
 @property (nonatomic, assign) NSInteger maxTaskCount;
 
 /**
+ 用户区分，默认为空，不同用户，不同的下载数据
+ */
+@property (nonatomic, copy) NSString *userIdentify;
+
+/**
  开始一个后台下载任务
 
  @param downloadURLString 下载url
