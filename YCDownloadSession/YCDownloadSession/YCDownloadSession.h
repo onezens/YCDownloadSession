@@ -13,6 +13,7 @@
 
 /**当前下载session中所有的任务下载完成的通知。 不包括失败、暂停的任务*/
 static NSString * const kDownloadAllTaskFinishedNoti = @"kAllDownloadTaskFinishedNoti";
+static NSString * const kDownloadUserIdentifyChanged = @"kDownloadUserIdentifyChanged";
 
 /**
  * 在swift中找不到头文件中的方法，在这里定义协议
@@ -23,6 +24,7 @@ static NSString * const kDownloadAllTaskFinishedNoti = @"kAllDownloadTaskFinishe
 @end
 
 typedef void (^BGCompletedHandler)(void);
+typedef NSString * (^GetUserIdentifyBlk)(void);
 @class YCDownloadSession;
 
 @interface YCDownloadSession : NSObject<YCDownloadSession>
@@ -47,7 +49,12 @@ typedef void (^BGCompletedHandler)(void);
 /**
  用户区分，默认为空，不同用户，不同的下载数据
  */
-@property (nonatomic, copy) NSString *userIdentify;
+@property (nonatomic, copy, readonly) NSString *userIdentify;
+
+/**
+ 获取区分用户标识的block
+ */
+@property (nonatomic, copy) GetUserIdentifyBlk getUserIdentify;
 
 /**
  开始一个后台下载任务
@@ -164,7 +171,6 @@ typedef void (^BGCompletedHandler)(void);
  @param identifier background session 的标识
  */
 -(void)addCompletionHandler:(BGCompletedHandler)handler identifier:(NSString *)identifier;
-
 
 /**
  保存下载数据

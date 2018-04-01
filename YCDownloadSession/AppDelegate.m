@@ -41,7 +41,18 @@
     //setup bugly
     [self setUpBugly];
     
+    //setup downloadsession
+    [self setUpDownload];
+    
     return YES;
+}
+
+- (void)setUpDownload {
+    //不同用户，不同的下载数据
+    [YCDownloadMgr setGetUserIdentify:^NSString *{
+        //切换用户，这里最好使用get方法
+        return @"10002";
+    }];
 }
 
 - (void)setUpBugly {
@@ -58,5 +69,12 @@
     NSLog(@"%s", __func__);
     [[YCDownloadSession downloadSession] addCompletionHandler:completionHandler identifier:identifier];
 }
+
+
+//- (void)applicationWillResignActive:(UIApplication *)application {
+//    [YCDownloadMgr setGetUserIdentify:^NSString *{
+//        return @"10001";
+//    }];
+//}
 
 @end

@@ -38,11 +38,15 @@ static id _instance;
 
 - (instancetype)init {
     if (self = [super init]) {
-        [self getDownloadItems];
-        if(!self.itemsDictM) self.itemsDictM = [NSMutableDictionary dictionary];
+        [self initDownloadData];
         [self addNotification];
     }
     return self;
+}
+
+- (void)initDownloadData {
+    [self getDownloadItems];
+    if(!self.itemsDictM) self.itemsDictM = [NSMutableDictionary dictionary];
 }
 
 - (void)saveDownloadItems {
@@ -56,9 +60,6 @@ static id _instance;
 
 - (NSString *)downloadItemSavePath {
     NSString *saveDir = [YCDownloadTask saveDir];
-    if(self.userIdentify.length>0){
-        return [saveDir stringByAppendingFormat:@"/%@/items.data", self.userIdentify];
-    }
     return [saveDir stringByAppendingPathComponent:@"items.data"];
 }
 
@@ -68,16 +69,11 @@ static id _instance;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadAllTaskFinished) name:kDownloadAllTaskFinishedNoti object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadTaskFinishedNoti:) name:kDownloadTaskFinishedNoti object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(saveDownloadItems) name:kDownloadNeedSaveDataNoti object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadUserChanged) name:kDownloadUserIdentifyChanged object:nil];
 }
 
 
 #pragma mark - public
-
-- (void)setUserIdentify:(NSString *)userIdentify {
-    _userIdentify = userIdentify;
-    [YCDownloadSession downloadSession].userIdentify = userIdentify;
-}
-
 
 + (void)setMaxTaskCount:(NSInteger)count {
     [YCDownloadMgr setMaxTaskCount: count];
@@ -153,6 +149,19 @@ static id _instance;
     [YCDownloadMgr localPushOn:isOn];
 }
 
+
+#pragma mark - assgin
+
+- (void)setGetUserIdentify:(GetUserIdentifyBlk)getUserIdentify {
+    _getUserIdentify = getUserIdentify;
+    [[YCDownloadSession downloadSession] setGetUserIdentify:getUserIdentify];
+    [self initDownloadData];
+}
+
+- (void)setMaxTaskCount:(NSInteger)count{
+    [YCDownloadSession downloadSession].maxTaskCount = count;
+}
+
 #pragma mark tools
 +(BOOL)isAllowsCellularAccess{
     return [YCDownloadMgr isAllowsCellularAccess];
@@ -215,9 +224,10 @@ static id _instance;
 
 #pragma mark - private
 
-- (void)setMaxTaskCount:(NSInteger)count{
-    [YCDownloadSession downloadSession].maxTaskCount = count;
+- (void)downloadUserChanged{
+    [self initDownloadData];
 }
+
 
 - (void)startDownloadWithItem:(YCDownloadItem *)item priority:(float)priority{
     if(!item) return;

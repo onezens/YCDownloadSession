@@ -13,7 +13,9 @@
 static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 typedef void(^BGRecreateSessionBlock)(void);
 
-@interface YCDownloadSession ()<NSURLSessionDownloadDelegate>
+@interface YCDownloadSession ()<NSURLSessionDownloadDelegate>{
+    NSString *_userIdentify;
+}
 
 /**task*/
 @property (nonatomic, strong) NSMutableDictionary *downloadTasks;
@@ -48,13 +50,7 @@ static YCDownloadSession *_instance;
         _session = [self getDownloadURLSession];
         _maxTaskCount = 1;
         _downloadVersion = @"1.2.3";
-        
-        //获取保存在本地的数据是否为空，为空则初始化
-        _downloadTasks = [NSKeyedUnarchiver unarchiveObjectWithFile:[self getArchiverPath]];
-        if(!_downloadTasks) _downloadTasks = [NSMutableDictionary dictionary];
-        
-        [self addNotification];
-        
+        [self initDownloadData];
         //获取背景session正在运行的(app重启，或者闪退会有任务)
         NSMutableDictionary *dictM = [self.session valueForKey:@"tasks"];
         [dictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
@@ -66,6 +62,7 @@ static YCDownloadSession *_instance;
             }
         }];
         
+        [self addNotification];
 //        if (dictM.count>0) {
 //            //app重启，或者闪退的任务全部暂停,Xcode连接重启app
 //            [self pauseAllDownloadTask];
@@ -80,6 +77,12 @@ static YCDownloadSession *_instance;
     return self;
 }
 
+- (void)initDownloadData {
+    //获取保存在本地的数据是否为空，为空则初始化
+    _downloadTasks = [NSKeyedUnarchiver unarchiveObjectWithFile:[self getArchiverPath]];
+    if(!_downloadTasks) _downloadTasks = [NSMutableDictionary dictionary];
+   
+}
 
 - (void)addNotification {
     
@@ -145,6 +148,11 @@ static YCDownloadSession *_instance;
     }else{
         _maxTaskCount = maxTaskCount;
     }
+}
+
+- (void)setGetUserIdentify:(GetUserIdentifyBlk)getUserIdentify {
+    _getUserIdentify = getUserIdentify;
+    [self initDownloadData];
 }
 
 - (NSInteger)currentTaskCount {
@@ -454,11 +462,10 @@ static YCDownloadSession *_instance;
     [NSKeyedArchiver archiveRootObject:self.downloadTasks toFile:[self getArchiverPath]];
 }
 
-
 - (NSString *)getArchiverPath{
     NSString *saveDir = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true).firstObject;
     if (self.userIdentify.length>0) {
-        saveDir = [saveDir stringByAppendingFormat:@"YCDownload/%@",self.userIdentify];
+        saveDir = [saveDir stringByAppendingFormat:@"/YCDownload/%@",self.userIdentify];
     }else{
         saveDir = [saveDir stringByAppendingPathComponent:@"YCDownload"];
     }
@@ -586,6 +593,28 @@ static YCDownloadSession *_instance;
         self.completedHandler();
         self.completedHandler = nil;
     }
+}
+
+- (NSString *)userIdentify {
+    static BOOL needOri = true;
+    if(!needOri) return _userIdentify;
+    NSString *curId = nil;
+    if(self.getUserIdentify){
+        curId = self.getUserIdentify();
+        _userIdentify = curId;
+    }
+    //user changed update status
+    if(_userIdentify != curId){
+        needOri = false;
+        [self pauseAllDownloadTask];
+        [self saveDownloadStatus];
+        _userIdentify = curId;
+        needOri = true;
+        [self initDownloadData];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadUserIdentifyChanged object:nil];
+    }
+    _userIdentify = curId;
+    return _userIdentify;
 }
 
 #pragma mark -  NSURLSessionDelegate
