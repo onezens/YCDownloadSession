@@ -1,6 +1,5 @@
 # [YCDownloadSession](https://onezens.github.io/YCDownloadSession/)
 
-[![GitHub stars](https://img.shields.io/github/stars/onezens/YCDownloadSession.svg)](https://github.com/onezens/YCDownloadSession/stargazers)
 [![Platform](https://img.shields.io/badge/platform-iOS-yellowgreen.svg)](https://github.com/onezens/YCDownloadSession)
 [![GitHub license](https://img.shields.io/github/license/onezens/YCDownloadSession.svg)](https://github.com/onezens/YCDownloadSession/blob/master/LICENSE)
 
@@ -21,7 +20,7 @@ source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '8.0'
 
 target 'TargetName' do
-    pod 'YCDownloadSession', '~> 1.2.3'
+    pod 'YCDownloadSession', '~> 1.2.4'
 end
 ```
 
@@ -30,18 +29,6 @@ end
 ```
 $ pod install
 ```
-
-
-
-
-## 介绍
-下载库主要有四个核心类：YCDownloadSession，YCDownloadTask，YCDownloadItem，YCDownloadManager  
-
-1. YCDownloadSession：对NSURLSession的进一步分装，是一个单例，所有的下载任务都是由其生成和管理。是最主要的核心类。实现了下载的代理方法，通过一个可下载的url，生成一个YCDownloadTask，并且将该task的所有数据进行实时存储。
-2. YCDownloadTask 将YCDownloadSession里的代理方法进一步封装和扩展，保存session生成和所需要的一些下载信息和数据。
-3. YCDownloadItem 存放需要下载的视频的信息
-4. YCDownloadManager 管理下载视频操作，生成一个YCDownloadItem，并且实时保存相关信息(下载状态，文件大小，已下载文件大小，以及其它的需要和UI交互的数据)，然后调用YCDownloadSession去下载该视频。
-
 
 
 ## 用法
@@ -223,11 +210,11 @@ $ pod install
 
 ## TODO
 
-1. 4G/流量下载管理（完成）
-2. 对下载任务个数进一步优化和管理（完成）
-3. 下载完成后添加本地通知（完成）
-4. 301/302 视频模拟测试 （完成）
-5. Swift 版的下载 - 第一个稳定版发布后开始 (正在进行)
+* [x] 4G/流量下载管理
+* [x] 对下载任务个数进一步优化和管理
+* [x]  下载完成后添加本地通知
+* [x] 301/302 视频模拟测试
+* [ ] Swift 版的下载 - 第一个稳定版发布后开始 (正在进行)
 
 
 ## 关于
