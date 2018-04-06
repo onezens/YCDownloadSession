@@ -17,7 +17,7 @@ typedef NS_ENUM(NSUInteger, YCDownloadStatus) {
     YCDownloadStatusFinished,
     YCDownloadStatusFailed
 };
-#define IS_IOS10ORLATER ([[[UIDevice currentDevice] systemVersion] floatValue] >= 10)
+#define YC_DEVICE_VERSION [[[UIDevice currentDevice] systemVersion] floatValue]
 /**某一任务下载的状态发生变化的通知*/
 static NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
 

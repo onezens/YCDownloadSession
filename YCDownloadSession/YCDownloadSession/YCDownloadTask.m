@@ -404,7 +404,7 @@ static NSString * const kNSURLSessionResumeServerDownloadDate = @"NSURLSessionRe
 + (NSMutableDictionary *)getResumeDictionary:(NSData *)data
 {
     NSMutableDictionary *iresumeDictionary = nil;
-    if (IS_IOS10ORLATER) {
+    if (YC_DEVICE_VERSION >= 10) {
         id root = nil;
         id  keyedUnarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
         @try {
@@ -435,6 +435,9 @@ static NSString * const kNSURLSessionResumeServerDownloadDate = @"NSURLSessionRe
 
 + (NSData *)correctResumeData:(NSData *)data
 {
+    if (YC_DEVICE_VERSION >= 11.2) {
+        return data;
+    }
     NSString *kResumeCurrentRequest = kNSURLSessionResumeCurrentRequest;
     NSString *kResumeOriginalRequest = kNSURLSessionResumeOriginalRequest;
     if (data == nil) {

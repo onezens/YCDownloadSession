@@ -741,8 +741,8 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
         NSData *resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
         if (resumeData) {
             
-            float deviceVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
-            if (deviceVersion >= 11.0f && deviceVersion < 11.2f) {
+            
+            if (YC_DEVICE_VERSION >= 11.0f && YC_DEVICE_VERSION < 11.2f) {
                 //修正iOS11 多次暂停继续 文件大小不对的问题
                 resumeData = [YCResumeData cleanResumeData:resumeData];
             }
