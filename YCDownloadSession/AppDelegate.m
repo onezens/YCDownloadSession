@@ -48,7 +48,7 @@
 }
 
 - (void)setUpDownload {
-    //不同用户，不同的下载数据
+    //不同用户，不同的下载数据.注意：切换用户之后重新调用下setGetUserIdentify:方法，来刷新数据
     [YCDownloadMgr setGetUserIdentify:^NSString *{
         //切换用户，这里最好使用get方法
         return @"10002";

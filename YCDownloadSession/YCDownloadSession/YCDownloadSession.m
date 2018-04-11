@@ -151,6 +151,9 @@ static YCDownloadSession *_instance;
 }
 
 - (void)setGetUserIdentify:(GetUserIdentifyBlk)getUserIdentify {
+    if ([self currentTaskCount]>0) {
+        [self pauseAllDownloadTask];
+    }
     _getUserIdentify = getUserIdentify;
     [self initDownloadData];
 }
