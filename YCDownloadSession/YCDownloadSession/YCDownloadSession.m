@@ -782,12 +782,8 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
             [self downloadStatusChanged:YCDownloadStatusPaused task:yctask];
            
         }else{
-            if (yctask.fileSize == 0) {
-                [self downloadStatusChanged:YCDownloadStatusPaused task:yctask];
-            } else {
-                [self downloadStatusChanged:YCDownloadStatusFailed task:yctask];
-                NSLog(@"[didCompleteWithError] : %@",error);
-            }
+            NSLog(@"[didCompleteWithError] : %@",error);
+            [self downloadStatusChanged:YCDownloadStatusFailed task:yctask];
         }
     }
     //需要下载下一个任务则下载下一个，否则还原noNeedToStartNext标识

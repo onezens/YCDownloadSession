@@ -114,29 +114,29 @@
 
 /**
  根据 downloadId 判断该下载是否已经创建
- @param downloadId 创建的下载任务的标识。如果有fileId使用fileId,没有则是downloadURLString
+ @param downloadId 创建的下载任务的标识。如果有fileId使用fileId
  */
 + (BOOL)isDownloadWithId:(NSString *)downloadId;
 
 /**
  根据 downloadId 获取该资源的下载状态
- @param downloadId 创建的下载任务的标识。如果有fileId使用fileId,没有则是downloadURLString
+ @param downloadId 创建的下载任务的标识。如果有fileId使用fileId
  */
 + (YCDownloadStatus)downloasStatusWithId:(NSString *)downloadId;
 
 /**
  根据 downloadId 获取该资源的下载详细信息
- @param downloadId 创建的下载任务的标识。如果有fileId使用fileId,没有则是downloadURLString
+ @param downloadId 创建的下载任务的标识。如果有fileId使用fileId
  */
 + (YCDownloadItem *)downloadItemWithId:(NSString *)downloadId;
 
 /**
- 获取所有的下载中的资源
+ 获取所有的未完成的下载item
  */
 + (NSArray *)downloadList;
 
 /**
- 获取所有已完成的下载
+ 获取所有已完成的下载item
  */
 + (NSArray *)finishList;
 

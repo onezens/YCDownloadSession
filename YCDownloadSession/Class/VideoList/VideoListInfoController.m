@@ -85,7 +85,7 @@
     VideoListInfoModel *model = self.videoListArr[indexPath.row];
     [cell setVideoModel:model];
     cell.delegate = self;
-    [cell setDownloadStatus:[YCDownloadManager downloasStatusWithId:model.mp4_url]];
+    [cell setDownloadStatus:[YCDownloadManager downloasStatusWithId:model.file_id]];
     return cell;
 }
 
