@@ -55,7 +55,7 @@ static YCDownloadSession *_instance;
         [self initDownloadData];
         //获取背景session正在运行的(app重启，或者闪退会有任务)
         NSMutableDictionary *dictM = [self.session valueForKey:@"tasks"];
-        [dictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        [dictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSURLSessionDownloadTask *obj, BOOL * _Nonnull stop) {
             YCDownloadTask *task = [self getDownloadTaskWithUrl:[YCDownloadTask getURLFromTask:obj]];
             if(!task){
                 [obj cancel];
