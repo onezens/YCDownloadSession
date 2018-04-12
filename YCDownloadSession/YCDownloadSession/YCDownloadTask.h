@@ -76,7 +76,7 @@ static NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNot
 /**文件本地存储名称*/
 @property (nonatomic, copy) NSString *saveName;
 /**下载文件的存储路径，没有下载完成时，该路径下没有文件*/
-@property (nonatomic, readonly) NSString *savePath;
+@property (nonatomic, copy) NSString *savePath;
 /**判断文件是否下载完成，savePath路径下存在该文件为true，否则为false*/
 @property (nonatomic, assign, readonly) BOOL downloadFinished;
 @property (nonatomic, assign, readonly) NSInteger fileSize;
@@ -177,11 +177,6 @@ static NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNot
 + (NSString *)savePathWithSaveName:(NSString *)saveName;
 
 /**
- 获取文件的存储路径的目录
- */
-+ (NSString *)saveDir;
-
-/**
  字符串md5加密
 
  @param string 需要MD5加密的字符串
@@ -229,18 +224,4 @@ static NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNot
  */
 + (NSData *)cleanResumeData:(NSData *)resumeData;
 @end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

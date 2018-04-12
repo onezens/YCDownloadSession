@@ -59,8 +59,8 @@ static id _instance;
 }
 
 - (NSString *)downloadItemSavePath {
-    NSString *saveDir = [YCDownloadTask saveDir];
-    return [saveDir stringByAppendingPathComponent:@"items.data"];
+    NSString *saveDir = [[YCDownloadSession downloadSession] saveRootPath];
+    return [saveDir stringByAppendingFormat:@"/video/items.data"];
 }
 
 - (void)addNotification {
@@ -278,6 +278,7 @@ static id _instance;
 - (void)stopDownloadWithItem:(YCDownloadItem *)item {
     if (item == nil )  return;
     [YCDownloadSession.downloadSession stopDownloadWithTaskId: item.taskId];
+    [self.itemsDictM removeObjectForKey:item.taskId];
     [self saveDownloadItems];
 }
 

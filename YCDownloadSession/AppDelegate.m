@@ -48,11 +48,21 @@
 }
 
 - (void)setUpDownload {
+    
+    //必须在设置用户之前设置目录， 也可以忽略用户标志，根据不同的用户指定根路径
+//    [[YCDownloadSession downloadSession] setSaveRootPath:^NSString *{
+//        NSString *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true).firstObject;
+//        path = [path stringByAppendingPathComponent:@"download/data"];
+//        return path;
+//    }];
+    
     //不同用户，不同的下载数据.注意：切换用户之后重新调用下setGetUserIdentify:方法，来刷新数据
     [YCDownloadMgr setGetUserIdentify:^NSString *{
         //切换用户，这里最好使用get方法
         return @"10002";
     }];
+    
+
 }
 
 - (void)setUpBugly {

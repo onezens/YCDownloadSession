@@ -25,6 +25,7 @@ static NSString * const kDownloadUserIdentifyChanged = @"kDownloadUserIdentifyCh
 
 typedef void (^BGCompletedHandler)(void);
 typedef NSString * (^GetUserIdentifyBlk)(void);
+typedef NSString * (^SetSaveRootPathBlk)(void);
 @class YCDownloadSession;
 
 @interface YCDownloadSession : NSObject<YCDownloadSession>
@@ -138,7 +139,6 @@ typedef NSString * (^GetUserIdentifyBlk)(void);
  */
 - (void)removeAllCache;
 
-
 /**
  根据taskid取task
 
@@ -155,12 +155,10 @@ typedef NSString * (^GetUserIdentifyBlk)(void);
  */
 - (void)allowsCellularAccess:(BOOL)isAllow;
 
-
 /**
  获取当前是否允许蜂窝煤访问状态
  */
 - (BOOL)isAllowsCellularAccess;
-
 
 /**
  后台某一下载任务完成时，第一次在AppDelegate中的 -(void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler
@@ -176,5 +174,15 @@ typedef NSString * (^GetUserIdentifyBlk)(void);
  保存下载数据
  */
 - (void)saveDownloadStatus;
+
+/**
+ 获取下载数据存储根目录
+ */
+- (NSString *)saveRootPath;
+
+/**
+ 设置下载数据存储根目录
+ */
+- (void)setSaveRootPath:(SetSaveRootPathBlk)srpBlk;
 
 @end

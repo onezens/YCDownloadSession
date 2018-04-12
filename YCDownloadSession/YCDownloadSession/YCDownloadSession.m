@@ -11,10 +11,13 @@
 #import "YCDownloadSession.h"
 
 static NSString * const kIsAllowCellar = @"kIsAllowCellar";
+#define kYCDownloaderRootPath @"kYCDownloaderRootPath"
 typedef void(^BGRecreateSessionBlock)(void);
 
 @interface YCDownloadSession ()<NSURLSessionDownloadDelegate>{
     NSString *_userIdentify;
+    SetSaveRootPathBlk _srpBlk;
+    BGRecreateSessionBlock _bgRCSBlock;
 }
 
 /**task*/
@@ -25,7 +28,6 @@ typedef void(^BGRecreateSessionBlock)(void);
 /**重新创建sessio标记位*/
 @property (nonatomic, assign) BOOL isNeedCreateSession;
 @property (nonatomic, strong) NSTimer *timer;
-@property (nonatomic, copy) BGRecreateSessionBlock bgRCSBlock;
 
 @end
 
@@ -314,6 +316,18 @@ static YCDownloadSession *_instance;
         
     }
 }
+
+- (NSString *)saveRootPath{
+    if (_srpBlk) {
+        NSString *path = _srpBlk();
+        if (path.length>0) return _srpBlk();
+    }
+    return [self defaultRootPath];
+}
+
+- (void)setSaveRootPath:(SetSaveRootPathBlk)srpBlk{
+    _srpBlk = srpBlk;
+}
 #pragma mark - private
 
 - (YCDownloadTask *)startNewTaskWithUrl:(NSString *)downloadURLString fileId:(NSString *)fileId delegate:(id<YCDownloadTaskDelegate>)delegate{
@@ -466,15 +480,7 @@ static YCDownloadSession *_instance;
 }
 
 - (NSString *)getArchiverPath{
-    NSString *saveDir = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true).firstObject;
-    if (self.userIdentify.length>0) {
-        saveDir = [saveDir stringByAppendingFormat:@"/YCDownload/%@",self.userIdentify];
-    }else{
-        saveDir = [saveDir stringByAppendingPathComponent:@"YCDownload"];
-    }
-    if (![[NSFileManager defaultManager] fileExistsAtPath:saveDir]) {
-        [[NSFileManager defaultManager] createDirectoryAtPath:saveDir withIntermediateDirectories:true attributes:nil error:nil];
-    }
+    NSString *saveDir = [self saveRootPath];
     saveDir = [saveDir stringByAppendingPathComponent:@"YCDownload.db"];
     return saveDir;
 }
@@ -564,6 +570,20 @@ static YCDownloadSession *_instance;
     return task;
 }
 
+- (NSString *)defaultRootPath {
+    NSString *saveDir = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true).firstObject;
+    NSString *userIdentify =self.userIdentify;
+    if (userIdentify.length>0) {
+        saveDir = [saveDir stringByAppendingFormat:@"/YCDownload/%@", userIdentify];
+    }else{
+        saveDir = [saveDir stringByAppendingPathComponent:@"YCDownload"];
+    }
+    if (![[NSFileManager defaultManager] fileExistsAtPath:saveDir]) {
+        [[NSFileManager defaultManager] createDirectoryAtPath:saveDir withIntermediateDirectories:true attributes:nil error:nil];
+    }
+    return saveDir;
+}
+
 
 #pragma mark - hander
 
@@ -580,10 +600,10 @@ static YCDownloadSession *_instance;
 - (void)timerRun {
     NSLog(@"background time remain: %f", [UIApplication sharedApplication].backgroundTimeRemaining);
     //TODO: optimeze the logic for background session
-    if ([UIApplication sharedApplication].backgroundTimeRemaining < 15 && !self.bgRCSBlock) {
+    if ([UIApplication sharedApplication].backgroundTimeRemaining < 15 && !_bgRCSBlock) {
         NSLog(@"background time will up, need to call completed hander!");
         __weak typeof(self) weakSelf = self;
-        self.bgRCSBlock = ^{
+        _bgRCSBlock = ^{
             [weakSelf callBgCompletedHandler];
             [weakSelf stopTimer];
         };
@@ -628,9 +648,9 @@ static YCDownloadSession *_instance;
     if (self.isNeedCreateSession) {
         self.isNeedCreateSession = false;
         [self recreateSession];
-        if (self.bgRCSBlock) {
-            self.bgRCSBlock();
-            self.bgRCSBlock = nil;
+        if (_bgRCSBlock) {
+            _bgRCSBlock();
+            _bgRCSBlock = nil;
         }
     }
 }

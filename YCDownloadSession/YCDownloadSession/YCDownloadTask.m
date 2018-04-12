@@ -122,6 +122,9 @@
 }
 
 - (NSString *)savePath {
+    if (_savePath.length>0) {
+        return _savePath;
+    }
     return [YCDownloadTask savePathWithSaveName:self.saveName];
 }
 
@@ -153,27 +156,21 @@
 }
 
 + (NSString *)savePathWithSaveName:(NSString *)saveName {
-    
+
     NSString *saveDir = [self saveDir];
-    saveDir =  [saveDir stringByAppendingPathComponent:saveName];
+    saveDir = [saveDir stringByAppendingPathComponent:saveName];
     return saveDir;
 
 }
 
-+ (NSString *)saveDir {
-    NSString *saveDir = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true).firstObject;
-    NSString *userIdentify =[YCDownloadSession downloadSession].userIdentify;
-    if (userIdentify.length>0) {
-        saveDir = [saveDir stringByAppendingFormat:@"/YCDownload/%@/video", userIdentify];
-    }else{
-        saveDir = [saveDir stringByAppendingPathComponent:@"YCDownload/video"];
-    }
++ (NSString *)saveDir{
+    NSString *saveDir = [[YCDownloadSession downloadSession] saveRootPath];
+    saveDir = [saveDir stringByAppendingPathComponent:@"video"];
     if (![[NSFileManager defaultManager] fileExistsAtPath:saveDir]) {
         [[NSFileManager defaultManager] createDirectoryAtPath:saveDir withIntermediateDirectories:true attributes:nil error:nil];
     }
     return saveDir;
 }
-
 
 + (NSString *)getURLFromTask:(NSURLSessionTask *)task {
     
@@ -221,6 +218,7 @@
     _preDownloadedSize = _downloadedSize;
     dispatch_async(dispatch_get_main_queue(), ^{
         if ([self.delegate respondsToSelector:@selector(downloadTask:speed:speedDesc:)]) {
+            //TODO: utils
             [self.delegate downloadTask:self speed:speed speedDesc:[NSString stringWithFormat:@"%@/s",[YCDownloadManager fileSizeStringFromBytes:speed]]];
         }
     });
