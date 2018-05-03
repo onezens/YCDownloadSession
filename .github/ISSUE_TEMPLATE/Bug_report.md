@@ -1,35 +1,23 @@
 ---
-name: Bug report
+name: 问题反馈
 about: Create a report to help us improve
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
-
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
-
-**Expected behavior**
-A clear and concise description of what you expected to happen.
-
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
-
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
-
-**Smartphone (please complete the following information):**
+**手机信息 (please complete the following information):**
  - Device: [e.g. iPhone6]
  - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+ - YCDownloadSession Version [e.g. 22]
 
-**Additional context**
-Add any other context about the problem here.
+**如何复现**
+详细的描述如何复现返回的问题？并且参照demo，在demo里同样的操作是否会复现？
+1. 到xx页面
+2. 点击xx
+3. 出现xx错误
+
+**错误或者奔溃信息**
+复制粘贴相关信息或者截图
+
+
+**注意**
+发生问题，或者有疑问时，请仔细看demo是实现逻辑。发生问题时，为了能够快速解决，请严格按照本模板描述，并且将你的问题在demo的复现过程详细描述出来。
