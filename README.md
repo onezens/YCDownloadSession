@@ -219,9 +219,7 @@ $ pod install
 
 ## 关于
 
-后台下载详情： [http://www.jianshu.com/p/2ccb34c460fd](http://www.jianshu.com/p/2ccb34c460fd)
-
-**欢迎各位关注该库，如果你有任何问题请issues我，将会随时更新新功能和解决存在的问题。**
+* 如何反馈问题：[Bug_report.md](https://github.com/onezens/YCDownloadSession/blob/master/.github/ISSUE_TEMPLATE/Bug_report.md)
 
 
 
