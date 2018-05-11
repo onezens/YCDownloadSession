@@ -43,15 +43,11 @@
     }
     //通知优先级最后，不与上面的finished重合
     if (status == YCDownloadStatusFinished) {
-        _fileSize = task.fileSize;
         [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadTaskFinishedNoti object:self];
     }
 }
 
 - (void)downloadCreated:(YCDownloadTask *)task {
-    if(task.fileSize > 0){
-        _fileSize = task.fileSize;
-    }
     [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadNeedSaveDataNoti object:nil userInfo:nil];
 }
 
@@ -88,6 +84,11 @@
     _delegate = delegate;
     YCDownloadTask *task = [[YCDownloadSession downloadSession] taskForTaskId:_taskId];
     task.delegate = self;
+}
+
+- (NSUInteger)fileSize {
+    YCDownloadTask *task = [[YCDownloadSession downloadSession] taskForTaskId:_taskId];
+    return task.fileSize;
 }
 
 #pragma mark - private

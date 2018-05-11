@@ -435,6 +435,7 @@ static YCDownloadSession *_instance;
             break;
         case YCDownloadStatusFinished:
             [self startNextDownloadTask];
+            task.downloadedSize = task.fileSize;
             break;
         default:
             break;

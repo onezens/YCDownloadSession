@@ -33,6 +33,7 @@ static NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti"
 @property (nonatomic, copy, readonly) NSString *fileId;
 /**下载任务标识*/
 @property (nonatomic, copy, readonly) NSString *taskId;
+/**下载完成后保存在本地的路径*/
 @property (nonatomic, copy, readonly) NSString *savePath;
 @property (nonatomic, copy, readonly) NSString *saveName;
 @property (nonatomic, copy, readonly) NSString *downloadUrl;
@@ -42,8 +43,7 @@ static NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti"
 @property (nonatomic, weak) id <YCDownloadItemDelegate> delegate;
 @property (nonatomic, copy) NSString *fileName;
 @property (nonatomic, copy) NSString *thumbImageUrl;
-/**下载完成后保存在本地的路径*/
-@property (nonatomic, assign) NSUInteger fileSize;
+@property (nonatomic, assign, readonly) NSUInteger fileSize;
 @property (nonatomic, copy) NSString *compatibleKey;
 @property (nonatomic, assign) BOOL enableSpeed;
 /**

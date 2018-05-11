@@ -153,8 +153,8 @@ static id _instance;
 #pragma mark - assgin
 
 - (void)setGetUserIdentify:(GetUserIdentifyBlk)getUserIdentify {
+     [[YCDownloadSession downloadSession] setGetUserIdentify:getUserIdentify];
     _getUserIdentify = getUserIdentify;
-    [[YCDownloadSession downloadSession] setGetUserIdentify:getUserIdentify];
     [self initDownloadData];
 }
 
