@@ -498,7 +498,7 @@
 					};
 					D72C84CF1E77D42500EDCEEF = {
 						CreatedOnToolsVersion = 8.2.1;
-						DevelopmentTeam = 6QXR4W42GG;
+						DevelopmentTeam = NRL3SRQ267;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
@@ -787,7 +787,7 @@
 		D72C84E81E77D42500EDCEEF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DEVELOPMENT_TEAM = 6QXR4W42GG;
+				DEVELOPMENT_TEAM = NRL3SRQ267;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/YCDownloadSession/ThirdLib/Bugly",
@@ -803,7 +803,7 @@
 		D72C84E91E77D42500EDCEEF /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DEVELOPMENT_TEAM = 6QXR4W42GG;
+				DEVELOPMENT_TEAM = NRL3SRQ267;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/YCDownloadSession/ThirdLib/Bugly",

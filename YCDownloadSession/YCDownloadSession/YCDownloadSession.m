@@ -44,7 +44,6 @@ static YCDownloadSession *_instance;
     return _instance;
 }
 
-
 - (instancetype)init {
     if (self = [super init]) {
         NSLog(@"YCDownloadSession init");
@@ -54,15 +53,18 @@ static YCDownloadSession *_instance;
         _downloadVersion = @"1.2.3";
         [self initDownloadData];
         //获取背景session正在运行的(app重启，或者闪退会有任务)
-        NSMutableDictionary *dictM = [self.session valueForKey:@"tasks"];
-        [dictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSURLSessionDownloadTask *obj, BOOL * _Nonnull stop) {
-            YCDownloadTask *task = [self getDownloadTaskWithUrl:[YCDownloadTask getURLFromTask:obj]];
-            if(!task){
-                [obj cancel];
-            }else{
-                task.downloadTask = obj;
-            }
-        }];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            NSMutableDictionary *dictM = [self.session valueForKey:@"tasks"];
+            [dictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSURLSessionDownloadTask *obj, BOOL * _Nonnull stop) {
+                YCDownloadTask *task = [self getDownloadTaskWithUrl:[YCDownloadTask getURLFromTask:obj]];
+                if(!task){
+                    NSLog(@"[Error] not found task for url: %@", [YCDownloadTask getURLFromTask:obj]);
+                    [obj cancel];
+                }else{
+                    task.downloadTask = obj;
+                }
+            }];
+        });
         
         [self addNotification];
 //        if (dictM.count>0) {
@@ -330,11 +332,15 @@ static YCDownloadSession *_instance;
 }
 #pragma mark - private
 
+- (NSURLSessionDownloadTask *)downloadTaskWithUrl:(NSString *)url {
+    NSURL *downloadURL = [NSURL URLWithString:url];
+    NSURLRequest *request = [NSURLRequest requestWithURL:downloadURL];
+    return [self.session downloadTaskWithRequest:request];
+}
+
 - (YCDownloadTask *)startNewTaskWithUrl:(NSString *)downloadURLString fileId:(NSString *)fileId delegate:(id<YCDownloadTaskDelegate>)delegate{
     
-    NSURL *downloadURL = [NSURL URLWithString:downloadURLString];
-    NSURLRequest *request = [NSURLRequest requestWithURL:downloadURL];
-    NSURLSessionDownloadTask *downloadTask = [self.session downloadTaskWithRequest:request];
+    NSURLSessionDownloadTask *downloadTask = [self downloadTaskWithUrl:downloadURLString];
     YCDownloadTask *task = [self createDownloadTaskItemWithUrl:downloadURLString fileId:fileId delegate:delegate];
     task.downloadTask = downloadTask;
     [downloadTask resume];
@@ -399,10 +405,9 @@ static YCDownloadSession *_instance;
         
         if (!task.downloadTask || task.downloadTask.state == NSURLSessionTaskStateCompleted || task.downloadTask.state == NSURLSessionTaskStateCanceling) {
             [task.downloadTask cancel];
-            NSURL *downloadURL = [NSURL URLWithString:task.downloadURL];
-            NSURLRequest *request = [NSURLRequest requestWithURL:downloadURL];
-            NSURLSessionDownloadTask *downloadTask = [self.session downloadTaskWithRequest:request];
+            NSURLSessionDownloadTask *downloadTask = [self downloadTaskWithUrl:task.downloadURL];
             task.downloadTask = downloadTask;
+            [downloadTask resume];
         }
         [task.downloadTask resume];
         [self downloadStatusChanged:YCDownloadStatusDownloading task:task];

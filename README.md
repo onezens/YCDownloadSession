@@ -20,7 +20,7 @@ source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '8.0'
 
 target 'TargetName' do
-    pod 'YCDownloadSession', '~> 1.2.4'
+    pod 'YCDownloadSession', '~> 1.2.5'
 end
 ```
 
@@ -30,6 +30,11 @@ end
 $ pod install
 ```
 
+提示错误 `[!] Unable to find a specification for YCDownloadSession ` 解决办法：
+
+```
+$ pod setup
+```
 
 ## 用法
 
