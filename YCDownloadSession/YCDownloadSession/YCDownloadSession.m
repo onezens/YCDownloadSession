@@ -328,6 +328,7 @@ static YCDownloadSession *_instance;
 }
 
 - (void)setSaveRootPath:(SetSaveRootPathBlk)srpBlk{
+    [YCDownloadTask createPathIfNotExist:srpBlk()];
     _srpBlk = srpBlk;
 }
 #pragma mark - private
@@ -584,9 +585,7 @@ static YCDownloadSession *_instance;
     }else{
         saveDir = [saveDir stringByAppendingPathComponent:@"YCDownload"];
     }
-    if (![[NSFileManager defaultManager] fileExistsAtPath:saveDir]) {
-        [[NSFileManager defaultManager] createDirectoryAtPath:saveDir withIntermediateDirectories:true attributes:nil error:nil];
-    }
+    [YCDownloadTask createPathIfNotExist:saveDir];
     return saveDir;
 }
 

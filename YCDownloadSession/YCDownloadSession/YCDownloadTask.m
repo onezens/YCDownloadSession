@@ -172,6 +172,12 @@
     return saveDir;
 }
 
++ (void)createPathIfNotExist:(NSString *)path {
+    if(![[NSFileManager defaultManager] fileExistsAtPath:path]){
+        [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:true attributes:nil error:nil];
+    }
+}
+
 + (NSString *)getURLFromTask:(NSURLSessionTask *)task {
     
     //301/302定向的originRequest和currentRequest的url不同

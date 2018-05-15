@@ -165,6 +165,13 @@ static NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNot
 - (void)downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize;
 
 #pragma mark - class method
+
+
+/**
+ 确保路径存在
+ */
++ (void)createPathIfNotExist:(NSString *)path;
+
 /**
  根据NSURLSessionTask获取下载的url
  301/302定向的originRequest和currentRequest的url不同，则取原始的
