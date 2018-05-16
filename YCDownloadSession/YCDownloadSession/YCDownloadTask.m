@@ -274,13 +274,12 @@
 }
 
 + (NSString *)getPathExtensionWithUrl:(NSString *)url {
-    NSString *pathExtension = [url pathExtension];
     //过滤url中的参数，取出单独文件名
-    NSRange range = [pathExtension rangeOfString:@"?"];
-    if (range.location>0 && range.length == 1) {
-        pathExtension = [pathExtension substringToIndex:range.location];
+    NSRange range = [url rangeOfString:@"?"];
+    if (range.location != NSNotFound) {
+        url = [url substringToIndex:range.location];
     }
-    return pathExtension;
+    return url.pathExtension;
 }
 
 -(void)dealloc {
