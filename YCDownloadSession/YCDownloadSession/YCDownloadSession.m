@@ -364,7 +364,9 @@ static YCDownloadSession *_instance;
         [task.downloadTask cancelByProducingResumeData:^(NSData * resumeData) { }];
     } else {
         task.downloadStatus = YCDownloadStatusPaused;
+        [self downloadStatusChanged:YCDownloadStatusPaused task:task];
     }
+    
     if(!task.isSupportRange){
         NSLog(@"Error: resource not support resume, because reponse headers not have the filed of 'Accept-Ranges' and 'ETag' !");
     }
