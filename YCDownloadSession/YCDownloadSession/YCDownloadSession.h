@@ -52,10 +52,10 @@ typedef NSString * (^SetSaveRootPathBlk)(void);
  */
 @property (nonatomic, copy, readonly) NSString *userIdentify;
 
-/**
- 获取区分用户标识的block
- */
-@property (nonatomic, copy) GetUserIdentifyBlk getUserIdentify;
+///**
+// 获取区分用户标识的block
+// */
+//@property (nonatomic, copy) GetUserIdentifyBlk getUserIdentify;
 
 /**
  开始一个后台下载任务
@@ -178,11 +178,16 @@ typedef NSString * (^SetSaveRootPathBlk)(void);
 /**
  获取下载数据存储根目录
  */
-- (NSString *)saveRootPath;
++ (NSString *)saveRootPath;
 
 /**
  设置下载数据存储根目录
  */
-- (void)setSaveRootPath:(SetSaveRootPathBlk)srpBlk;
++ (void)setSaveRootPath:(SetSaveRootPathBlk)srpBlk;
+
+/**
+ 设置用户标识，区分用户
+ */
++ (void)setUserIdentify:(GetUserIdentifyBlk)usrIdBlk;
 
 @end

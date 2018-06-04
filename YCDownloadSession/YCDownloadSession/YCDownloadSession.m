@@ -15,8 +15,6 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 typedef void(^BGRecreateSessionBlock)(void);
 
 @interface YCDownloadSession ()<NSURLSessionDownloadDelegate>{
-    NSString *_userIdentify;
-    SetSaveRootPathBlk _srpBlk;
     BGRecreateSessionBlock _bgRCSBlock;
 }
 
@@ -35,6 +33,9 @@ typedef void(^BGRecreateSessionBlock)(void);
 
 
 static YCDownloadSession *_instance;
+SetSaveRootPathBlk _srpBlk;
+GetUserIdentifyBlk _getUserIdentify;
+NSString *_userIdentify;
 
 + (instancetype)downloadSession {
     static dispatch_once_t onceToken;
@@ -52,19 +53,17 @@ static YCDownloadSession *_instance;
         _maxTaskCount = 1;
         _downloadVersion = @"1.2.3";
         [self initDownloadData];
-        //获取背景session正在运行的(app重启，或者闪退会有任务)
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            NSMutableDictionary *dictM = [self.session valueForKey:@"tasks"];
-            [dictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSURLSessionDownloadTask *obj, BOOL * _Nonnull stop) {
-                YCDownloadTask *task = [self getDownloadTaskWithUrl:[YCDownloadTask getURLFromTask:obj]];
-                if(!task){
-                    NSLog(@"[Error] not found task for url: %@", [YCDownloadTask getURLFromTask:obj]);
-                    [obj cancel];
-                }else{
-                    task.downloadTask = obj;
-                }
-            }];
-        });
+        //获取背景session正在运行的(app闪退会有任务)
+        NSMutableDictionary *dictM = [self.session valueForKey:@"tasks"];
+        [dictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSURLSessionDownloadTask *obj, BOOL * _Nonnull stop) {
+            YCDownloadTask *task = [self getDownloadTaskWithUrl:[YCDownloadTask getURLFromTask:obj]];
+            if(!task){
+                NSLog(@"[Error] not found task for url: %@", [YCDownloadTask getURLFromTask:obj]);
+                [obj cancel];
+            }else{
+                task.downloadTask = obj;
+            }
+        }];
         
         [self addNotification];
 //        if (dictM.count>0) {
@@ -82,8 +81,11 @@ static YCDownloadSession *_instance;
 }
 
 - (void)initDownloadData {
+    
+    NSLog(@"[info] data root path: %@", [YCDownloadSession saveRootPath]);
+    [YCDownloadTask createPathIfNotExist:[YCDownloadSession saveRootPath]];
     //获取保存在本地的数据是否为空，为空则初始化
-    _downloadTasks = [NSKeyedUnarchiver unarchiveObjectWithFile:[self getArchiverPath]];
+    _downloadTasks = [NSKeyedUnarchiver unarchiveObjectWithFile:[YCDownloadSession getArchiverPath]];
     if(!_downloadTasks) _downloadTasks = [NSMutableDictionary dictionary];
    
 }
@@ -154,13 +156,16 @@ static YCDownloadSession *_instance;
     }
 }
 
-- (void)setGetUserIdentify:(GetUserIdentifyBlk)getUserIdentify {
-    if ([self currentTaskCount]>0) {
-        [self pauseAllDownloadTask];
++ (void)setUserIdentify:(GetUserIdentifyBlk)usrIdBlk {
+    if (_instance && [_instance currentTaskCount]>0) {
+        [_instance pauseAllDownloadTask];
     }
-    _getUserIdentify = getUserIdentify;
-    [self initDownloadData];
+    _getUserIdentify = usrIdBlk;
+    if (_instance) {
+        [_instance initDownloadData];
+    }
 }
+
 
 - (NSInteger)currentTaskCount {
     NSMutableDictionary *dictM = [self.session valueForKey:@"tasks"];
@@ -319,15 +324,25 @@ static YCDownloadSession *_instance;
     }
 }
 
-- (NSString *)saveRootPath{
++ (NSString *)saveRootPath{
+    
+    NSString *usrId = nil;
+    if (_getUserIdentify) {
+        usrId = _getUserIdentify();
+    }
     if (_srpBlk) {
         NSString *path = _srpBlk();
-        if (path.length>0) return _srpBlk();
+        if (path.length>0) {
+            if (usrId.length>0) {
+                return [path stringByAppendingPathComponent:usrId];
+            }
+            return path;
+        }
     }
     return [self defaultRootPath];
 }
 
-- (void)setSaveRootPath:(SetSaveRootPathBlk)srpBlk{
++ (void)setSaveRootPath:(SetSaveRootPathBlk)srpBlk{
     [YCDownloadTask createPathIfNotExist:srpBlk()];
     _srpBlk = srpBlk;
 }
@@ -485,10 +500,10 @@ static YCDownloadSession *_instance;
 
 - (void)saveDownloadStatus {
     
-    [NSKeyedArchiver archiveRootObject:self.downloadTasks toFile:[self getArchiverPath]];
+    [NSKeyedArchiver archiveRootObject:self.downloadTasks toFile:[YCDownloadSession getArchiverPath]];
 }
 
-- (NSString *)getArchiverPath{
++ (NSString *)getArchiverPath{
     NSString *saveDir = [self saveRootPath];
     saveDir = [saveDir stringByAppendingPathComponent:@"YCDownload.db"];
     return saveDir;
@@ -579,9 +594,9 @@ static YCDownloadSession *_instance;
     return task;
 }
 
-- (NSString *)defaultRootPath {
++ (NSString *)defaultRootPath {
     NSString *saveDir = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true).firstObject;
-    NSString *userIdentify =self.userIdentify;
+    NSString *userIdentify = [self userIdentify];
     if (userIdentify.length>0) {
         saveDir = [saveDir stringByAppendingFormat:@"/YCDownload/%@", userIdentify];
     }else{
@@ -625,22 +640,22 @@ static YCDownloadSession *_instance;
     }
 }
 
-- (NSString *)userIdentify {
++ (NSString *)userIdentify {
     static BOOL needOri = true;
     if(!needOri) return _userIdentify;
     NSString *curId = nil;
-    if(self.getUserIdentify){
-        curId = self.getUserIdentify();
+    if(_getUserIdentify){
+        curId = _getUserIdentify();
         _userIdentify = curId;
     }
     //user changed update status
     if(_userIdentify != curId){
         needOri = false;
-        [self pauseAllDownloadTask];
-        [self saveDownloadStatus];
+        [_instance pauseAllDownloadTask];
+        [_instance saveDownloadStatus];
         _userIdentify = curId;
         needOri = true;
-        [self initDownloadData];
+        [_instance initDownloadData];
         [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadUserIdentifyChanged object:nil];
     }
     _userIdentify = curId;

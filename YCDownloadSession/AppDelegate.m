@@ -51,7 +51,7 @@
     //Thanks feedback: @一品戴砖侍卫
     //https://developer.apple.com/library/content/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/FileSystemOverview/FileSystemOverview.html#//apple_ref/doc/uid/TP40010672-CH2-SW2
     //必须在设置用户之前设置目录， 也可以忽略用户标志，根据不同的用户指定根路径
-//    [[YCDownloadSession downloadSession] setSaveRootPath:^NSString *{
+//    [YCDownloadSession setSaveRootPath:^NSString *{
 //        NSString *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true).firstObject;
 //        path = [path stringByAppendingPathComponent:@"download/data"];
 //        return path;
@@ -82,10 +82,10 @@
 }
 
 
-//- (void)applicationWillResignActive:(UIApplication *)application {
-//    [YCDownloadMgr setGetUserIdentify:^NSString *{
-//        return @"10001";
-//    }];
-//}
+- (void)applicationWillResignActive:(UIApplication *)application {
+    [YCDownloadMgr setGetUserIdentify:^NSString *{
+        return @"10001";
+    }];
+}
 
 @end

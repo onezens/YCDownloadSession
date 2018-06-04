@@ -59,7 +59,7 @@ static id _instance;
 }
 
 - (NSString *)downloadItemSavePath {
-    NSString *saveDir = [[YCDownloadSession downloadSession] saveRootPath];
+    NSString *saveDir = [YCDownloadSession saveRootPath];
     return [saveDir stringByAppendingFormat:@"/video/items.data"];
 }
 
@@ -153,7 +153,7 @@ static id _instance;
 #pragma mark - assgin
 
 - (void)setGetUserIdentify:(GetUserIdentifyBlk)getUserIdentify {
-     [[YCDownloadSession downloadSession] setGetUserIdentify:getUserIdentify];
+     [YCDownloadSession setUserIdentify:getUserIdentify];
     _getUserIdentify = getUserIdentify;
     [self initDownloadData];
 }

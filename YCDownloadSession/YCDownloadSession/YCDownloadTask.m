@@ -164,7 +164,7 @@
 }
 
 + (NSString *)saveDir{
-    NSString *saveDir = [[YCDownloadSession downloadSession] saveRootPath];
+    NSString *saveDir = [YCDownloadSession saveRootPath];
     saveDir = [saveDir stringByAppendingPathComponent:@"video"];
     if (![[NSFileManager defaultManager] fileExistsAtPath:saveDir]) {
         [[NSFileManager defaultManager] createDirectoryAtPath:saveDir withIntermediateDirectories:true attributes:nil error:nil];
