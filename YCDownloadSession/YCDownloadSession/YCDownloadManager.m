@@ -10,10 +10,6 @@
 
 #import "YCDownloadManager.h"
 
-#define kCommonUtilsGigabyte (1024 * 1024 * 1024)
-#define kCommonUtilsMegabyte (1024 * 1024)
-#define kCommonUtilsKilobyte 1024
-
 @interface YCDownloadManager ()
 
 @property (nonatomic, strong) NSMutableDictionary *itemsDictM;
@@ -55,7 +51,6 @@ static id _instance;
         [saveLock lock];
         [NSKeyedArchiver archiveRootObject:self.itemsDictM toFile:[self downloadItemSavePath]];
         [saveLock unlock];
-
     });
 }
 
@@ -187,45 +182,9 @@ static id _instance;
     return size;
     
 }
-+ (NSUInteger)fileSystemFreeSize {
-    NSUInteger totalFreeSpace = 0;
-    NSError *error = nil;
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSDictionary *dictionary = [[NSFileManager defaultManager] attributesOfFileSystemForPath:[paths lastObject] error: &error];
-    
-    if (dictionary) {
-        NSNumber *freeFileSystemSizeInBytes = [dictionary objectForKey:NSFileSystemFreeSize];
-        totalFreeSpace = [freeFileSystemSizeInBytes unsignedIntegerValue];
-    }
-    return totalFreeSpace;
-}
 
 + (void)saveDownloadStatus {
     [[YCDownloadManager manager] saveDownloadItems];
-}
-+ (NSString *)fileSizeStringFromBytes:(uint64_t)byteSize {
-    if (kCommonUtilsGigabyte <= byteSize) {
-        return [NSString stringWithFormat:@"%@GB", [self numberStringFromDouble:(double)byteSize / kCommonUtilsGigabyte]];
-    }
-    if (kCommonUtilsMegabyte <= byteSize) {
-        return [NSString stringWithFormat:@"%@MB", [self numberStringFromDouble:(double)byteSize / kCommonUtilsMegabyte]];
-    }
-    if (kCommonUtilsKilobyte <= byteSize) {
-        return [NSString stringWithFormat:@"%@KB", [self numberStringFromDouble:(double)byteSize / kCommonUtilsKilobyte]];
-    }
-    return [NSString stringWithFormat:@"%lluB", byteSize];
-}
-
-
-+ (NSString *)numberStringFromDouble:(const double)num {
-    NSInteger section = round((num - (NSInteger)num) * 100);
-    if (section % 10) {
-        return [NSString stringWithFormat:@"%.2f", num];
-    }
-    if (section > 0) {
-        return [NSString stringWithFormat:@"%.1f", num];
-    }
-    return [NSString stringWithFormat:@"%.0f", num];
 }
 
 #pragma mark - private

@@ -12,6 +12,9 @@
 #import <objc/runtime.h>
 #import "YCDownloadSession.h"
 
+NSString * const kDownloadTaskFinishedNoti = @"kDownloadTaskFinishedNoti";
+NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti";
+
 @implementation YCDownloadItem
 
 #pragma mark - init

@@ -62,10 +62,10 @@
         cell.accessoryView = self.cellarSwitch;
     }else if (indexPath.row==3){
         cell.textLabel.text = @"磁盘剩余空间";
-        cell.detailTextLabel.text = [NSString stringWithFormat:@"%@", [YCDownloadManager fileSizeStringFromBytes:[YCDownloadManager fileSystemFreeSize]]];
+        cell.detailTextLabel.text = [NSString stringWithFormat:@"%@", [YCDownloadUtils fileSizeStringFromBytes:[YCDownloadUtils fileSystemFreeSize]]];
     }else if (indexPath.row==4){
         cell.textLabel.text = @"当前缓存大小";
-        cell.detailTextLabel.text = [NSString stringWithFormat:@"%@", [YCDownloadManager fileSizeStringFromBytes:[YCDownloadManager videoCacheSize]]];
+        cell.detailTextLabel.text = [NSString stringWithFormat:@"%@", [YCDownloadUtils fileSizeStringFromBytes:[YCDownloadManager videoCacheSize]]];
     }else if (indexPath.row==5){
         cell.textLabel.text = @"清空所有视频缓存";
     }

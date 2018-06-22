@@ -9,6 +9,7 @@
 //
 
 #import <UIKit/UIKit.h>
+@class YCDownloadTask;
 
 typedef NS_ENUM(NSUInteger, YCDownloadStatus) {
     YCDownloadStatusWaiting,
@@ -17,14 +18,12 @@ typedef NS_ENUM(NSUInteger, YCDownloadStatus) {
     YCDownloadStatusFinished,
     YCDownloadStatusFailed
 };
-#define YC_DEVICE_VERSION [[[UIDevice currentDevice] systemVersion] floatValue]
+
 /**某一任务下载的状态发生变化的通知*/
-static NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
+extern NSString * const kDownloadStatusChangedNoti;
 
 #pragma mark - YCDownloadTaskDelegate
-@class YCDownloadTask;
 @protocol YCDownloadTaskDelegate <NSObject>
-
 @optional
 
 /**
@@ -166,12 +165,6 @@ static NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNot
 
 #pragma mark - class method
 
-
-/**
- 确保路径存在
- */
-+ (void)createPathIfNotExist:(NSString *)path;
-
 /**
  根据NSURLSessionTask获取下载的url
  301/302定向的originRequest和currentRequest的url不同，则取原始的
@@ -182,15 +175,6 @@ static NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNot
  根据文件的名称获取文件的沙盒存储路径
  */
 + (NSString *)savePathWithSaveName:(NSString *)saveName;
-
-/**
- 字符串md5加密
-
- @param string 需要MD5加密的字符串
- @return MD5后的值
- */
-+ (NSString *)md5ForString:(NSString *)string;
-
 
 /**
  生成taskid

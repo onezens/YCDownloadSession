@@ -84,7 +84,7 @@
 
 - (void)changeSizeLblDownloadedSize:(int64_t)downloadedSize totalSize:(int64_t)totalSize {
 
-    self.sizeLbl.text = [NSString stringWithFormat:@"%@ / %@",[YCDownloadManager fileSizeStringFromBytes:downloadedSize], [YCDownloadManager fileSizeStringFromBytes:totalSize]];
+    self.sizeLbl.text = [NSString stringWithFormat:@"%@ / %@",[YCDownloadUtils fileSizeStringFromBytes:downloadedSize], [YCDownloadUtils fileSizeStringFromBytes:totalSize]];
     
     float progress = 0;
     if (totalSize != 0) {

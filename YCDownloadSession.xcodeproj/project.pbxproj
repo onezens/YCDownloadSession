@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3532E34520DCD2E800B3EF5B /* YCDownloadUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 3532E34420DCD2E800B3EF5B /* YCDownloadUtils.m */; };
 		3536388E1F9496650070CFA3 /* VideoCacheListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3580D6451F8CB8BC00966A3D /* VideoCacheListCell.xib */; };
 		3536388F1F9496700070CFA3 /* VideoListInfoCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3580D6491F8CB8BD00966A3D /* VideoListInfoCell.xib */; };
 		353E94CC1F7F3C5B00B76CDF /* PlayerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 353E94CB1F7F3C5B00B76CDF /* PlayerViewController.m */; };
@@ -75,6 +76,8 @@
 
 /* Begin PBXFileReference section */
 		3532E34220DC9D3300B3EF5B /* YCDownloadSession.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = YCDownloadSession.podspec; sourceTree = SOURCE_ROOT; };
+		3532E34320DCD2E800B3EF5B /* YCDownloadUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YCDownloadUtils.h; sourceTree = "<group>"; };
+		3532E34420DCD2E800B3EF5B /* YCDownloadUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YCDownloadUtils.m; sourceTree = "<group>"; };
 		353E94C11F7F3BC200B76CDF /* FastForwardView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FastForwardView.h; sourceTree = "<group>"; };
 		353E94C21F7F3BC200B76CDF /* FastForwardView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FastForwardView.m; sourceTree = "<group>"; };
 		353E94C31F7F3BC200B76CDF /* FastForwardView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FastForwardView.xib; sourceTree = "<group>"; };
@@ -390,14 +393,16 @@
 		D72C84EA1E77D46100EDCEEF /* YCDownloadSession */ = {
 			isa = PBXGroup;
 			children = (
-				D72C84EB1E77D47200EDCEEF /* YCDownloadSession.h */,
-				D72C84EC1E77D47200EDCEEF /* YCDownloadSession.m */,
+				3532E34320DCD2E800B3EF5B /* YCDownloadUtils.h */,
+				3532E34420DCD2E800B3EF5B /* YCDownloadUtils.m */,
 				D775A4001E791C9E00117D97 /* YCDownloadTask.h */,
 				D775A4011E791C9E00117D97 /* YCDownloadTask.m */,
-				D750A1411F2ADEDC00EC6796 /* YCDownloadManager.h */,
-				D750A1421F2ADEDC00EC6796 /* YCDownloadManager.m */,
+				D72C84EB1E77D47200EDCEEF /* YCDownloadSession.h */,
+				D72C84EC1E77D47200EDCEEF /* YCDownloadSession.m */,
 				D750A1441F2AE2FC00EC6796 /* YCDownloadItem.h */,
 				D750A1451F2AE2FC00EC6796 /* YCDownloadItem.m */,
+				D750A1411F2ADEDC00EC6796 /* YCDownloadManager.h */,
+				D750A1421F2ADEDC00EC6796 /* YCDownloadManager.m */,
 			);
 			path = YCDownloadSession;
 			sourceTree = "<group>";
@@ -508,7 +513,7 @@
 					};
 					D72C84CF1E77D42500EDCEEF = {
 						CreatedOnToolsVersion = 8.2.1;
-						DevelopmentTeam = NRL3SRQ267;
+						DevelopmentTeam = 65RJX5V69R;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
@@ -583,6 +588,7 @@
 				D78946BF1E83A4B700284B35 /* SDWebImageManager.m in Sources */,
 				3580D64E1F8CB8D000966A3D /* MainTableViewController.m in Sources */,
 				3580D6511F8CB8DC00966A3D /* VideoListInfoCell.m in Sources */,
+				3532E34520DCD2E800B3EF5B /* YCDownloadUtils.m in Sources */,
 				D72C84D81E77D42500EDCEEF /* AppDelegate.m in Sources */,
 				D78946BD1E83A4B700284B35 /* SDWebImageDownloader.m in Sources */,
 				3580D6541F8CB8E900966A3D /* DownloadViewController.m in Sources */,
@@ -801,7 +807,7 @@
 		D72C84E81E77D42500EDCEEF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DEVELOPMENT_TEAM = NRL3SRQ267;
+				DEVELOPMENT_TEAM = 65RJX5V69R;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/YCDownloadSession/ThirdLib/Bugly",
@@ -817,7 +823,7 @@
 		D72C84E91E77D42500EDCEEF /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DEVELOPMENT_TEAM = NRL3SRQ267;
+				DEVELOPMENT_TEAM = 65RJX5V69R;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/YCDownloadSession/ThirdLib/Bugly",

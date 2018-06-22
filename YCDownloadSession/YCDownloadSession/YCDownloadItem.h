@@ -12,10 +12,8 @@
 #import "YCDownloadTask.h"
 @class YCDownloadItem;
 
-/**某一的任务下载完成的通知*/
-static NSString * const kDownloadTaskFinishedNoti = @"kDownloadTaskFinishedNoti";
-/**保存下载数据通知*/
-static NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti";
+extern NSString * const kDownloadTaskFinishedNoti;
+extern NSString * const kDownloadNeedSaveDataNoti;
 
 @protocol YCDownloadItemDelegate <NSObject>
 
@@ -44,7 +42,7 @@ static NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti"
 @property (nonatomic, copy) NSString *fileName;
 @property (nonatomic, copy) NSString *thumbImageUrl;
 @property (nonatomic, assign, readonly) NSUInteger fileSize;
-@property (nonatomic, copy) NSString *compatibleKey;
+@property (nonatomic, copy, readonly) NSString *compatibleKey;
 @property (nonatomic, assign) BOOL enableSpeed;
 /**
  下载的文件在沙盒保存的类型，默认为video.可指定为pdf，image，等自定义类型

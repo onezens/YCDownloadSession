@@ -10,9 +10,9 @@
 
 #import "YCDownloadTask.h"
 #import <objc/runtime.h>
-#import <CommonCrypto/CommonDigest.h>
 #import "YCDownloadSession.h"
-#import "YCDownloadManager.h"
+
+NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
 
 @interface YCDownloadTask()
 {
@@ -76,7 +76,7 @@
 
 - (void)downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize {
     _downloadedSize = downloadedSize;
-    if (!self.timer) {
+    if (!self.timer && self.delegate) {
         [self startTimer];
     }
 }
@@ -151,7 +151,7 @@
 }
 
 + (NSString *)taskIdForUrl:(NSString *)url fileId:(NSString *)fileId {
-    NSString *name = [YCDownloadTask md5ForString:fileId.length>0 ? [NSString stringWithFormat:@"%@-%@",url, fileId] : url];
+    NSString *name = [YCDownloadUtils md5ForString:fileId.length>0 ? [NSString stringWithFormat:@"%@-%@",url, fileId] : url];
     return name;
 }
 
@@ -172,12 +172,6 @@
     return saveDir;
 }
 
-+ (void)createPathIfNotExist:(NSString *)path {
-    if(![[NSFileManager defaultManager] fileExistsAtPath:path]){
-        [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:true attributes:nil error:nil];
-    }
-}
-
 + (NSString *)getURLFromTask:(NSURLSessionTask *)task {
     
     //301/302定向的originRequest和currentRequest的url不同
@@ -189,19 +183,6 @@
         url = [task currentRequest].URL.absoluteString;
     }
     return url;
-}
-
-
-+ (NSString *)md5ForString:(NSString *)string {
-    const char *str = [string UTF8String];
-    if (str == NULL) {
-        str = "";
-    }
-    unsigned char r[CC_MD5_DIGEST_LENGTH];
-    CC_MD5(str, (CC_LONG)strlen(str), r);
-    NSString *md5Result = [NSString stringWithFormat:@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
-                          r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9], r[10], r[11], r[12], r[13], r[14], r[15]];
-    return md5Result;
 }
 
 #pragma mark - private
@@ -222,32 +203,24 @@
 - (void)timerCall {
     NSUInteger speed = _downloadedSize - _preDownloadedSize;
     _preDownloadedSize = _downloadedSize;
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(downloadTask:speed:speedDesc:)]) {
-            //TODO: utils
-            [self.delegate downloadTask:self speed:speed speedDesc:[NSString stringWithFormat:@"%@/s",[YCDownloadManager fileSizeStringFromBytes:speed]]];
-        }
-    });
+    if ([self.delegate respondsToSelector:@selector(downloadTask:speed:speedDesc:)]) {
+        [self.delegate downloadTask:self speed:speed speedDesc:[NSString stringWithFormat:@"%@/s",[YCDownloadUtils fileSizeStringFromBytes:speed]]];
+    }
 }
 
 ///  解档
 - (instancetype)initWithCoder:(NSCoder *)coder
 {
     if (self = [super init]) {
-        
         unsigned int count = 0;
-        
         Ivar *ivars = class_copyIvarList([self class], &count);
-        
         for (NSInteger i=0; i<count; i++) {
-            
             Ivar ivar = ivars[i];
             NSString *name = [[NSString alloc] initWithUTF8String:ivar_getName(ivar)];
             if ([name isEqualToString:@"_downloadTask"] || [name isEqualToString:@"_delegate"] || [name isEqualToString:@"_timer"]) continue;
             id value = [coder decodeObjectForKey:name];
             if(value) [self setValue:value forKey:name];
         }
-        
         free(ivars);
     }
     return self;
@@ -256,11 +229,8 @@
 ///  归档
 - (void)encodeWithCoder:(NSCoder *)coder
 {
-    
     unsigned int count = 0;
-    
     Ivar *ivars = class_copyIvarList([self class], &count);
-    
     for (NSInteger i=0; i<count; i++) {
         
         Ivar ivar = ivars[i];
@@ -269,7 +239,6 @@
         id value = [self valueForKey:name];
         if(value) [coder encodeObject:value forKey:name];
     }
-    
     free(ivars);
 }
 

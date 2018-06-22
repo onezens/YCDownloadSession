@@ -12,13 +12,14 @@
 
 typedef void(^BGRecreateSessionBlock)(void);
 static NSString * const kIsAllowCellar = @"kIsAllowCellar";
+NSString * const kDownloadAllTaskFinishedNoti = @"kAllDownloadTaskFinishedNoti";
+NSString * const kDownloadUserIdentifyChanged = @"kDownloadUserIdentifyChanged";
 
 @interface YCDownloadSession ()<NSURLSessionDownloadDelegate>
 {
     BGRecreateSessionBlock _bgRCSBlock;
 }
 
-/**task*/
 @property (nonatomic, strong) NSMutableDictionary *downloadTasks;
 /**后台下载回调的handlers，所有的下载任务全部结束后调用*/
 @property (nonatomic, copy) BGCompletedHandler completedHandler;
@@ -80,13 +81,10 @@ NSString *_userIdentify;
 }
 
 - (void)initDownloadData {
-    
-    NSLog(@"[info] data root path: %@", [YCDownloadSession saveRootPath]);
-    [YCDownloadTask createPathIfNotExist:[YCDownloadSession saveRootPath]];
+    [YCDownloadUtils createPathIfNotExist:[YCDownloadSession saveRootPath]];
     //获取保存在本地的数据是否为空，为空则初始化
     _downloadTasks = [NSKeyedUnarchiver unarchiveObjectWithFile:[YCDownloadSession getArchiverPath]];
     if(!_downloadTasks) _downloadTasks = [NSMutableDictionary dictionary];
-   
 }
 
 - (void)addNotification {
@@ -257,7 +255,6 @@ NSString *_userIdentify;
 - (void)pauseAllDownloadTask{
 
     [self.downloadTasks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, YCDownloadTask * _Nonnull obj, BOOL * _Nonnull stop) {
-        NSLog(@"downloadTask:%@ state: %zd  - %zd", obj.downloadTask, obj.downloadTask.state, obj.downloadStatus);
         if(obj.downloadStatus == YCDownloadStatusDownloading && obj.downloadTask.state != NSURLSessionTaskStateCompleted){
             obj.noNeedToStartNext = true;
             [self pauseDownloadTask:obj];
@@ -573,7 +570,7 @@ NSString *_userIdentify;
     }else{
         saveDir = [saveDir stringByAppendingPathComponent:@"YCDownload"];
     }
-    [YCDownloadTask createPathIfNotExist:saveDir];
+    [YCDownloadUtils createPathIfNotExist:saveDir];
     return saveDir;
 }
 
@@ -595,7 +592,7 @@ NSString *_userIdentify;
 }
 
 + (void)setSaveRootPath:(SetSaveRootPathBlk)srpBlk{
-    [YCDownloadTask createPathIfNotExist:srpBlk()];
+    [YCDownloadUtils createPathIfNotExist:srpBlk()];
     _srpBlk = srpBlk;
 }
 
@@ -697,17 +694,16 @@ didFinishDownloadingToURL:(NSURL *)location {
     NSString *downloadUrl = [YCDownloadTask getURLFromTask:downloadTask];
     YCDownloadTask *task = [self getDownloadTaskWithUrl:downloadUrl];
     if(!task){
-        NSLog(@"download finished , item nil error!!!! url: %@", downloadUrl);
+        NSLog(@"[Download Finished] item nil error! url: %@", downloadUrl);
         return;
     }
     task.tempPath = locationString;
-    NSInteger fileSize =[self fileSizeWithPath:locationString];
+    NSInteger fileSize = [self fileSizeWithPath:locationString];
     //校验文件大小
     if (task.fileSize == 0) {
         task.downloadTask = downloadTask;
         [task updateTask];
     }
-    //BOOL isCompltedFile = (fileSize>0) && ((fileSize == task.fileSize) || task.fileSize == 0);
     BOOL isCompltedFile = (fileSize>0) && (fileSize == task.fileSize);
     //文件大小不对，回调失败
     if (!isCompltedFile) {
@@ -719,7 +715,6 @@ didFinishDownloadingToURL:(NSURL *)location {
     task.downloadedSize = task.fileSize;
     task.downloadTask = nil;
     [[NSFileManager defaultManager] moveItemAtPath:locationString toPath:task.savePath error:&error];
-
     if (task.downloadURL.length != 0) {
         [self.downloadTasks setObject:task forKey:task.taskId];
     }
@@ -789,8 +784,6 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
         // check whether resume data are available
         NSData *resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
         if (resumeData) {
-            
-            
             if (YC_DEVICE_VERSION >= 11.0f && YC_DEVICE_VERSION < 11.2f) {
                 //修正iOS11 多次暂停继续 文件大小不对的问题
                 resumeData = [YCResumeData cleanResumeData:resumeData];
@@ -816,7 +809,5 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
     !yctask.noNeedToStartNext ? [self startNextDownloadTask] :  (yctask.noNeedToStartNext = false);
     
 }
-
-
 
 @end

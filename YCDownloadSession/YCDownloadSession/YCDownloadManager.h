@@ -21,7 +21,6 @@
  */
 @property (nonatomic, copy) GetUserIdentifyBlk getUserIdentify;
 
-
 /**
  下载manager单例
  */
@@ -147,19 +146,10 @@
 + (NSUInteger)videoCacheSize;
 
 /**
- 获取当前手机的空闲磁盘空间
- */
-+ (NSUInteger)fileSystemFreeSize;
-
-/**
  保存下载状态，一般不用，下载内部自己处理完成
  */
 + (void)saveDownloadStatus;
 
-/**
- 将文件的字节大小，转换成更加容易识别的大小KB，MB，GB
- */
-+ (NSString *)fileSizeStringFromBytes:(uint64_t)byteSize;
 
 /**
  是否允许蜂窝煤网络下载，以及网络状态变为蜂窝煤是否允许下载，必须把所有的downloadTask全部暂停，然后重新创建。否则，原先创建的
