@@ -74,6 +74,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3532E34220DC9D3300B3EF5B /* YCDownloadSession.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = YCDownloadSession.podspec; sourceTree = SOURCE_ROOT; };
 		353E94C11F7F3BC200B76CDF /* FastForwardView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FastForwardView.h; sourceTree = "<group>"; };
 		353E94C21F7F3BC200B76CDF /* FastForwardView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FastForwardView.m; sourceTree = "<group>"; };
 		353E94C31F7F3BC200B76CDF /* FastForwardView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FastForwardView.xib; sourceTree = "<group>"; };
@@ -202,6 +203,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3532E34120DC9D0E00B3EF5B /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				3532E34220DC9D3300B3EF5B /* YCDownloadSession.podspec */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
 		353E94BF1F7F3BC200B76CDF /* WMPlayer */ = {
 			isa = PBXGroup;
 			children = (
@@ -372,6 +381,7 @@
 		D72C84D31E77D42500EDCEEF /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				3532E34120DC9D0E00B3EF5B /* Config */,
 				D72C84D41E77D42500EDCEEF /* main.m */,
 			);
 			name = "Supporting Files";

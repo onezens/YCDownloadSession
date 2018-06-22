@@ -20,7 +20,7 @@ source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '8.0'
 
 target 'TargetName' do
-    pod 'YCDownloadSession', '~> 1.2.5'
+    pod 'YCDownloadSession', '~> 1.2.6'
 end
 ```
 

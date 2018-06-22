@@ -50,7 +50,13 @@ static id _instance;
 }
 
 - (void)saveDownloadItems {
-    [NSKeyedArchiver archiveRootObject:self.itemsDictM toFile:[self downloadItemSavePath]];
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        NSLock *saveLock = [[NSLock alloc] init];
+        [saveLock lock];
+        [NSKeyedArchiver archiveRootObject:self.itemsDictM toFile:[self downloadItemSavePath]];
+        [saveLock unlock];
+
+    });
 }
 
 - (void)getDownloadItems {
@@ -207,7 +213,7 @@ static id _instance;
     if (kCommonUtilsKilobyte <= byteSize) {
         return [NSString stringWithFormat:@"%@KB", [self numberStringFromDouble:(double)byteSize / kCommonUtilsKilobyte]];
     }
-    return [NSString stringWithFormat:@"%zdB", byteSize];
+    return [NSString stringWithFormat:@"%lluB", byteSize];
 }
 
 
@@ -227,7 +233,6 @@ static id _instance;
 - (void)downloadUserChanged{
     [self initDownloadData];
 }
-
 
 - (void)startDownloadWithItem:(YCDownloadItem *)item priority:(float)priority{
     if(!item) return;
@@ -398,34 +403,14 @@ static id _instance;
 - (void)localPushWithTitle:(NSString *)title detail:(NSString *)body  {
     
     if (!self.localPushOn || title.length == 0) return;
-    
-    // 1.创建本地通知
     UILocalNotification *localNote = [[UILocalNotification alloc] init];
-    
-    // 2.设置本地通知的内容
-    // 2.1.设置通知发出的时间
     localNote.fireDate = [NSDate dateWithTimeIntervalSinceNow:3.0];
-    // 2.2.设置通知的内容
     localNote.alertBody = body;
-    // 2.3.设置滑块的文字（锁屏状态下：滑动来“解锁”）
-    localNote.alertAction = @"滑动来“解锁”";
-    // 2.4.决定alertAction是否生效
+    localNote.alertAction = @"滑动来解锁";
     localNote.hasAction = NO;
-    // 2.5.设置点击通知的启动图片
-    //    localNote.alertLaunchImage = @"123Abc";
-    // 2.6.设置alertTitle
-//    localNote.alertTitle = title;
-    // 2.7.设置有通知时的音效
     localNote.soundName = @"default";
-    // 2.8.设置应用程序图标右上角的数字
-    localNote.applicationIconBadgeNumber = 0;
-    
-    // 2.9.设置额外信息
     localNote.userInfo = @{@"type" : @1};
-    
-    // 3.调用通知
     [[UIApplication sharedApplication] scheduleLocalNotification:localNote];
-    
 }
 
 -(void)dealloc {

@@ -20,11 +20,6 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
-    NSLog(@"launchOptions: %@",launchOptions);
-    
-    // Override point for customization after application launch.
-    NSLog(@"%@", NSHomeDirectory());
-    
     //root vc
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     MainTableViewController *vc = [[MainTableViewController alloc] init];
