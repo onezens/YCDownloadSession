@@ -408,39 +408,11 @@ NSString *_userIdentify;
     
     task.downloadStatus = status;
     [self saveDownloadStatus];
-    switch (status) {
-        case YCDownloadStatusWaiting:
-            break;
-        case YCDownloadStatusDownloading:
-            break;
-        case YCDownloadStatusPaused:
-            break;
-        case YCDownloadStatusFailed:
-            break;
-        case YCDownloadStatusFinished:
-            [self startNextDownloadTask];
-            task.downloadedSize = task.fileSize;
-            break;
-        default:
-            break;
-    }
-    
     if ([task.delegate respondsToSelector:@selector(downloadStatusChanged:downloadTask:)]) {
         [task.delegate downloadStatusChanged:status downloadTask:task];
     }
-    
     [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadStatusChangedNoti object:nil];
-    
-    //等task delegate方法执行完成后去判断该逻辑
-    //URLSessionDidFinishEventsForBackgroundURLSession 方法在后台执行一次，所以在此判断执行completedHandler
-    if (status == YCDownloadStatusFinished) {
-        
-        if ([self allTaskFinised]) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadAllTaskFinishedNoti object:nil];
-            //所有的任务执行结束之后调用completedHanlder
-            [self callBgCompletedHandler];
-        }
-    }
+    if (status == YCDownloadStatusFinished) [self startNextDownloadTask];
 }
 
 - (BOOL)allTaskFinised {
@@ -710,15 +682,21 @@ didFinishDownloadingToURL:(NSURL *)location {
         [self downloadStatusChanged:YCDownloadStatusFailed task:task];
         //删除异常的缓存文件
         [[NSFileManager defaultManager] removeItemAtPath:locationString error:nil];
+        NSLog(@"[Download Finished] Error: file size error!");
         return;
     }
     task.downloadedSize = task.fileSize;
     task.downloadTask = nil;
     [[NSFileManager defaultManager] moveItemAtPath:locationString toPath:task.savePath error:&error];
-    if (task.downloadURL.length != 0) {
-        [self.downloadTasks setObject:task forKey:task.taskId];
-    }
+    [self.downloadTasks setValue:task forKey:task.taskId];
     [self downloadStatusChanged:YCDownloadStatusFinished task:task];
+    
+    //URLSessionDidFinishEventsForBackgroundURLSession 方法在后台执行一次，所以在此判断执行completedHandler
+    if ([self allTaskFinised]) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadAllTaskFinishedNoti object:nil];
+        //所有的任务执行结束之后调用completedHanlder
+        [self callBgCompletedHandler];
+    }
 }
 
 - (void)URLSession:(NSURLSession *)session

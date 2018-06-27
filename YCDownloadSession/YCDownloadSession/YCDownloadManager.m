@@ -13,8 +13,6 @@
 @interface YCDownloadManager ()
 
 @property (nonatomic, strong) NSMutableDictionary *itemsDictM;
-/**本地通知开关，默认关,一般用于测试。可以根据通知名称，自定义*/
-@property (nonatomic, assign) BOOL localPushOn;
 
 @end
 
@@ -67,7 +65,6 @@ static id _instance;
 - (void)addNotification {
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(saveDownloadItems) name:kDownloadStatusChangedNoti object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadAllTaskFinished) name:kDownloadAllTaskFinishedNoti object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadTaskFinishedNoti:) name:kDownloadTaskFinishedNoti object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(saveDownloadItems) name:kDownloadNeedSaveDataNoti object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadUserChanged) name:kDownloadUserIdentifyChanged object:nil];
@@ -144,10 +141,6 @@ static id _instance;
 
 +(void)allowsCellularAccess:(BOOL)isAllow {
     [YCDownloadMgr allowsCellularAccess:isAllow];
-}
-
-+(void)localPushOn:(BOOL)isOn {
-    [YCDownloadMgr localPushOn:isOn];
 }
 
 
@@ -336,41 +329,14 @@ static id _instance;
     return item.downloadStatus;
 }
 
-- (void)localPushOn:(BOOL)isOn {
-    self.localPushOn = isOn;
-}
 
-#pragma mark notificaton
+#pragma mark - notificaton
 
-- (void)downloadAllTaskFinished{
-    [self localPushWithTitle:@"YCDownloadSession" detail:@"所有的下载任务已完成！"];
-}
 
 - (void)downloadTaskFinishedNoti:(NSNotification *)noti{
-    
-    YCDownloadItem *item = noti.object;
-    if (item) {
-        NSString *detail = [NSString stringWithFormat:@"%@ 视频，已经下载完成！", item.fileName];
-        [self localPushWithTitle:@"YCDownloadSession" detail:detail];
-    }
     [self saveDownloadItems];
 }
 
-
-#pragma mark local push
-
-- (void)localPushWithTitle:(NSString *)title detail:(NSString *)body  {
-    
-    if (!self.localPushOn || title.length == 0) return;
-    UILocalNotification *localNote = [[UILocalNotification alloc] init];
-    localNote.fireDate = [NSDate dateWithTimeIntervalSinceNow:3.0];
-    localNote.alertBody = body;
-    localNote.alertAction = @"滑动来解锁";
-    localNote.hasAction = NO;
-    localNote.soundName = @"default";
-    localNote.userInfo = @{@"type" : @1};
-    [[UIApplication sharedApplication] scheduleLocalNotification:localNote];
-}
 
 -(void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];

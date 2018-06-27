@@ -57,8 +57,6 @@
         //切换用户，这里最好使用get方法
         return @"10002";
     }];
-    
-
 }
 
 - (void)setUpBugly {
@@ -70,7 +68,6 @@
     [Bugly startWithAppId:@"900036376" config:config];
 }
 
-
 -(void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler{
     NSLog(@"%s", __func__);
     [[YCDownloadSession downloadSession] addCompletionHandler:completionHandler identifier:identifier];
@@ -78,9 +75,39 @@
 
 
 - (void)applicationWillResignActive:(UIApplication *)application {
-    [YCDownloadMgr setGetUserIdentify:^NSString *{
-        return @"10001";
-    }];
+    //test code
+//    [YCDownloadMgr setGetUserIdentify:^NSString *{
+//        return @"10001";
+//    }];
 }
+
+
+#pragma mark - download push
+
+- (void)localPushWithTitle:(NSString *)title detail:(NSString *)body  {
+    
+    UILocalNotification *localNote = [[UILocalNotification alloc] init];
+    localNote.fireDate = [NSDate dateWithTimeIntervalSinceNow:3.0];
+    localNote.alertBody = body;
+    localNote.alertAction = @"滑动来解锁";
+    localNote.hasAction = NO;
+    localNote.soundName = @"default";
+    localNote.userInfo = @{@"type" : @1};
+    [[UIApplication sharedApplication] scheduleLocalNotification:localNote];
+}
+
+- (void)downloadAllTaskFinished{
+    [self localPushWithTitle:@"YCDownloadSession" detail:@"所有的下载任务已完成！"];
+}
+
+- (void)downloadTaskFinishedNoti:(NSNotification *)noti{
+    
+    YCDownloadItem *item = noti.object;
+    if (item) {
+        NSString *detail = [NSString stringWithFormat:@"%@ 视频，已经下载完成！", item.fileName];
+        [self localPushWithTitle:@"YCDownloadSession" detail:detail];
+    }
+}
+
 
 @end

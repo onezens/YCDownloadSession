@@ -164,10 +164,6 @@
  */
 + (BOOL)isAllowsCellularAccess;
 
-/**
- 本地通知的开关，默认是false,可以根据通知名称自定义通知类型
- */
-+ (void)localPushOn:(BOOL)isOn;
 
 
 @end

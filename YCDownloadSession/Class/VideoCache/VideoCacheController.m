@@ -32,7 +32,6 @@ static NSString * const kDefineStartAllTitle = @"开始所有";
     self.cacheVideoList = [NSMutableArray array];
     [self getCacheVideoList];
     [YCDownloadManager setMaxTaskCount:3];
-    [YCDownloadManager localPushOn:true];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:kDefinePauseAllTitle style:UIBarButtonItemStyleDone target:self action:@selector(pauseAll)];
 }
 

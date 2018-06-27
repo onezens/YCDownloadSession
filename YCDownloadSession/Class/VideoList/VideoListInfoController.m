@@ -36,7 +36,6 @@
 }
 
 - (void)getVideoList {
-    
     NSString *dataPath = [[NSBundle mainBundle] pathForResource:@"video.json" ofType:nil];
     NSData *videoData = [[NSData alloc] initWithContentsOfFile:dataPath];
     NSArray *videoArr = [NSJSONSerialization JSONObjectWithData:videoData options:0 error:nil];
@@ -85,7 +84,7 @@
     VideoListInfoModel *model = self.videoListArr[indexPath.row];
     [cell setVideoModel:model];
     cell.delegate = self;
-    [cell setDownloadStatus:[YCDownloadManager downloasStatusWithId:model.file_id]];
+    [cell setDownloadStatus:[YCDownloadManager downloasStatusWithId:model.file_id ? : model.mp4_url]];
     return cell;
 }
 
