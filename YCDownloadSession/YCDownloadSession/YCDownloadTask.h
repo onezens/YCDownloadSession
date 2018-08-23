@@ -9,6 +9,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <CoreData/CoreData.h>
 @class YCDownloadTask;
 
 typedef NS_ENUM(NSUInteger, YCDownloadStatus) {
@@ -16,11 +17,13 @@ typedef NS_ENUM(NSUInteger, YCDownloadStatus) {
     YCDownloadStatusDownloading,
     YCDownloadStatusPaused,
     YCDownloadStatusFinished,
-    YCDownloadStatusFailed
+    YCDownloadStatusFailed,
+    YCDownloadStatusNotExist
 };
 
 /**某一任务下载的状态发生变化的通知*/
 extern NSString * const kDownloadStatusChangedNoti;
+extern NSString * const kDownloadTaskEntityName;
 
 #pragma mark - YCDownloadTaskDelegate
 @protocol YCDownloadTaskDelegate <NSObject>
@@ -64,16 +67,14 @@ extern NSString * const kDownloadStatusChangedNoti;
 
 #pragma mark - YCDownloadTask
 
-@interface YCDownloadTask : NSObject
+@interface YCDownloadTask : NSManagedObject
 
 @property (nonatomic, copy, readonly) NSString *taskId;
 @property (nonatomic, copy, readonly) NSString *downloadURL;
-/**文件标识，可以为空。要想同- downloadURL文件重复下载，可以让fileId不同*/
 @property (nonatomic, copy, readonly) NSString *fileId;
+@property (nonatomic, copy) NSString *saveName;
 @property (nonatomic, strong) NSData *resumeData;
 @property (nonatomic, assign) YCDownloadStatus downloadStatus;
-/**文件本地存储名称*/
-@property (nonatomic, copy) NSString *saveName;
 /**下载文件的存储路径，没有下载完成时，该路径下没有文件*/
 @property (nonatomic, copy) NSString *savePath;
 /**判断文件是否下载完成，savePath路径下存在该文件为true，否则为false*/
@@ -90,7 +91,6 @@ extern NSString * const kDownloadStatusChangedNoti;
  是否 不需要下载下一个任务的标识，用来区分全部暂停和单个任务暂停后的操作
  */
 @property (nonatomic, assign) BOOL noNeedToStartNext;
-/** resumeData tmp name */
 @property (nonatomic, copy) NSString *tmpName;
 @property (nonatomic, copy) NSString *tempPath;
 @property (nonatomic, weak) id <YCDownloadTaskDelegate>delegate;

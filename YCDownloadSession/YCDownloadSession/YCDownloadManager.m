@@ -9,13 +9,10 @@
 //
 
 #import "YCDownloadManager.h"
+#import "YCDownloadDB.h"
 
 @interface YCDownloadManager ()
-
-@property (nonatomic, strong) NSMutableDictionary *itemsDictM;
-/**本地通知开关，默认关,一般用于测试。可以根据通知名称，自定义*/
 @property (nonatomic, assign) BOOL localPushOn;
-
 @end
 
 @implementation YCDownloadManager
@@ -34,29 +31,13 @@ static id _instance;
 
 - (instancetype)init {
     if (self = [super init]) {
-        [self initDownloadData];
         [self addNotification];
     }
     return self;
 }
 
-- (void)initDownloadData {
-    [self getDownloadItems];
-    if(!self.itemsDictM) self.itemsDictM = [NSMutableDictionary dictionary];
-}
-
 - (void)saveDownloadItems {
-    dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        NSLock *saveLock = [[NSLock alloc] init];
-        [saveLock lock];
-        [NSKeyedArchiver archiveRootObject:self.itemsDictM toFile:[self downloadItemSavePath]];
-        [saveLock unlock];
-    });
-}
-
-- (void)getDownloadItems {
-    NSMutableDictionary *items = [NSKeyedUnarchiver unarchiveObjectWithFile:[self downloadItemSavePath]];;
-    self.itemsDictM = items;
+    [[YCDownloadDB sharedDB] save];
 }
 
 - (NSString *)downloadItemSavePath {
@@ -124,22 +105,25 @@ static id _instance;
 }
 
 + (NSArray *)downloadList {
-    return [YCDownloadMgr downloadList];
+    return [[YCDownloadDB sharedDB] fetchAllDownloadingItem];
 }
 + (NSArray *)finishList {
-    return [YCDownloadMgr finishList];
+    return [[YCDownloadDB sharedDB] fetchAllDownloadedItem];
 }
 
-+ (BOOL)isDownloadWithId:(NSString *)downloadId {
-    return [YCDownloadMgr isDownloadWithId:downloadId];
++ (BOOL)isDownloadWithId:(NSString *)tid {
+    return [self downloadItemWithId:tid] != nil;
 }
 
-+ (YCDownloadStatus)downloasStatusWithId:(NSString *)downloadId {
-    return [YCDownloadMgr downloasStatusWithId:downloadId];
++ (YCDownloadStatus)downloasStatusWithId:(NSString *)tid {
+    YCDownloadItem *item = [self downloadItemWithId:tid];
+    return item ? item.downloadStatus : YCDownloadStatusNotExist;
 }
 
-+ (YCDownloadItem *)downloadItemWithId:(NSString *)downloadId {
-    return [YCDownloadMgr itemWithIdentifier:downloadId];
++ (YCDownloadItem *)downloadItemWithId:(NSString *)tid {
+    YCDownloadItem *item = [[YCDownloadDB sharedDB] itemWithFid:tid];
+    if (!item) item = [[YCDownloadDB sharedDB] itemWithUrl:tid];
+    return item;
 }
 
 +(void)allowsCellularAccess:(BOOL)isAllow {
@@ -156,11 +140,14 @@ static id _instance;
 - (void)setGetUserIdentify:(GetUserIdentifyBlk)getUserIdentify {
      [YCDownloadSession setUserIdentify:getUserIdentify];
     _getUserIdentify = getUserIdentify;
-    [self initDownloadData];
 }
 
 - (void)setMaxTaskCount:(NSInteger)count{
     [YCDownloadSession downloadSession].maxTaskCount = count;
+}
+
+- (void)downloadUserChanged {
+    
 }
 
 #pragma mark tools
@@ -180,7 +167,6 @@ static id _instance;
         size += task.fileSize;
     }
     return size;
-    
 }
 
 + (void)saveDownloadStatus {
@@ -189,15 +175,11 @@ static id _instance;
 
 #pragma mark - private
 
-- (void)downloadUserChanged{
-    [self initDownloadData];
-}
-
 - (void)startDownloadWithItem:(YCDownloadItem *)item priority:(float)priority{
     if(!item) return;
-    YCDownloadItem *oldItem = [self itemWithIdentifier:item.taskId];
+    YCDownloadItem *oldItem = [[YCDownloadDB sharedDB] itemWithTaskId:item.taskId];
     if (oldItem.downloadStatus == YCDownloadStatusFinished) return;
-    [self.itemsDictM setValue:item forKey:item.taskId];
+    [[YCDownloadDB sharedDB] save];
     YCDownloadTask *task =  [YCDownloadSession.downloadSession startDownloadWithUrl:item.downloadUrl fileId:item.fileId delegate:item priority:priority];
     task.enableSpeed = item.enableSpeed;
 }
@@ -208,16 +190,31 @@ static id _instance;
 
 //下载文件时候的保存名称，如果没有fileid那么必须 savename = nil
 - (NSString *)saveNameForItem:(YCDownloadItem *)item {
-    
     NSString *saveName = [item.downloadUrl isEqualToString:item.fileId] ? nil : item.fileId;
     return saveName;
+}
+
+- (YCDownloadItem *)itemWithTaskId:(NSString *)taskId {
+    NSArray *items = [[YCDownloadDB sharedDB] fetchAllDownloadItem];
+    __block YCDownloadItem *item = nil;
+    [items enumerateObjectsUsingBlock:^(YCDownloadItem *obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if ([obj.taskId isEqualToString:taskId]) {
+            item = obj;
+            *stop = true;
+        }
+    }];
+    return item;
+}
+
+- (void)removeItemWithTaskId:(NSString *)taskId {
+    
 }
 
 - (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName imageUrl:(NSString *)imagUrl fileId:(NSString *)fileId{
     
     if (downloadURLString.length == 0 && fileId.length == 0) return;
     NSString *taskId = [YCDownloadTask taskIdForUrl:downloadURLString fileId:fileId];
-    YCDownloadItem *item = [self.itemsDictM valueForKey:taskId];
+    YCDownloadItem *item = [self itemWithTaskId:taskId];
     if (item == nil) {
         item = [[YCDownloadItem alloc] initWithUrl:downloadURLString fileId:fileId];
     }
@@ -233,7 +230,6 @@ static id _instance;
     [self saveDownloadItems];
 }
 
-
 - (void)pauseDownloadWithItem:(YCDownloadItem *)item {
     [YCDownloadSession.downloadSession pauseDownloadWithTaskId:item.taskId];
     [self saveDownloadItems];
@@ -242,7 +238,7 @@ static id _instance;
 - (void)stopDownloadWithItem:(YCDownloadItem *)item {
     if (item == nil )  return;
     [YCDownloadSession.downloadSession stopDownloadWithTaskId: item.taskId];
-    [self.itemsDictM removeObjectForKey:item.taskId];
+    [self removeItemWithTaskId:item.taskId];
     [self saveDownloadItems];
 }
 
@@ -251,67 +247,17 @@ static id _instance;
 }
 
 - (void)removeAllCache {
-    [self.itemsDictM.copy enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, YCDownloadItem *  _Nonnull obj, BOOL * _Nonnull stop) {
-        [self stopDownloadWithItem:obj];
-    }];
+    [self pauseAllDownloadTask];
+    [[YCDownloadDB sharedDB] removeAllItems];
 }
 
 - (void)resumeAllDownloadTask{
-    [self.itemsDictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        YCDownloadItem *item = obj;
+    NSArray <YCDownloadItem *> *downloading = [[YCDownloadDB sharedDB] fetchAllDownloadingItem];
+    [downloading enumerateObjectsUsingBlock:^(YCDownloadItem *item, NSUInteger idx, BOOL * _Nonnull stop) {
         if (item.downloadStatus == YCDownloadStatusPaused || item.downloadStatus == YCDownloadStatusFailed) {
             [self resumeDownloadWithItem:item];
         }
     }];
-}
-
--(NSArray *)downloadList {
-    NSMutableArray *arrM = [NSMutableArray array];
-    
-    [self.itemsDictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        YCDownloadItem *item = obj;
-        if(item.downloadStatus != YCDownloadStatusFinished){
-            [arrM addObject:item];
-        }
-    }];
-    
-    return arrM;
-}
-- (NSArray *)finishList {
-    NSMutableArray *arrM = [NSMutableArray array];
-    [self.itemsDictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        YCDownloadItem *item = obj;
-        if(item.downloadStatus == YCDownloadStatusFinished){
-            [arrM addObject:item];
-        }
-    }];
-    return arrM;
-}
-
-/**id 可以是downloadUrl，也可以是fileId，首先从fileId开始找，然后downloadUrl*/
-
-- (YCDownloadItem *)itemWithIdentifier:(NSString *)identifier {
-    __block YCDownloadItem *item = [self.itemsDictM valueForKey:identifier];
-    if (item) return item;
-    [self.itemsDictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        YCDownloadItem *dItem = obj;
-        if([dItem.fileId isEqualToString:identifier]){
-            item = dItem;
-            *stop = true;
-        }
-    }];
-    
-    if(item) return item;
-    
-    [self.itemsDictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        YCDownloadItem *dItem = obj;
-        if([dItem.downloadUrl isEqualToString:identifier]){
-            item = dItem;
-            *stop = true;
-        }
-    }];
-    
-    return item;
 }
 
 -(void)allowsCellularAccess:(BOOL)isAllow {
@@ -320,20 +266,6 @@ static id _instance;
 
 - (BOOL)isAllowsCellularAccess {
     return [[YCDownloadSession downloadSession] isAllowsCellularAccess];
-}
-
-- (BOOL)isDownloadWithId:(NSString *)downloadId {
-    
-    YCDownloadItem *item = [self itemWithIdentifier:downloadId];
-    return item != nil;
-}
-
-- (YCDownloadStatus)downloasStatusWithId:(NSString *)downloadId {
-    YCDownloadItem *item = [self itemWithIdentifier:downloadId];
-    if (!item) {
-        return -1;
-    }
-    return item.downloadStatus;
 }
 
 - (void)localPushOn:(BOOL)isOn {

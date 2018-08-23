@@ -105,29 +105,25 @@
  */
 + (void)resumeAllDownloadTask;
 
-
 /**
  清空所有的下载文件缓存，YCDownloadManager所管理的所有文件，不包括YCDownloadSession单独下载的文件
  */
 + (void)removeAllCache;
 
 /**
- 根据 downloadId 判断该下载是否已经创建
- @param downloadId 创建的下载任务的标识。如果有fileId使用fileId
+ 根据 tid 判断该下载是否已经创建, tid可以是: fileId, downloadUrl
  */
-+ (BOOL)isDownloadWithId:(NSString *)downloadId;
++ (BOOL)isDownloadWithId:(NSString *)tid;
 
 /**
- 根据 downloadId 获取该资源的下载状态
- @param downloadId 创建的下载任务的标识。如果有fileId使用fileId
+ 根据 taskId 获取该资源的下载状态, tid可以是: fileId, downloadUrl
  */
-+ (YCDownloadStatus)downloasStatusWithId:(NSString *)downloadId;
++ (YCDownloadStatus)downloasStatusWithId:(NSString *)tid;
 
 /**
- 根据 downloadId 获取该资源的下载详细信息
- @param downloadId 创建的下载任务的标识。如果有fileId使用fileId
+ 根据 taskId 获取该资源的下载详细信息, tid可以是: fileId, downloadUrl
  */
-+ (YCDownloadItem *)downloadItemWithId:(NSString *)downloadId;
++ (YCDownloadItem *)downloadItemWithId:(NSString *)tid;
 
 /**
  获取所有的未完成的下载item
@@ -139,9 +135,8 @@
  */
 + (NSArray *)finishList;
 
-
 /**
- 获取所有下载数据所占用的磁盘空间
+ 获取所有下载数据所占用的磁盘空间，不包括YCDownloadSession单独下载的文件
  */
 + (NSUInteger)videoCacheSize;
 

@@ -13,18 +13,46 @@
 #import "YCDownloadSession.h"
 
 NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
+NSString * const kDownloadTaskEntityName = @"YCDownloadTask";
 
 @interface YCDownloadTask()
 {
     NSString *_saveName;
     float _priority;
     NSUInteger _preDownloadedSize;
+    NSString *_fileId;
+    NSString *_downloadURL;
+    NSString *_compatibleKey;
+    NSUInteger _fileSize;
+    NSUInteger _downloadedSize;
+    YCDownloadStatus _downloadStatus;
+    NSTimer *_timer;
+    
 }
-
-@property (nonatomic, strong) NSTimer *timer;
 @end
 
 @implementation YCDownloadTask
+
+@dynamic taskId;
+@dynamic downloadURL;
+@dynamic fileId;
+@dynamic resumeData;
+@dynamic downloadStatus;
+@dynamic saveName;
+@dynamic downloadFinished;
+@dynamic fileSize;
+@dynamic downloadedSize;
+@dynamic compatibleKey;
+@dynamic priority;
+@dynamic enableSpeed;
+@dynamic saveFileType;
+@synthesize delegate = _delegate;
+@synthesize downloadTask = _downloadTask;
+@synthesize tmpName = _tmpName;
+@synthesize tempPath = _tempPath;
+@synthesize needToRestart = _needToRestart;
+@synthesize noNeedToStartNext = _noNeedToStartNext;
+@synthesize savePath = _savePath;
 
 - (instancetype)init {
     if (self = [super init]) {
@@ -61,14 +89,14 @@ NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
 
 - (void)pause {
     [YCDownloadSession.downloadSession pauseDownloadWithTask:self];
-    if (self.timer) {
+    if (_timer) {
         [self stopTimer];
     }
 }
 
 - (void)remove {
     [YCDownloadSession.downloadSession stopDownloadWithTask:self];
-    if (self.timer) {
+    if (_timer) {
         [self stopTimer];
     }
 }
@@ -76,7 +104,7 @@ NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
 
 - (void)downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize {
     _downloadedSize = downloadedSize;
-    if (!self.timer && self.delegate) {
+    if (!_timer && self.delegate) {
         [self startTimer];
     }
 }
@@ -97,7 +125,7 @@ NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
 
 -(void)setDownloadStatus:(YCDownloadStatus)downloadStatus {
     _downloadStatus = downloadStatus;
-    if(self.timer && (downloadStatus == YCDownloadStatusPaused || downloadStatus == YCDownloadStatusFailed || downloadStatus == YCDownloadStatusFinished)) {
+    if(_timer && (downloadStatus == YCDownloadStatusPaused || downloadStatus == YCDownloadStatusFailed || downloadStatus == YCDownloadStatusFinished)) {
         [self stopTimer];
     }
 }
@@ -189,15 +217,15 @@ NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
 
 
 - (void)startTimer {
-    self.timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(timerCall) userInfo:nil repeats:true];
-    [self.timer fire];
+    _timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(timerCall) userInfo:nil repeats:true];
+    [_timer fire];
     [[NSRunLoop currentRunLoop] addTimer:_timer forMode:NSDefaultRunLoopMode];
     [[NSRunLoop currentRunLoop] run];
 }
 
 - (void)stopTimer {
-    [self.timer invalidate];
-    self.timer = nil;
+    [_timer invalidate];
+    _timer = nil;
 }
 
 - (void)timerCall {
@@ -206,40 +234,6 @@ NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
     if ([self.delegate respondsToSelector:@selector(downloadTask:speed:speedDesc:)]) {
         [self.delegate downloadTask:self speed:speed speedDesc:[NSString stringWithFormat:@"%@/s",[YCDownloadUtils fileSizeStringFromBytes:speed]]];
     }
-}
-
-///  解档
-- (instancetype)initWithCoder:(NSCoder *)coder
-{
-    if (self = [super init]) {
-        unsigned int count = 0;
-        Ivar *ivars = class_copyIvarList([self class], &count);
-        for (NSInteger i=0; i<count; i++) {
-            Ivar ivar = ivars[i];
-            NSString *name = [[NSString alloc] initWithUTF8String:ivar_getName(ivar)];
-            if ([name isEqualToString:@"_downloadTask"] || [name isEqualToString:@"_delegate"] || [name isEqualToString:@"_timer"]) continue;
-            id value = [coder decodeObjectForKey:name];
-            if(value) [self setValue:value forKey:name];
-        }
-        free(ivars);
-    }
-    return self;
-}
-
-///  归档
-- (void)encodeWithCoder:(NSCoder *)coder
-{
-    unsigned int count = 0;
-    Ivar *ivars = class_copyIvarList([self class], &count);
-    for (NSInteger i=0; i<count; i++) {
-        
-        Ivar ivar = ivars[i];
-        NSString *name = [[NSString alloc] initWithUTF8String:ivar_getName(ivar)];
-        if ([name isEqualToString:@"_downloadTask"] || [name isEqualToString:@"_delegate"] || [name isEqualToString:@"_timer"]) continue;
-        id value = [self valueForKey:name];
-        if(value) [coder encodeObject:value forKey:name];
-    }
-    free(ivars);
 }
 
 + (NSString *)getPathExtensionWithUrl:(NSString *)url {
@@ -252,7 +246,6 @@ NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
 }
 
 -(void)dealloc {
-    NSLog(@"%s", __func__);
     [self stopTimer];
 }
 
@@ -311,12 +304,8 @@ static NSString * const kNSURLSessionResumeServerDownloadDate = @"NSURLSessionRe
         NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
         _downloadDate = [formatter dateFromString:downloadDate];
         
-        id obj = [NSKeyedUnarchiver unarchiveObjectWithData:currentReqData];
-        id obj2= [NSKeyedUnarchiver unarchiveObjectWithData:originalReqData];
-//        id obj3 = [NSPropertyListSerialization propertyListWithData:currentReqData options:0 format:0 error:nil];
-        NSLog(@"%@", [obj class]);
-        NSLog(@"%@", [obj2 class]);
-        NSLog(@"--------->resumeRange:  %@", resumeRange);
+        [NSKeyedUnarchiver unarchiveObjectWithData:currentReqData];
+        [NSKeyedUnarchiver unarchiveObjectWithData:originalReqData];
     }
 }
 

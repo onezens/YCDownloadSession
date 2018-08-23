@@ -11,24 +11,45 @@
 #import "YCDownloadItem.h"
 #import <objc/runtime.h>
 #import "YCDownloadSession.h"
+#import "YCDownloadDB.h"
 
 NSString * const kDownloadTaskFinishedNoti = @"kDownloadTaskFinishedNoti";
 NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti";
+NSString * const kDownloadItemStoreEntity  = @"YCDownloadItem";
+
+@interface YCDownloadItem()
+{
+    NSString *_taskId;
+    NSString *_fileId;
+    NSString *_downloadUrl;
+}
+
+@end
 
 @implementation YCDownloadItem
 
+@dynamic fileId;
+@dynamic taskId;
+@dynamic downloadUrl;
+@dynamic enableSpeed;
+@dynamic fileName;
+@dynamic thumbImageUrl;
+@dynamic saveFileType;
+@dynamic extraData;
+@dynamic downloadStatus;
+@synthesize delegate = _delegate;
 #pragma mark - init
--(instancetype)initWithUrl:(NSString *)url fileId:(NSString *)fileId {
-    
-    if (self = [super init]) {
+
+
+- (instancetype)initWithUrl:(NSString *)url fileId:(NSString *)fileId {
+    if (self = [super initWithContext:[YCDownloadDB sharedDB].context]) {
         _downloadUrl = url;
         _fileId = fileId;
         _taskId = [YCDownloadTask taskIdForUrl:url fileId:fileId];
-        _compatibleKey = [YCDownloadSession downloadSession].downloadVersion;
     }
     return self;
 }
-+(instancetype)itemWithUrl:(NSString *)url fileId:(NSString *)fileId {
++ (instancetype)itemWithUrl:(NSString *)url fileId:(NSString *)fileId {
     return [[YCDownloadItem alloc] initWithUrl:url fileId:fileId];
 }
 
@@ -54,15 +75,16 @@ NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti";
     [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadNeedSaveDataNoti object:nil userInfo:nil];
 }
 
-
 - (void)downloadTask:(YCDownloadTask *)task speed:(NSUInteger)speed speedDesc:(NSString *)speedDesc {
-    
     if ([self.delegate respondsToSelector:@selector(downloadItem:speed:speedDesc:)]) {
         [self.delegate downloadItem:self speed:speed speedDesc:speedDesc];
     }
-    
 }
 #pragma mark - public
+
+- (NSString *)compatibleKey {
+    return [YCDownloadSession downloadSession].downloadVersion;
+}
 
 - (NSString *)saveName {
     YCDownloadTask *task = [[YCDownloadSession downloadSession] taskForTaskId:_taskId];
@@ -92,65 +114,6 @@ NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti";
 - (NSUInteger)fileSize {
     YCDownloadTask *task = [[YCDownloadSession downloadSession] taskForTaskId:_taskId];
     return task.fileSize;
-}
-
-#pragma mark - private
-
-///  解档
-- (instancetype)initWithCoder:(NSCoder *)coder
-{
-    if (self = [super init]) {
-        
-        [self decoderWithCoder:coder class:[self class]];
-        if (![NSStringFromClass(self.superclass) isEqualToString:NSStringFromClass([NSObject class])]) {
-            [self decoderWithCoder:coder class:self.superclass];
-        }
-    }
-    return self;
-}
-
-- (void)decoderWithCoder:(NSCoder *)coder class:(Class)cls {
-    unsigned int count = 0;
-    
-    Ivar *ivars = class_copyIvarList(cls, &count);
-    
-    for (NSInteger i=0; i<count; i++) {
-        
-        Ivar ivar = ivars[i];
-        NSString *name = [[NSString alloc] initWithUTF8String:ivar_getName(ivar)];
-        if([name isEqualToString:@"_delegate"]) continue;
-        id value = [coder decodeObjectForKey:name];
-        if(value) [self setValue:value forKey:name];
-    }
-    
-    free(ivars);
-}
-
-
-///  归档
-- (void)encodeWithCoder:(NSCoder *)coder
-{
-    [self encodeWithCoder:coder class:[self class]];
-    if (![NSStringFromClass(self.superclass) isEqualToString:NSStringFromClass([NSObject class])]) {
-        [self encodeWithCoder:coder class:self.superclass];
-    }
-}
-
-- (void)encodeWithCoder:(NSCoder *)coder class:(Class)cls {
-    unsigned int count = 0;
-    
-    Ivar *ivars = class_copyIvarList(cls, &count);
-    
-    for (NSInteger i=0; i<count; i++) {
-        
-        Ivar ivar = ivars[i];
-        NSString *name = [[NSString alloc] initWithUTF8String:ivar_getName(ivar)];
-        if([name isEqualToString:@"_delegate"]) continue;
-        id value = [self valueForKey:name];
-        if(value) [coder encodeObject:value forKey:name];
-    }
-    
-    free(ivars);
 }
 
 
