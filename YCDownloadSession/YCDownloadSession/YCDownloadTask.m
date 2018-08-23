@@ -8,9 +8,10 @@
 //  Github:     https://github.com/onezens/YCDownloadSession
 //
 
+#import "YCDownloadDB.h"
 #import "YCDownloadTask.h"
-#import <objc/runtime.h>
 #import "YCDownloadSession.h"
+#import <objc/runtime.h>
 
 NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
 NSString * const kDownloadTaskEntityName = @"YCDownloadTask";
@@ -21,12 +22,14 @@ NSString * const kDownloadTaskEntityName = @"YCDownloadTask";
     float _priority;
     NSUInteger _preDownloadedSize;
     NSString *_fileId;
+    NSString *_taskId;
     NSString *_downloadURL;
     NSString *_compatibleKey;
     NSUInteger _fileSize;
     NSUInteger _downloadedSize;
     YCDownloadStatus _downloadStatus;
     NSTimer *_timer;
+    BOOL _enableSpeed;
     
 }
 @end
@@ -55,18 +58,18 @@ NSString * const kDownloadTaskEntityName = @"YCDownloadTask";
 @synthesize savePath = _savePath;
 
 - (instancetype)init {
-    if (self = [super init]) {
-        _priority = NSURLSessionTaskPriorityDefault;
-    }
-    return self;
+    NSAssert(false, @"use - (instancetype)initWithUrl:(NSString *)url fileId:(NSString *)fileId delegate:(id<YCDownloadTaskDelegate>)delegate");
+    return nil;
 }
 
 - (instancetype)initWithUrl:(NSString *)url fileId:(NSString *)fileId delegate:(id<YCDownloadTaskDelegate>)delegate {
     
-    if(self = [super init]){
+    if(self = [super initWithContext:[YCDownloadDB sharedDB].context]){
         _downloadURL = url;
         _fileId = fileId;
         _delegate = delegate;
+        _taskId = [YCDownloadTask taskIdForUrl:self.downloadURL fileId:self.fileId];;
+        _priority = NSURLSessionTaskPriorityDefault;
         _compatibleKey = [YCDownloadSession downloadSession].downloadVersion;
     }
     return self;
@@ -79,23 +82,22 @@ NSString * const kDownloadTaskEntityName = @"YCDownloadTask";
 #pragma mark - public
 
 - (void)updateTask {
-    
     _fileSize = (NSInteger)[_downloadTask.response expectedContentLength];
 }
 
 - (void)resume {
-    [YCDownloadSession.downloadSession resumeDownloadWithTask:self];
+    [YCDownloadSession.downloadSession resumeDownloadTask:self];
 }
 
 - (void)pause {
-    [YCDownloadSession.downloadSession pauseDownloadWithTask:self];
+    [YCDownloadSession.downloadSession pauseDownloadTask:self];
     if (_timer) {
         [self stopTimer];
     }
 }
 
 - (void)remove {
-    [YCDownloadSession.downloadSession stopDownloadWithTask:self];
+    [YCDownloadSession.downloadSession stopDownloadTask:self];
     if (_timer) {
         [self stopTimer];
     }
@@ -123,12 +125,22 @@ NSString * const kDownloadTaskEntityName = @"YCDownloadTask";
     downloadTask.priority = _priority;
 }
 
+- (YCDownloadStatus)downloadStatus {
+    return _downloadStatus;
+}
 -(void)setDownloadStatus:(YCDownloadStatus)downloadStatus {
     _downloadStatus = downloadStatus;
     if(_timer && (downloadStatus == YCDownloadStatusPaused || downloadStatus == YCDownloadStatusFailed || downloadStatus == YCDownloadStatusFinished)) {
         [self stopTimer];
     }
 }
+- (void)setEnableSpeed:(BOOL)enableSpeed {
+    _enableSpeed = enableSpeed;
+}
+- (BOOL)enableSpeed {
+    return _enableSpeed;
+}
+
 #pragma mark - getter
 
 - (float)priority {
@@ -146,7 +158,7 @@ NSString * const kDownloadTaskEntityName = @"YCDownloadTask";
 }
 
 -(NSString *)taskId {
-    return [YCDownloadTask taskIdForUrl:self.downloadURL fileId:self.fileId];
+    return _taskId;
 }
 
 - (NSString *)savePath {
@@ -175,7 +187,6 @@ NSString * const kDownloadTaskEntityName = @"YCDownloadTask";
 
 - (void)setSaveName:(NSString *)saveName {
     _saveName = saveName;
-    [YCDownloadSession.downloadSession saveDownloadStatus];
 }
 
 + (NSString *)taskIdForUrl:(NSString *)url fileId:(NSString *)fileId {

@@ -31,13 +31,13 @@ NSString * const kDownloadItemStoreEntity  = @"YCDownloadItem";
 @dynamic fileId;
 @dynamic taskId;
 @dynamic downloadUrl;
-@dynamic enableSpeed;
 @dynamic fileName;
 @dynamic thumbImageUrl;
 @dynamic saveFileType;
 @dynamic extraData;
 @dynamic downloadStatus;
 @synthesize delegate = _delegate;
+@synthesize enableSpeed = _enableSpeed;
 #pragma mark - init
 
 
@@ -115,6 +115,5 @@ NSString * const kDownloadItemStoreEntity  = @"YCDownloadItem";
     YCDownloadTask *task = [[YCDownloadSession downloadSession] taskForTaskId:_taskId];
     return task.fileSize;
 }
-
 
 @end

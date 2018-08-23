@@ -64,6 +64,8 @@
     return result;
 }
 
+#pragma mark - items
+
 - (NSArray *)fetchAllDownloadItem {
     __block NSArray *items = nil;
     [self performTask:^BOOL{
@@ -170,4 +172,67 @@
         return [self save];;
     } sync:false];
 }
+
+
+#pragma mark - tasks
+
+- (NSArray <YCDownloadTask *> *)fetchAllDownloadTasks {
+    __block NSArray *tasks = nil;
+    [self performTask:^BOOL{
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:kDownloadTaskEntityName];
+        NSError *error = nil;
+        NSArray *results = [self->_context executeFetchRequest:fetchRequest error:&error];
+        if (error) return false;
+        tasks = results;
+        return true;
+    } sync:true];
+    return tasks;
+}
+- (YCDownloadTask *)taskWithTid:(NSString *)tid {
+    __block YCDownloadTask *task = nil;
+    [self performTask:^BOOL{
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:kDownloadTaskEntityName];
+        fetchRequest.predicate = [NSPredicate predicateWithFormat:@"taskId == %@",tid];
+        NSError *error = nil;
+        NSArray *results = [self->_context executeFetchRequest:fetchRequest error:&error];
+        if (error) return false;
+        task = results.firstObject;
+        return true;
+    } sync:true];
+    return task;
+}
+- (YCDownloadTask *)taskWithUrl:(NSString *)url {
+    __block YCDownloadTask *task = nil;
+    [self performTask:^BOOL{
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:kDownloadTaskEntityName];
+        fetchRequest.predicate = [NSPredicate predicateWithFormat:@"downloadURL == %@",url];
+        NSError *error = nil;
+        NSArray *results = [self->_context executeFetchRequest:fetchRequest error:&error];
+        if (error) return false;
+        task = results.firstObject;
+        return true;
+    } sync:true];
+    return task;
+}
+- (void)removeAllTasks {
+    [self performTask:^BOOL{
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:kDownloadTaskEntityName];
+        NSError *error = nil;
+        NSArray <YCDownloadTask *> *results = [self->_context executeFetchRequest:fetchRequest error:&error];
+        if (error) return false;
+        [results enumerateObjectsUsingBlock:^(YCDownloadTask * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            [self->_context deleteObject:obj];
+        }];
+        return [self save];
+    } sync:false];
+}
+- (void)removeTask:(YCDownloadTask *)task {
+    if(!task) return;
+    [self performTask:^BOOL{
+        [self->_context deleteObject:task];
+        return [self save];
+    } sync:false];
+}
+
+
 @end

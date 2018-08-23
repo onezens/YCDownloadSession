@@ -78,21 +78,21 @@ typedef NSString * (^SetSaveRootPathBlk)(void);
  
  @param task 下载task
  */
-- (void)pauseDownloadWithTask:(YCDownloadTask *)task;
+- (void)pauseDownloadTask:(YCDownloadTask *)task;
 
 /**
  继续开始一个后台下载任务
  
  @param task 下载task
  */
-- (void)resumeDownloadWithTask:(YCDownloadTask *)task;
+- (void)resumeDownloadTask:(YCDownloadTask *)task;
 
 /**
  删除一个后台下载任务，同时会删除当前任务下载的缓存数据
 
  @param task 下载task
  */
-- (void)stopDownloadWithTask:(YCDownloadTask *)task;
+- (void)stopDownloadTask:(YCDownloadTask *)task;
 
 /**
  暂停一个后台下载任务
@@ -164,11 +164,6 @@ typedef NSString * (^SetSaveRootPathBlk)(void);
  @param identifier background session 的标识
  */
 -(void)addCompletionHandler:(BGCompletedHandler)handler identifier:(NSString *)identifier;
-
-/**
- 保存下载数据
- */
-- (void)saveDownloadStatus;
 
 /**
  获取下载数据存储根目录

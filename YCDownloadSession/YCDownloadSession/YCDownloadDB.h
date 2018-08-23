@@ -8,6 +8,7 @@
 
 #import <CoreData/CoreData.h>
 #import "YCDownloadItem.h"
+#import "YCDownloadTask.h"
 
 @interface YCDownloadDB : NSObject
 @property (nonatomic, strong) NSManagedObjectContext *context;
@@ -21,5 +22,10 @@
 - (YCDownloadItem *)itemWithFid:(NSString *)fid;
 - (BOOL)removeItemWithTaskId:(NSString *)taskId;
 - (void)removeAllItems;
+- (NSArray <YCDownloadTask *> *)fetchAllDownloadTasks;
+- (YCDownloadTask *)taskWithTid:(NSString *)tid;
+- (YCDownloadTask *)taskWithUrl:(NSString *)url;
+- (void)removeAllTasks;
+- (void)removeTask:(YCDownloadTask *)task;
 
 @end

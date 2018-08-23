@@ -207,7 +207,7 @@ static id _instance;
 }
 
 - (void)removeItemWithTaskId:(NSString *)taskId {
-    
+    [[YCDownloadDB sharedDB] removeItemWithTaskId:taskId];
 }
 
 - (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName imageUrl:(NSString *)imagUrl fileId:(NSString *)fileId{
