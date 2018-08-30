@@ -27,6 +27,7 @@
     }
     return totalFreeSpace;
 }
+
 + (NSString *)fileSizeStringFromBytes:(NSUInteger)byteSize {
     if (kCommonUtilsGigabyte <= byteSize) {
         return [NSString stringWithFormat:@"%@GB", [self numberStringFromDouble:(double)byteSize / kCommonUtilsGigabyte]];
@@ -39,7 +40,6 @@
     }
     return [NSString stringWithFormat:@"%luB", (unsigned long)byteSize];
 }
-
 
 + (NSString *)numberStringFromDouble:(const double)num {
     NSInteger section = round((num - (NSInteger)num) * 100);
@@ -68,6 +68,11 @@
     if(![[NSFileManager defaultManager] fileExistsAtPath:path]){
         [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:true attributes:nil error:nil];
     }
+}
++ (NSInteger)fileSizeWithPath:(NSString *)path {
+    if(![[NSFileManager defaultManager] fileExistsAtPath:path]) return 0;
+    NSDictionary *dic = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:nil];
+    return dic ? (NSInteger)[dic fileSize] : 0;
 }
 
 @end

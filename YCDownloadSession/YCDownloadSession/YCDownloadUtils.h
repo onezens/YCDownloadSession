@@ -35,4 +35,6 @@
  */
 + (void)createPathIfNotExist:(NSString *)path;
 
++ (NSInteger)fileSizeWithPath:(NSString *)path;
+
 @end

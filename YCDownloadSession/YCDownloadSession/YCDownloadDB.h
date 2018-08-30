@@ -24,7 +24,8 @@
 - (void)removeAllItems;
 - (NSArray <YCDownloadTask *> *)fetchAllDownloadTasks;
 - (YCDownloadTask *)taskWithTid:(NSString *)tid;
-- (YCDownloadTask *)taskWithUrl:(NSString *)url;
+- (NSArray <YCDownloadTask *> *)taskWithUrl:(NSString *)url;
+- (YCDownloadTask *)taskWithStid:(NSInteger)stid; //TODO: add url
 - (void)removeAllTasks;
 - (void)removeTask:(YCDownloadTask *)task;
 

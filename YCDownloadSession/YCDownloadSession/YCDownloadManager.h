@@ -17,11 +17,6 @@
 @interface YCDownloadManager : NSObject
 
 /**
- 获取区分用户标识的block
- */
-@property (nonatomic, copy) GetUserIdentifyBlk getUserIdentify;
-
-/**
  下载manager单例
  */
 + (instancetype)manager;

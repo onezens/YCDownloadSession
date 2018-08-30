@@ -10,8 +10,8 @@
 
 #import "YCDownloadDB.h"
 #import "YCDownloadTask.h"
-#import "YCDownloadSession.h"
 #import <objc/runtime.h>
+#import "YCDownloadUtils.h"
 
 NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
 NSString * const kDownloadTaskEntityName = @"YCDownloadTask";
@@ -25,9 +25,9 @@ NSString * const kDownloadTaskEntityName = @"YCDownloadTask";
     NSString *_taskId;
     NSString *_downloadURL;
     NSString *_compatibleKey;
+    NSInteger _stid;
     NSUInteger _fileSize;
     NSUInteger _downloadedSize;
-    YCDownloadStatus _downloadStatus;
     NSTimer *_timer;
     BOOL _enableSpeed;
     
@@ -38,45 +38,42 @@ NSString * const kDownloadTaskEntityName = @"YCDownloadTask";
 
 @dynamic taskId;
 @dynamic downloadURL;
-@dynamic fileId;
 @dynamic resumeData;
-@dynamic downloadStatus;
-@dynamic saveName;
-@dynamic downloadFinished;
 @dynamic fileSize;
 @dynamic downloadedSize;
 @dynamic compatibleKey;
 @dynamic priority;
 @dynamic enableSpeed;
-@dynamic saveFileType;
-@synthesize delegate = _delegate;
+@dynamic stid;
 @synthesize downloadTask = _downloadTask;
 @synthesize tmpName = _tmpName;
 @synthesize tempPath = _tempPath;
 @synthesize needToRestart = _needToRestart;
 @synthesize noNeedToStartNext = _noNeedToStartNext;
-@synthesize savePath = _savePath;
+@synthesize progressHandler = _progressHandler;
+@synthesize completionHanlder = _completionHanlder;
+@synthesize progress = _progress;
 
 - (instancetype)init {
-    NSAssert(false, @"use - (instancetype)initWithUrl:(NSString *)url fileId:(NSString *)fileId delegate:(id<YCDownloadTaskDelegate>)delegate");
+    NSAssert(false, @"use - (instancetype)initWithRequest:(NSURLRequest *)request progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion");
     return nil;
 }
 
-- (instancetype)initWithUrl:(NSString *)url fileId:(NSString *)fileId delegate:(id<YCDownloadTaskDelegate>)delegate {
-    
-    if(self = [super initWithContext:[YCDownloadDB sharedDB].context]){
-        _downloadURL = url;
-        _fileId = fileId;
-        _delegate = delegate;
-        _taskId = [YCDownloadTask taskIdForUrl:self.downloadURL fileId:self.fileId];;
+- (instancetype)initWithRequest:(NSURLRequest *)request progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion{
+    if (self = [super initWithContext:[YCDownloadDB sharedDB].context]) {
+        _downloadURL = request.URL.absoluteString;
+        _progressHandler = progress;
+        _completionHanlder = completion;
         _priority = NSURLSessionTaskPriorityDefault;
-        _compatibleKey = [YCDownloadSession downloadSession].downloadVersion;
+        _taskId = [YCDownloadTask taskIdForUrl:_downloadURL fileId:[NSUUID UUID].UUIDString];
+        _progress = [NSProgress progressWithTotalUnitCount:NSURLSessionTransferSizeUnknown];
     }
     return self;
 }
 
-+ (instancetype)taskWithUrl:(NSString *)url fileId:(NSString *)fileId delegate:(id<YCDownloadTaskDelegate>)delegate {
-    return [[YCDownloadTask alloc] initWithUrl:url fileId:fileId delegate:delegate];
+
++ (instancetype)taskWithRequest:(NSURLRequest *)request progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion {
+    return [[self alloc] initWithRequest:request progress:progress completion:completion];
 }
 
 #pragma mark - public
@@ -85,30 +82,27 @@ NSString * const kDownloadTaskEntityName = @"YCDownloadTask";
     _fileSize = (NSInteger)[_downloadTask.response expectedContentLength];
 }
 
-- (void)resume {
-    [YCDownloadSession.downloadSession resumeDownloadTask:self];
-}
-
-- (void)pause {
-    [YCDownloadSession.downloadSession pauseDownloadTask:self];
-    if (_timer) {
-        [self stopTimer];
-    }
-}
-
-- (void)remove {
-    [YCDownloadSession.downloadSession stopDownloadTask:self];
-    if (_timer) {
-        [self stopTimer];
-    }
-}
+//- (void)resume {
+//    [YCDownloadSession.downloadSession resumeDownloadTask:self];
+//}
+//
+//- (void)pause {
+//    [YCDownloadSession.downloadSession pauseDownloadTask:self];
+//    if (_timer) {
+//        [self stopTimer];
+//    }
+//}
+//
+//- (void)remove {
+//    [YCDownloadSession.downloadSession stopDownloadTask:self];
+//    if (_timer) {
+//        [self stopTimer];
+//    }
+//}
 
 
 - (void)downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize {
-    _downloadedSize = downloadedSize;
-    if (!_timer && self.delegate) {
-        [self startTimer];
-    }
+
 }
 
 #pragma mark - setter
@@ -121,19 +115,12 @@ NSString * const kDownloadTaskEntityName = @"YCDownloadTask";
 }
 
 - (void)setDownloadTask:(NSURLSessionDownloadTask *)downloadTask {
+    NSAssert(downloadTask==nil || [downloadTask isKindOfClass:[NSURLSessionDownloadTask class]], @"downloadTask class", downloadTask.class);
     _downloadTask = downloadTask;
     downloadTask.priority = _priority;
 }
 
-- (YCDownloadStatus)downloadStatus {
-    return _downloadStatus;
-}
--(void)setDownloadStatus:(YCDownloadStatus)downloadStatus {
-    _downloadStatus = downloadStatus;
-    if(_timer && (downloadStatus == YCDownloadStatusPaused || downloadStatus == YCDownloadStatusFailed || downloadStatus == YCDownloadStatusFinished)) {
-        [self stopTimer];
-    }
-}
+
 - (void)setEnableSpeed:(BOOL)enableSpeed {
     _enableSpeed = enableSpeed;
 }
@@ -142,6 +129,14 @@ NSString * const kDownloadTaskEntityName = @"YCDownloadTask";
 }
 
 #pragma mark - getter
+
+- (void)setStid:(NSInteger)stid {
+    _stid = stid;
+}
+
+-(NSInteger)stid {
+    return _stid;
+}
 
 - (float)priority {
     return _priority;
@@ -161,33 +156,6 @@ NSString * const kDownloadTaskEntityName = @"YCDownloadTask";
     return _taskId;
 }
 
-- (NSString *)savePath {
-    if (_savePath.length>0) {
-        return _savePath;
-    }
-    return [YCDownloadTask savePathWithSaveName:self.saveName];
-}
-
--(BOOL)downloadFinished {
-    
-    NSDictionary *dic = [[NSFileManager defaultManager] attributesOfItemAtPath:self.savePath error:nil];
-    NSInteger fileSize = dic ? (NSInteger)[dic fileSize] : 0;
-    return [[NSFileManager defaultManager] fileExistsAtPath:self.savePath] && (fileSize == self.fileSize);
-}
-
-- (NSString *)saveName {
-    if (_saveName.length==0) {
-        NSString *name = [YCDownloadTask taskIdForUrl:self.downloadURL fileId:self.fileId];
-        NSString *pathExtension =  [YCDownloadTask getPathExtensionWithUrl:self.downloadURL];
-        name = pathExtension.length>0 ? [name stringByAppendingPathExtension:pathExtension] : name;
-        return name;
-    }
-    return _saveName;
-}
-
-- (void)setSaveName:(NSString *)saveName {
-    _saveName = saveName;
-}
 
 + (NSString *)taskIdForUrl:(NSString *)url fileId:(NSString *)fileId {
     NSString *name = [YCDownloadUtils md5ForString:fileId.length>0 ? [NSString stringWithFormat:@"%@-%@",url, fileId] : url];
@@ -203,7 +171,7 @@ NSString * const kDownloadTaskEntityName = @"YCDownloadTask";
 }
 
 + (NSString *)saveDir{
-    NSString *saveDir = [YCDownloadSession saveRootPath];
+    NSString *saveDir = @"";
     saveDir = [saveDir stringByAppendingPathComponent:@"video"];
     if (![[NSFileManager defaultManager] fileExistsAtPath:saveDir]) {
         [[NSFileManager defaultManager] createDirectoryAtPath:saveDir withIntermediateDirectories:true attributes:nil error:nil];
@@ -242,9 +210,7 @@ NSString * const kDownloadTaskEntityName = @"YCDownloadTask";
 - (void)timerCall {
     NSUInteger speed = _downloadedSize - _preDownloadedSize;
     _preDownloadedSize = _downloadedSize;
-    if ([self.delegate respondsToSelector:@selector(downloadTask:speed:speedDesc:)]) {
-        [self.delegate downloadTask:self speed:speed speedDesc:[NSString stringWithFormat:@"%@/s",[YCDownloadUtils fileSizeStringFromBytes:speed]]];
-    }
+
 }
 
 + (NSString *)getPathExtensionWithUrl:(NSString *)url {

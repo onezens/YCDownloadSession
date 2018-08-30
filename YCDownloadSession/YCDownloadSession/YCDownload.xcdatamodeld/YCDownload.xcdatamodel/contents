@@ -22,10 +22,11 @@
         <attribute name="resumeData" optional="YES" attributeType="Binary" syncable="YES"/>
         <attribute name="saveFileType" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="saveName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="stid" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="taskId" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <elements>
         <element name="YCDownloadItem" positionX="-63" positionY="-18" width="128" height="150"/>
-        <element name="YCDownloadTask" positionX="-63" positionY="54" width="128" height="240"/>
+        <element name="YCDownloadTask" positionX="-63" positionY="54" width="128" height="255"/>
     </elements>
 </model>

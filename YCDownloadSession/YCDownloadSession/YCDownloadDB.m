@@ -201,11 +201,12 @@
     } sync:true];
     return task;
 }
-- (YCDownloadTask *)taskWithUrl:(NSString *)url {
+
+-(YCDownloadTask *)taskWithStid:(NSInteger)stid {
     __block YCDownloadTask *task = nil;
     [self performTask:^BOOL{
         NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:kDownloadTaskEntityName];
-        fetchRequest.predicate = [NSPredicate predicateWithFormat:@"downloadURL == %@",url];
+        fetchRequest.predicate = [NSPredicate predicateWithFormat:@"stid == %d",stid];
         NSError *error = nil;
         NSArray *results = [self->_context executeFetchRequest:fetchRequest error:&error];
         if (error) return false;
@@ -214,6 +215,21 @@
     } sync:true];
     return task;
 }
+
+- (NSArray<YCDownloadTask *> *)taskWithUrl:(NSString *)url {
+    __block NSArray *tasks = nil;
+    [self performTask:^BOOL{
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:kDownloadTaskEntityName];
+        fetchRequest.predicate = [NSPredicate predicateWithFormat:@"downloadURL == %@",url];
+        NSError *error = nil;
+        NSArray *results = [self->_context executeFetchRequest:fetchRequest error:&error];
+        if (error) return false;
+        tasks = results;
+        return true;
+    } sync:true];
+    return tasks;
+}
+
 - (void)removeAllTasks {
     [self performTask:^BOOL{
         NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:kDownloadTaskEntityName];

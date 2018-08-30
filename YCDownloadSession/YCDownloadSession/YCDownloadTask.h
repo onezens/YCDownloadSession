@@ -10,75 +10,22 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
-@class YCDownloadTask;
 
-typedef NS_ENUM(NSUInteger, YCDownloadStatus) {
-    YCDownloadStatusWaiting,
-    YCDownloadStatusDownloading,
-    YCDownloadStatusPaused,
-    YCDownloadStatusFinished,
-    YCDownloadStatusFailed,
-    YCDownloadStatusNotExist
-};
+typedef void (^YCCompletionHanlder)(NSString *localPath, NSError *error);
+typedef void (^YCProgressHanlder)(NSProgress *progress);
 
 /**某一任务下载的状态发生变化的通知*/
 extern NSString * const kDownloadStatusChangedNoti;
 extern NSString * const kDownloadTaskEntityName;
 
-#pragma mark - YCDownloadTaskDelegate
-@protocol YCDownloadTaskDelegate <NSObject>
-@optional
-
-/**
- 下载任务的进度回调方法
-
- @param task 正在下载的任务
- @param downloadedSize 已经下载的文件大小
- @param fileSize 文件实际大小
- */
-- (void)downloadProgress:(YCDownloadTask *)task downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize;
-
-
-/**
- 下载任务的网速回调
-
- @param task 正在下载的任务
- @param speed float类型的速度
- @param speedDesc 附加单位的速度回调
- */
-- (void)downloadTask:(YCDownloadTask *)task speed:(NSUInteger)speed speedDesc:(NSString *)speedDesc;
-
-/**
- 下载任务第一次创建的时候的回调
-
- @param task 创建的任务
- */
-- (void)downloadCreated:(YCDownloadTask *)task;
-
-/**
- 下载的任务的状态发生改变的回调
-
- @param status 改变后的状态
- @param task 状态改变的任务
- */
-- (void)downloadStatusChanged:(YCDownloadStatus)status downloadTask:(YCDownloadTask *)task;
-
-@end
-
 #pragma mark - YCDownloadTask
+
 
 @interface YCDownloadTask : NSManagedObject
 
 @property (nonatomic, copy, readonly) NSString *taskId;
 @property (nonatomic, copy, readonly) NSString *downloadURL;
-@property (nonatomic, copy, readonly) NSString *fileId;
-@property (nonatomic, copy) NSString *saveName;
 @property (nonatomic, strong) NSData *resumeData;
-@property (nonatomic, assign) YCDownloadStatus downloadStatus;
-/**下载文件的存储路径，没有下载完成时，该路径下没有文件*/
-@property (nonatomic, copy) NSString *savePath;
-/**判断文件是否下载完成，savePath路径下存在该文件为true，否则为false*/
-@property (nonatomic, assign, readonly) BOOL downloadFinished;
 @property (nonatomic, assign, readonly) NSInteger fileSize;
 @property (nonatomic, assign) NSInteger downloadedSize;
 /**重新创建下载session，恢复下载状态的session的标识*/
@@ -93,9 +40,10 @@ extern NSString * const kDownloadTaskEntityName;
 @property (nonatomic, assign) BOOL noNeedToStartNext;
 @property (nonatomic, copy) NSString *tmpName;
 @property (nonatomic, copy) NSString *tempPath;
-@property (nonatomic, weak) id <YCDownloadTaskDelegate>delegate;
 @property (nonatomic, strong) NSURLSessionDownloadTask *downloadTask;
 @property (nonatomic, copy) NSString *compatibleKey;
+@property (nonatomic, strong,readonly) NSProgress *progress;
+@property (nonatomic, assign) NSInteger stid;
 /**
  default value: NSURLSessionTaskPriorityDefault
  option: NSURLSessionTaskPriorityDefault NSURLSessionTaskPriorityLow NSURLSessionTaskPriorityHigh
@@ -109,33 +57,13 @@ extern NSString * const kDownloadTaskEntityName;
  */
 @property (nonatomic, assign) BOOL enableSpeed;
 
-/**
- 下载的文件在沙盒保存的类型，默认为video.可指定为pdf，image，等自定义类型
- */
-@property (nonatomic, copy) NSString *saveFileType;
+@property (nonatomic, copy) YCCompletionHanlder completionHanlder;
+@property (nonatomic, copy) YCProgressHanlder progressHandler;
 
 #pragma mark - method
 
 
-/**
- 初始化一个下载任务
-
- @param url 下载的url
- @param fileId 下载文件的标识。可以为空。要想同- downloadURL文件重复下载，可以让fileId不同
- @param delegate 代理
- @return 初始化的下载任务
- */
-- (instancetype)initWithUrl:(NSString *)url fileId:(NSString *)fileId delegate:(id<YCDownloadTaskDelegate>)delegate;
-
-/**
- 初始化一个下载任务
- 
- @param url 下载的url
- @param fileId 下载文件的标识。可以为空。要想同- downloadURL文件重复下载，可以让fileId不同
- @param delegate 代理
- @return 初始化的下载任务
- */
-+ (instancetype)taskWithUrl:(NSString *)url fileId:(NSString *)fileId delegate:(id<YCDownloadTaskDelegate>)delegate;
++ (instancetype)taskWithRequest:(NSURLRequest *)request progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion;
 
 /**
  下载进度第一次回调调用，保存文件大小信息
@@ -143,47 +71,10 @@ extern NSString * const kDownloadTaskEntityName;
 - (void)updateTask;
 
 /**
- 继续下载任务
- */
-- (void)resume;
-
-/**
- 暂停下载任务
- */
-- (void)pause;
-
-/**
- 删除下载任务
- */
-- (void)remove;
-
-
-/**
  download progress use calculate task speed
  */
 - (void)downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize;
 
-#pragma mark - class method
-
-/**
- 根据NSURLSessionTask获取下载的url
- 301/302定向的originRequest和currentRequest的url不同，则取原始的
- */
-+ (NSString *)getURLFromTask:(NSURLSessionTask *)task;
-
-/**
- 根据文件的名称获取文件的沙盒存储路径
- */
-+ (NSString *)savePathWithSaveName:(NSString *)saveName;
-
-/**
- 生成taskid
-
- @param url 资源url
- @param fileId 资源标识，可以为空
- @return taskid
- */
-+ (NSString *)taskIdForUrl:(NSString *)url fileId:(NSString *)fileId;
 
 
 @end

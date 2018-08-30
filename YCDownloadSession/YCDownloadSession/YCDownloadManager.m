@@ -13,6 +13,7 @@
 
 @interface YCDownloadManager ()
 @property (nonatomic, assign) BOOL localPushOn;
+@property (nonatomic, strong) NSCache *memCache;
 @end
 
 @implementation YCDownloadManager
@@ -32,6 +33,9 @@ static id _instance;
 - (instancetype)init {
     if (self = [super init]) {
         [self addNotification];
+        _memCache = [NSCache new];
+        _memCache.countLimit = 100;
+        _memCache.totalCostLimit = 1024 * 1024 * 0.5;
     }
     return self;
 }
@@ -41,17 +45,17 @@ static id _instance;
 }
 
 - (NSString *)downloadItemSavePath {
-    NSString *saveDir = [YCDownloadSession saveRootPath];
+    NSString *saveDir = @"";
     return [saveDir stringByAppendingFormat:@"/video/items.data"];
 }
 
 - (void)addNotification {
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(saveDownloadItems) name:kDownloadStatusChangedNoti object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadAllTaskFinished) name:kDownloadAllTaskFinishedNoti object:nil];
+//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadAllTaskFinished) name:kDownloadAllTaskFinishedNoti object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadTaskFinishedNoti:) name:kDownloadTaskFinishedNoti object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(saveDownloadItems) name:kDownloadNeedSaveDataNoti object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadUserChanged) name:kDownloadUserIdentifyChanged object:nil];
+//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadUserChanged) name:kDownloadUserIdentifyChanged object:nil];
 }
 
 
@@ -137,13 +141,13 @@ static id _instance;
 
 #pragma mark - assgin
 
-- (void)setGetUserIdentify:(GetUserIdentifyBlk)getUserIdentify {
-     [YCDownloadSession setUserIdentify:getUserIdentify];
-    _getUserIdentify = getUserIdentify;
-}
+//- (void)setGetUserIdentify:(GetUserIdentifyBlk)getUserIdentify {
+//     [YCDownloadSession setUserIdentify:getUserIdentify];
+//    _getUserIdentify = getUserIdentify;
+//}
 
 - (void)setMaxTaskCount:(NSInteger)count{
-    [YCDownloadSession downloadSession].maxTaskCount = count;
+//    [YCDownloadSession downloadSession].maxTaskCount = count;
 }
 
 - (void)downloadUserChanged {
@@ -180,8 +184,15 @@ static id _instance;
     YCDownloadItem *oldItem = [[YCDownloadDB sharedDB] itemWithTaskId:item.taskId];
     if (oldItem.downloadStatus == YCDownloadStatusFinished) return;
     [[YCDownloadDB sharedDB] save];
-    YCDownloadTask *task =  [YCDownloadSession.downloadSession startDownloadWithUrl:item.downloadUrl fileId:item.fileId delegate:item priority:priority];
-    task.enableSpeed = item.enableSpeed;
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:item.downloadUrl]];
+    YCDownloadTask *task = [[YCDownloader downloader] downloadWithRequest:request progress:^(NSProgress *progress) {
+        
+    } completion:^(NSString *localPath, NSError *error) {
+        
+    } priority:priority];
+    item.taskId = task.taskId;
+//    YCDownloadTask *task =  [YCDownloadSession.downloadSession startDownloadWithUrl:item.downloadUrl fileId:item.fileId delegate:item priority:priority];
+//    task.enableSpeed = item.enableSpeed;
 }
 
 - (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName imageUrl:(NSString *)imagUrl {
@@ -213,8 +224,7 @@ static id _instance;
 - (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName imageUrl:(NSString *)imagUrl fileId:(NSString *)fileId{
     
     if (downloadURLString.length == 0 && fileId.length == 0) return;
-    NSString *taskId = [YCDownloadTask taskIdForUrl:downloadURLString fileId:fileId];
-    YCDownloadItem *item = [self itemWithTaskId:taskId];
+    YCDownloadItem *item = nil; //TODO: 1
     if (item == nil) {
         item = [[YCDownloadItem alloc] initWithUrl:downloadURLString fileId:fileId];
     }
@@ -223,27 +233,41 @@ static id _instance;
     [self startDownloadWithItem:item priority:NSURLSessionTaskPriorityDefault];
 }
 
+- (YCDownloadTask *)taskWithItem:(YCDownloadItem *)item {
+    YCDownloadTask *task = nil;
+    //mem
+    task = [_memCache objectForKey:item.taskId];
+    //db
+    if(!task) task = [[YCDownloadDB sharedDB] taskWithTid:item.taskId];
+    return task;
+}
+
 - (void)resumeDownloadWithItem:(YCDownloadItem *)item{
-    YCDownloadTask *task = [YCDownloadSession.downloadSession taskForTaskId:item.taskId];
-    task.delegate = item;
-    [YCDownloadSession.downloadSession resumeDownloadWithTaskId:item.taskId];
+    if ([[YCDownloader downloader] canResumeTaskWithTid:item.taskId]) {
+        YCDownloadTask *task = [self taskWithItem:item];
+        [[YCDownloader downloader] resumeDownloadTask:task];
+    }else{
+        [self startDownloadWithItem:item priority:0];
+    }
     [self saveDownloadItems];
 }
 
 - (void)pauseDownloadWithItem:(YCDownloadItem *)item {
-    [YCDownloadSession.downloadSession pauseDownloadWithTaskId:item.taskId];
+    YCDownloadTask *task  = [self taskWithItem:item];
+    [[YCDownloader downloader] pauseDownloadTask:task];
     [self saveDownloadItems];
 }
 
 - (void)stopDownloadWithItem:(YCDownloadItem *)item {
     if (item == nil )  return;
-    [YCDownloadSession.downloadSession stopDownloadWithTaskId: item.taskId];
+    YCDownloadTask *task  = [self taskWithItem:item];
+    [[YCDownloader downloader] cancelDownloadTask:task];
     [self removeItemWithTaskId:item.taskId];
     [self saveDownloadItems];
 }
 
 - (void)pauseAllDownloadTask {
-    [[YCDownloadSession downloadSession] pauseAllDownloadTask];
+//    [[YCDownloadSession downloadSession] pauseAllDownloadTask];
 }
 
 - (void)removeAllCache {
@@ -261,11 +285,11 @@ static id _instance;
 }
 
 -(void)allowsCellularAccess:(BOOL)isAllow {
-    [[YCDownloadSession downloadSession] allowsCellularAccess:isAllow];
+    [YCDownloader downloader].allowsCellularAccess = isAllow;
 }
 
 - (BOOL)isAllowsCellularAccess {
-    return [[YCDownloadSession downloadSession] isAllowsCellularAccess];
+    return [YCDownloader downloader].allowsCellularAccess;
 }
 
 - (void)localPushOn:(BOOL)isOn {

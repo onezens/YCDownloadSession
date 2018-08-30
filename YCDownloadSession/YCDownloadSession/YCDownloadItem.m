@@ -38,6 +38,8 @@ NSString * const kDownloadItemStoreEntity  = @"YCDownloadItem";
 @dynamic downloadStatus;
 @synthesize delegate = _delegate;
 @synthesize enableSpeed = _enableSpeed;
+@synthesize progressHanlder = _progressHanlder;
+@synthesize completionHanlder = _completionHanlder;
 #pragma mark - init
 
 
@@ -45,7 +47,21 @@ NSString * const kDownloadItemStoreEntity  = @"YCDownloadItem";
     if (self = [super initWithContext:[YCDownloadDB sharedDB].context]) {
         _downloadUrl = url;
         _fileId = fileId;
-        _taskId = [YCDownloadTask taskIdForUrl:url fileId:fileId];
+        __weak typeof(self) weakSelf = self;
+        _progressHanlder = ^(NSProgress *progress){
+            if(weakSelf.downloadStatus == YCDownloadStatusWaiting){
+                [weakSelf downloadStatusChanged:YCDownloadStatusDownloading downloadTask:nil];
+            }
+            [weakSelf downloadProgress:nil downloadedSize:progress.completedUnitCount fileSize:progress.totalUnitCount];
+        };
+        _completionHanlder = ^(NSString *localPath, NSError *error){
+            if (error) {
+                [weakSelf downloadStatusChanged:YCDownloadStatusFailed downloadTask:nil];
+            }else{
+                [weakSelf downloadStatusChanged:YCDownloadStatusFinished downloadTask:nil];
+            }
+            //TODO: saveData
+        };
     }
     return self;
 }
@@ -83,36 +99,36 @@ NSString * const kDownloadItemStoreEntity  = @"YCDownloadItem";
 #pragma mark - public
 
 - (NSString *)compatibleKey {
-    return [YCDownloadSession downloadSession].downloadVersion;
+    return [YCDownloader downloadVersion];
 }
 
 - (NSString *)saveName {
-    YCDownloadTask *task = [[YCDownloadSession downloadSession] taskForTaskId:_taskId];
-    return task.saveName;
+    YCDownloadTask *task = nil;//[[YCDownloadSession downloadSession] taskForTaskId:_taskId];
+    return task;
 }
 
 - (NSString *)savePath {
-    return [YCDownloadTask savePathWithSaveName:self.saveName];
+    return nil;;
 }
 
 - (NSUInteger)downloadedSize {
-    YCDownloadTask *task = [[YCDownloadSession downloadSession] taskForTaskId:_taskId];
+    YCDownloadTask *task = nil; //[[YCDownloadSession downloadSession] taskForTaskId:_taskId];
     return task.downloadedSize;
 }
 
 - (YCDownloadStatus)downloadStatus {
-    YCDownloadTask *task = [[YCDownloadSession downloadSession] taskForTaskId:_taskId];
-    return task.downloadStatus;
+    YCDownloadTask *task = nil; //[[YCDownloadSession downloadSession] taskForTaskId:_taskId];
+    return task;
 }
 
 - (void)setDelegate:(id<YCDownloadItemDelegate>)delegate {
-    _delegate = delegate;
-    YCDownloadTask *task = [[YCDownloadSession downloadSession] taskForTaskId:_taskId];
-    task.delegate = self;
+//    _delegate = delegate;
+//    YCDownloadTask *task = nil;//[[YCDownloadSession downloadSession] taskForTaskId:_taskId];
+//    task.delegate = self;
 }
 
 - (NSUInteger)fileSize {
-    YCDownloadTask *task = [[YCDownloadSession downloadSession] taskForTaskId:_taskId];
+    YCDownloadTask *task = nil;//[[YCDownloadSession downloadSession] taskForTaskId:_taskId];
     return task.fileSize;
 }
 

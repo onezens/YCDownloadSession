@@ -16,6 +16,16 @@ extern NSString * const kDownloadTaskFinishedNoti;
 extern NSString * const kDownloadNeedSaveDataNoti;
 extern NSString * const kDownloadItemStoreEntity;
 
+typedef NS_ENUM(NSUInteger, YCDownloadStatus) {
+    YCDownloadStatusWaiting,
+    YCDownloadStatusDownloading,
+    YCDownloadStatusPaused,
+    YCDownloadStatusFinished,
+    YCDownloadStatusFailed,
+    YCDownloadStatusNotExist
+};
+
+
 @protocol YCDownloadItemDelegate <NSObject>
 
 @optional
@@ -24,13 +34,13 @@ extern NSString * const kDownloadItemStoreEntity;
 - (void)downloadItem:(YCDownloadItem *)item speed:(NSUInteger)speed speedDesc:(NSString *)speedDesc;
 @end
 
-@interface YCDownloadItem : NSManagedObject <YCDownloadTaskDelegate>
+@interface YCDownloadItem : NSManagedObject
 
 -(instancetype)initWithUrl:(NSString *)url fileId:(NSString *)fileId;
 +(instancetype)itemWithUrl:(NSString *)url fileId:(NSString *)fileId;
 
 @property (nonatomic, copy, readonly) NSString *fileId;
-@property (nonatomic, copy, readonly) NSString *taskId;
+@property (nonatomic, copy) NSString *taskId;
 @property (nonatomic, copy, readonly) NSString *savePath;
 @property (nonatomic, copy, readonly) NSString *saveName;
 @property (nonatomic, copy, readonly) NSString *downloadUrl;
@@ -44,6 +54,8 @@ extern NSString * const kDownloadItemStoreEntity;
 @property (nonatomic, copy) NSString *fileName;
 @property (nonatomic, copy) NSString *thumbImageUrl;
 @property (nonatomic, strong) NSData *extraData;
+@property (nonatomic, copy, readonly) YCProgressHanlder progressHanlder;
+@property (nonatomic, copy, readonly) YCCompletionHanlder completionHanlder;
 
 /**
  下载的文件在沙盒保存的类型，默认为video.可指定为pdf，image，等自定义类型

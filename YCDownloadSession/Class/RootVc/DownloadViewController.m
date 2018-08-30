@@ -8,8 +8,10 @@
 
 #import "DownloadViewController.h"
 #import "YCDownloadSession.h"
+#import "YCDownloader.h"
 
-@interface DownloadViewController ()<YCDownloadTaskDelegate>
+static NSString * const kDownloadTaskIdKey = @"kDownloadTaskIdKey";
+@interface DownloadViewController ()
 
 @property (nonatomic, copy) NSString *downloadURL;
 @property (nonatomic, weak) UILabel *progressLbl;
@@ -60,7 +62,7 @@
     lbl.textAlignment = NSTextAlignmentCenter;
     self.progressLbl = lbl;
     [self.view addSubview:lbl];
-    
+    [YCDownloader downloader];
 }
 
 - (void)downloadProgress:(YCDownloadTask *)task downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize {
@@ -71,25 +73,40 @@
 - (void)downloadStatusChanged:(YCDownloadStatus)status downloadTask:(YCDownloadTask *)task {
     if (status == YCDownloadStatusFinished) {
         self.progressLbl.text = @"download success!";
-        NSLog(@"save file path: %@", task.savePath);
     }else if (status == YCDownloadStatusFailed){
         self.progressLbl.text = @"download failed!";
     }
 }
 
 - (void)start {
-    self.downloadTask = [YCDownloadSession.downloadSession startDownloadWithUrl:self.downloadURL fileId:nil delegate:self];
+     self.downloadTask = [[YCDownloader downloader] downloadWithUrl:self.downloadURL progress:^(NSProgress *progress) {
+       self.progressLbl.text = [NSString stringWithFormat:@"%f",progress.fractionCompleted];
+    } completion:^(NSString *localPath, NSError *error) {
+        NSLog(@"%@", localPath);
+    }];
+    [[NSUserDefaults standardUserDefaults] setValue:self.downloadTask.taskId forKey:kDownloadTaskIdKey];
+    
 }
 - (void)resume {
-    [self.downloadTask resume];
+    if (self.downloadTask) {
+        [[YCDownloader downloader] resumeDownloadTask:self.downloadTask];
+    }else{
+        //recovery download
+        NSString *tid = [[NSUserDefaults standardUserDefaults] valueForKey:kDownloadTaskIdKey];
+        self.downloadTask = [[YCDownloader downloader] resumeDownloadTaskWithTid:tid progress:^(NSProgress *progress) {
+            self.progressLbl.text = [NSString stringWithFormat:@"%f",progress.fractionCompleted];
+        } completion:^(NSString *localPath, NSError *error) {
+            NSLog(@"%@", localPath);
+        }];
+    }
 }
 
 - (void)pause {
-    [self.downloadTask pause];
+    [[YCDownloader downloader] pauseDownloadTask:self.downloadTask];
 }
 
 - (void)stop {
-    [self.downloadTask remove];
+    [[YCDownloader downloader] cancelDownloadTask:self.downloadTask];
 }
 
 

@@ -53,10 +53,10 @@
 //    }];
     
     //不同用户，不同的下载数据.注意：切换用户之后重新调用下setGetUserIdentify:方法，来刷新数据
-    [YCDownloadMgr setGetUserIdentify:^NSString *{
-        //切换用户，这里最好使用get方法
-        return @"10002";
-    }];
+//    [YCDownloadMgr setGetUserIdentify:^NSString *{
+//        //切换用户，这里最好使用get方法
+//        return @"10002";
+//    }];
     
 
 }
@@ -73,14 +73,14 @@
 
 -(void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler{
     NSLog(@"%s", __func__);
-    [[YCDownloadSession downloadSession] addCompletionHandler:completionHandler identifier:identifier];
+//    [[YCDownloadSession downloadSession] addCompletionHandler:completionHandler identifier:identifier];
 }
 
 
 - (void)applicationWillResignActive:(UIApplication *)application {
-    [YCDownloadMgr setGetUserIdentify:^NSString *{
-        return @"10001";
-    }];
+//    [YCDownloadMgr setGetUserIdentify:^NSString *{
+//        return @"10001";
+//    }];
 }
 
 @end
