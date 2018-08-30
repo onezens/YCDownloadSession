@@ -9,7 +9,6 @@
 //
 
 #import "YCDownloadItem.h"
-#import <objc/runtime.h>
 #import "YCDownloadSession.h"
 #import "YCDownloadDB.h"
 
@@ -18,11 +17,6 @@ NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti";
 NSString * const kDownloadItemStoreEntity  = @"YCDownloadItem";
 
 @interface YCDownloadItem()
-{
-    NSString *_taskId;
-    NSString *_fileId;
-    NSString *_downloadUrl;
-}
 
 @end
 
@@ -36,6 +30,9 @@ NSString * const kDownloadItemStoreEntity  = @"YCDownloadItem";
 @dynamic saveFileType;
 @dynamic extraData;
 @dynamic downloadStatus;
+@dynamic downloadedSize;
+@dynamic fileSize;
+
 @synthesize delegate = _delegate;
 @synthesize enableSpeed = _enableSpeed;
 @synthesize progressHanlder = _progressHanlder;
@@ -45,8 +42,8 @@ NSString * const kDownloadItemStoreEntity  = @"YCDownloadItem";
 
 - (instancetype)initWithUrl:(NSString *)url fileId:(NSString *)fileId {
     if (self = [super initWithContext:[YCDownloadDB sharedDB].context]) {
-        _downloadUrl = url;
-        _fileId = fileId;
+        [self setValue:url forKey:@"downloadUrl"];
+        [self setValue:fileId forKey:@"fileId"];
         __weak typeof(self) weakSelf = self;
         _progressHanlder = ^(NSProgress *progress){
             if(weakSelf.downloadStatus == YCDownloadStatusWaiting){
@@ -71,6 +68,8 @@ NSString * const kDownloadItemStoreEntity  = @"YCDownloadItem";
 
 #pragma mark - YCDownloadSessionDelegate
 - (void)downloadProgress:(YCDownloadTask *)task downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize {
+    if (self.fileSize==0)  [self setValue:@(fileSize) forKey:@"fileSize"];
+    [self setValue:@(downloadedSize) forKey:@"downloadedSize"];
     if ([self.delegate respondsToSelector:@selector(downloadItem:downloadedSize:totalSize:)]) {
         [self.delegate downloadItem:self downloadedSize:downloadedSize totalSize:fileSize];
     }
@@ -85,10 +84,6 @@ NSString * const kDownloadItemStoreEntity  = @"YCDownloadItem";
     if (status == YCDownloadStatusFinished) {
         [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadTaskFinishedNoti object:self];
     }
-}
-
-- (void)downloadCreated:(YCDownloadTask *)task {
-    [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadNeedSaveDataNoti object:nil userInfo:nil];
 }
 
 - (void)downloadTask:(YCDownloadTask *)task speed:(NSUInteger)speed speedDesc:(NSString *)speedDesc {
@@ -109,27 +104,6 @@ NSString * const kDownloadItemStoreEntity  = @"YCDownloadItem";
 
 - (NSString *)savePath {
     return nil;;
-}
-
-- (NSUInteger)downloadedSize {
-    YCDownloadTask *task = nil; //[[YCDownloadSession downloadSession] taskForTaskId:_taskId];
-    return task.downloadedSize;
-}
-
-- (YCDownloadStatus)downloadStatus {
-    YCDownloadTask *task = nil; //[[YCDownloadSession downloadSession] taskForTaskId:_taskId];
-    return task;
-}
-
-- (void)setDelegate:(id<YCDownloadItemDelegate>)delegate {
-//    _delegate = delegate;
-//    YCDownloadTask *task = nil;//[[YCDownloadSession downloadSession] taskForTaskId:_taskId];
-//    task.delegate = self;
-}
-
-- (NSUInteger)fileSize {
-    YCDownloadTask *task = nil;//[[YCDownloadSession downloadSession] taskForTaskId:_taskId];
-    return task.fileSize;
 }
 
 @end

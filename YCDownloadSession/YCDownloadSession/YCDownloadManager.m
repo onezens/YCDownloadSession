@@ -82,10 +82,12 @@ static id _instance;
 }
 
 + (void)pauseDownloadWithItem:(YCDownloadItem *)item {
+    item.downloadStatus = YCDownloadStatusPaused;
     [YCDownloadMgr pauseDownloadWithItem:item];
 }
 
 + (void)resumeDownloadWithItem:(YCDownloadItem *)item {
+    item.downloadStatus = YCDownloadStatusDownloading;
     [YCDownloadMgr resumeDownloadWithItem:item];
 }
 
@@ -185,11 +187,7 @@ static id _instance;
     if (oldItem.downloadStatus == YCDownloadStatusFinished) return;
     [[YCDownloadDB sharedDB] save];
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:item.downloadUrl]];
-    YCDownloadTask *task = [[YCDownloader downloader] downloadWithRequest:request progress:^(NSProgress *progress) {
-        
-    } completion:^(NSString *localPath, NSError *error) {
-        
-    } priority:priority];
+    YCDownloadTask *task = [[YCDownloader downloader] downloadWithRequest:request progress:item.progressHanlder completion:item.completionHanlder priority:priority];
     item.taskId = task.taskId;
 //    YCDownloadTask *task =  [YCDownloadSession.downloadSession startDownloadWithUrl:item.downloadUrl fileId:item.fileId delegate:item priority:priority];
 //    task.enableSpeed = item.enableSpeed;
@@ -224,12 +222,10 @@ static id _instance;
 - (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName imageUrl:(NSString *)imagUrl fileId:(NSString *)fileId{
     
     if (downloadURLString.length == 0 && fileId.length == 0) return;
-    YCDownloadItem *item = nil; //TODO: 1
-    if (item == nil) {
-        item = [[YCDownloadItem alloc] initWithUrl:downloadURLString fileId:fileId];
-    }
+    YCDownloadItem *item = [YCDownloadItem itemWithUrl:downloadURLString fileId:fileId];
     item.fileName = fileName;
     item.thumbImageUrl = imagUrl;
+    item.downloadStatus = YCDownloadStatusDownloading;
     [self startDownloadWithItem:item priority:NSURLSessionTaskPriorityDefault];
 }
 

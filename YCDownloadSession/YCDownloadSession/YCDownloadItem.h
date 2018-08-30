@@ -47,7 +47,7 @@ typedef NS_ENUM(NSUInteger, YCDownloadStatus) {
 @property (nonatomic, copy, readonly) NSString *compatibleKey;
 @property (nonatomic, assign, readonly) NSUInteger fileSize;
 @property (nonatomic, assign, readonly) NSUInteger downloadedSize;
-@property (nonatomic, assign, readonly) YCDownloadStatus downloadStatus;
+@property (nonatomic, assign) YCDownloadStatus downloadStatus;
 @property (nonatomic, weak) id <YCDownloadItemDelegate> delegate;
 @property (nonatomic, assign) BOOL enableSpeed;
 

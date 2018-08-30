@@ -20,7 +20,6 @@ extern NSString * const kDownloadTaskEntityName;
 
 #pragma mark - YCDownloadTask
 
-
 @interface YCDownloadTask : NSManagedObject
 
 @property (nonatomic, copy, readonly) NSString *taskId;
@@ -49,7 +48,7 @@ extern NSString * const kDownloadTaskEntityName;
  option: NSURLSessionTaskPriorityDefault NSURLSessionTaskPriorityLow NSURLSessionTaskPriorityHigh
  poiority float value range: 0.0 - 1.0
  */
-@property (nonatomic, assign) float priority;
+@property (nonatomic, assign, readonly) float priority;
 
 /**
  enable calculate download task speed
@@ -62,8 +61,9 @@ extern NSString * const kDownloadTaskEntityName;
 
 #pragma mark - method
 
-
 + (instancetype)taskWithRequest:(NSURLRequest *)request progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion;
+
++ (instancetype)taskWithRequest:(NSURLRequest *)request progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion priority:(float)priority;
 
 /**
  下载进度第一次回调调用，保存文件大小信息

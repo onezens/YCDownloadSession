@@ -323,7 +323,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 - (YCDownloadTask *)taskWithSessionTask:(NSURLSessionDownloadTask *)downloadTask {
     NSAssert(downloadTask, @"taskWithSessionTask downloadTask can not nil!");
     YCDownloadTask *task = [self.memCache objectForKey:downloadTask];
-    //    NSAssert(task, @"taskWithSessionTask task canot nil!");
+    NSAssert(task, @"taskWithSessionTask task canot nil!");
     return task;
 }
 
@@ -337,9 +337,9 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
         NSString *errStr = [NSString stringWithFormat:@"[YCDownloader didFinishDownloadingToURL] fileSize Error, task fileSize: %zd tmp fileSize: %zd", task.fileSize, fileSize];
         NSLog(@"%@",errStr);
         NSError *error = [NSError errorWithDomain:errStr code:10001 userInfo:nil];
-        task.completionHanlder(nil, error);
+        if(task.completionHanlder) task.completionHanlder(nil, error);
     }else{
-        task.completionHanlder(localPath, nil);
+        if(task.completionHanlder) task.completionHanlder(localPath, nil);
     }
     [self removeDownloadTask:task];
     
@@ -349,13 +349,13 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     YCDownloadTask *task = [self taskWithSessionTask:downloadTask];
     if (!task) {
         [downloadTask cancel];
-        NSAssert(false,@"");
+        NSAssert(false,@"didWriteData task nil!");
     }
     task.downloadedSize = (NSInteger)totalBytesWritten;
     if(task.fileSize==0) [task updateTask];
     task.progress.totalUnitCount = totalBytesExpectedToWrite;
     task.progress.completedUnitCount = totalBytesWritten;
-    task.progressHandler(task.progress);
+    if(task.progressHandler) task.progressHandler(task.progress);
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionDownloadTask *)downloadTask didCompleteWithError:(NSError *)error {
