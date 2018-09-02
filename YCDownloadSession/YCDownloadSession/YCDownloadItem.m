@@ -17,7 +17,8 @@ NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti";
 NSString * const kDownloadItemStoreEntity  = @"YCDownloadItem";
 
 @interface YCDownloadItem()
-
+@property (nonatomic, copy) NSString *fileExtension;
+@property (nonatomic, copy) NSString *rootPath;
 @end
 
 @implementation YCDownloadItem
@@ -25,18 +26,18 @@ NSString * const kDownloadItemStoreEntity  = @"YCDownloadItem";
 @dynamic fileId;
 @dynamic taskId;
 @dynamic downloadUrl;
-@dynamic fileName;
-@dynamic thumbImageUrl;
-@dynamic saveFileType;
+@dynamic fileType;
+@dynamic uid;
+@dynamic saveRootPath;
 @dynamic extraData;
 @dynamic downloadStatus;
 @dynamic downloadedSize;
 @dynamic fileSize;
+@dynamic fileExtension;
+@dynamic rootPath;
 
 @synthesize delegate = _delegate;
 @synthesize enableSpeed = _enableSpeed;
-@synthesize progressHanlder = _progressHanlder;
-@synthesize completionHanlder = _completionHanlder;
 #pragma mark - init
 
 
@@ -44,21 +45,6 @@ NSString * const kDownloadItemStoreEntity  = @"YCDownloadItem";
     if (self = [super initWithContext:[YCDownloadDB sharedDB].context]) {
         [self setValue:url forKey:@"downloadUrl"];
         [self setValue:fileId forKey:@"fileId"];
-        __weak typeof(self) weakSelf = self;
-        _progressHanlder = ^(NSProgress *progress){
-            if(weakSelf.downloadStatus == YCDownloadStatusWaiting){
-                [weakSelf downloadStatusChanged:YCDownloadStatusDownloading downloadTask:nil];
-            }
-            [weakSelf downloadProgress:nil downloadedSize:progress.completedUnitCount fileSize:progress.totalUnitCount];
-        };
-        _completionHanlder = ^(NSString *localPath, NSError *error){
-            if (error) {
-                [weakSelf downloadStatusChanged:YCDownloadStatusFailed downloadTask:nil];
-            }else{
-                [weakSelf downloadStatusChanged:YCDownloadStatusFinished downloadTask:nil];
-            }
-            //TODO: saveData
-        };
     }
     return self;
 }
@@ -69,6 +55,7 @@ NSString * const kDownloadItemStoreEntity  = @"YCDownloadItem";
 #pragma mark - YCDownloadSessionDelegate
 - (void)downloadProgress:(YCDownloadTask *)task downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize {
     if (self.fileSize==0)  [self setValue:@(fileSize) forKey:@"fileSize"];
+    if (!self.fileExtension) [self setFileExtensionWithTask:task];
     [self setValue:@(downloadedSize) forKey:@"downloadedSize"];
     if ([self.delegate respondsToSelector:@selector(downloadItem:downloadedSize:totalSize:)]) {
         [self.delegate downloadItem:self downloadedSize:downloadedSize totalSize:fileSize];
@@ -76,7 +63,7 @@ NSString * const kDownloadItemStoreEntity  = @"YCDownloadItem";
 }
 
 - (void)downloadStatusChanged:(YCDownloadStatus)status downloadTask:(YCDownloadTask *)task {
-    
+    [self setValue:@(status) forKey:@"downloadStatus"];
     if ([self.delegate respondsToSelector:@selector(downloadItemStatusChanged:)]) {
         [self.delegate downloadItemStatusChanged:self];
     }
@@ -91,19 +78,83 @@ NSString * const kDownloadItemStoreEntity  = @"YCDownloadItem";
         [self.delegate downloadItem:self speed:speed speedDesc:speedDesc];
     }
 }
+
+#pragma mark - getter & setter
+
+- (void)setSaveRootPath:(NSString *)saveRootPath {
+    NSString *path = [saveRootPath stringByReplacingOccurrencesOfString:NSHomeDirectory() withString:@""];
+    [self setValue:path forKey:@"rootPath"];
+}
+
+- (NSString *)saveRootPath {
+    NSString *rootPath = self.rootPath;
+    if(!rootPath){
+        rootPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true).firstObject;
+        rootPath = [rootPath stringByAppendingPathComponent:@"YCDownload"];
+    }else{
+        rootPath = [NSHomeDirectory() stringByAppendingPathComponent:rootPath];
+    }
+    return rootPath;
+}
+
+- (void)setFileExtensionWithTask:(YCDownloadTask *)task {
+    NSHTTPURLResponse *response = (NSHTTPURLResponse *)task.downloadTask.response;
+    NSAssert([response isKindOfClass:[NSHTTPURLResponse class]], @"response can not nil & class must be NSHTTPURLResponse");
+    NSString *extension = response.suggestedFilename.pathExtension;
+    if(!extension) extension = [[response.allHeaderFields valueForKey:@"Content-Type"] componentsSeparatedByString:@"/"].lastObject;
+    if(!extension) extension = @"data";
+    [self setValue:extension forKey:@"fileExtension"];
+}
+
+- (YCProgressHanlder)progressHanlder {
+    __weak typeof(self) weakSelf = self;
+    return ^(NSProgress *progress, YCDownloadTask *task){
+        if(weakSelf.downloadStatus == YCDownloadStatusWaiting){
+            [weakSelf downloadStatusChanged:YCDownloadStatusDownloading downloadTask:nil];
+        }
+        [weakSelf downloadProgress:task downloadedSize:progress.completedUnitCount fileSize:progress.totalUnitCount];
+    };
+}
+
+- (YCCompletionHanlder)completionHanlder {
+    __weak typeof(self) weakSelf = self;
+    return ^(NSString *localPath, NSError *error){
+        NSError *saveError = nil;
+        if([[NSFileManager defaultManager] fileExistsAtPath:self.savePath]){
+            NSLog(@"[Item completionHanlder] Warning file Exist at path: %@ and replaced it!", self.savePath);
+            [[NSFileManager defaultManager] removeItemAtPath:self.savePath error:nil];
+        }
+        if (error) {
+            [weakSelf downloadStatusChanged:YCDownloadStatusFailed downloadTask:nil];
+        }else if([[NSFileManager defaultManager] moveItemAtPath:localPath toPath:self.savePath error:&saveError]){
+            [weakSelf downloadStatusChanged:YCDownloadStatusFinished downloadTask:nil];
+        }else{
+            [weakSelf downloadStatusChanged:YCDownloadStatusFailed downloadTask:nil];
+            NSLog(@"[Item completionHanlder] move file failed error: %@ \nlocalPath: %@ \nsavePath:%@", saveError,localPath,self.savePath);
+        }
+        [[YCDownloadDB sharedDB] save];
+    };
+}
+
 #pragma mark - public
 
 - (NSString *)compatibleKey {
     return [YCDownloader downloadVersion];
 }
 
+- (NSString *)saveDirectory {
+    NSString *path = [self saveRootPath];
+    path = [path stringByAppendingFormat:@"/%@/%@", (self.uid ? self.uid : @"YCDownloadUID"), (self.fileType ? self.fileType : @"data")];
+    [YCDownloadUtils createPathIfNotExist:path];
+    return path;
+}
+
 - (NSString *)saveName {
-    YCDownloadTask *task = nil;//[[YCDownloadSession downloadSession] taskForTaskId:_taskId];
-    return task;
+    NSString *saveName = self.fileId ? self.fileId : self.taskId;
+    return [saveName stringByAppendingPathExtension: self.fileExtension ? : @"data"];
 }
 
 - (NSString *)savePath {
-    return nil;;
+    return [[self saveDirectory] stringByAppendingPathComponent:[self saveName]];
 }
-
 @end

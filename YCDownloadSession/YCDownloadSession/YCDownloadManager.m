@@ -223,8 +223,8 @@ static id _instance;
     
     if (downloadURLString.length == 0 && fileId.length == 0) return;
     YCDownloadItem *item = [YCDownloadItem itemWithUrl:downloadURLString fileId:fileId];
-    item.fileName = fileName;
-    item.thumbImageUrl = imagUrl;
+//    item.fileName = fileName;
+//    item.thumbImageUrl = imagUrl;
     item.downloadStatus = YCDownloadStatusDownloading;
     [self startDownloadWithItem:item priority:NSURLSessionTaskPriorityDefault];
 }
@@ -241,6 +241,8 @@ static id _instance;
 - (void)resumeDownloadWithItem:(YCDownloadItem *)item{
     if ([[YCDownloader downloader] canResumeTaskWithTid:item.taskId]) {
         YCDownloadTask *task = [self taskWithItem:item];
+        task.completionHanlder = item.completionHanlder;
+        task.progressHandler = item.progressHanlder;
         [[YCDownloader downloader] resumeDownloadTask:task];
     }else{
         [self startDownloadWithItem:item priority:0];
@@ -302,7 +304,7 @@ static id _instance;
     
     YCDownloadItem *item = noti.object;
     if (item) {
-        NSString *detail = [NSString stringWithFormat:@"%@ 视频，已经下载完成！", item.fileName];
+        NSString *detail = @"";// [NSString stringWithFormat:@"%@ 视频，已经下载完成！", item.fileName];
         [self localPushWithTitle:@"YCDownloadSession" detail:detail];
     }
     [self saveDownloadItems];

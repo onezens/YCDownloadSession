@@ -79,7 +79,7 @@ static NSString * const kDownloadTaskIdKey = @"kDownloadTaskIdKey";
 }
 
 - (void)start {
-     self.downloadTask = [[YCDownloader downloader] downloadWithUrl:self.downloadURL progress:^(NSProgress *progress) {
+     self.downloadTask = [[YCDownloader downloader] downloadWithUrl:self.downloadURL progress:^(NSProgress *progress, YCDownloadTask *task) {
        self.progressLbl.text = [NSString stringWithFormat:@"%f",progress.fractionCompleted];
     } completion:^(NSString *localPath, NSError *error) {
         NSLog(@"%@", localPath);
@@ -93,7 +93,7 @@ static NSString * const kDownloadTaskIdKey = @"kDownloadTaskIdKey";
     }else{
         //recovery download
         NSString *tid = [[NSUserDefaults standardUserDefaults] valueForKey:kDownloadTaskIdKey];
-        self.downloadTask = [[YCDownloader downloader] resumeDownloadTaskWithTid:tid progress:^(NSProgress *progress) {
+        self.downloadTask = [[YCDownloader downloader] resumeDownloadTaskWithTid:tid progress:^(NSProgress *progress, YCDownloadTask *task) {
             self.progressLbl.text = [NSString stringWithFormat:@"%f",progress.fractionCompleted];
         } completion:^(NSString *localPath, NSError *error) {
             NSLog(@"%@", localPath);

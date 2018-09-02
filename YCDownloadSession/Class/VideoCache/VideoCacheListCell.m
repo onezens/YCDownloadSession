@@ -48,8 +48,8 @@
 - (void)setItem:(YCDownloadItem *)item {
     
     _item = item;
-    self.titleLbl.text = item.fileName;
-    [self.coverImgView sd_setImageWithURL:[NSURL URLWithString:item.thumbImageUrl]];
+//    self.titleLbl.text = item.fileName;
+//    [self.coverImgView sd_setImageWithURL:[NSURL URLWithString:item.thumbImageUrl]];
     [self changeSizeLblDownloadedSize:item.downloadedSize totalSize:item.fileSize];
     [self setDownloadStatus:item.downloadStatus];
 }

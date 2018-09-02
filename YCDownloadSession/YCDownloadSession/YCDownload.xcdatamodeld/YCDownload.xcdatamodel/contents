@@ -5,11 +5,13 @@
         <attribute name="downloadStatus" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="downloadUrl" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="extraData" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="fileExtension" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="fileId" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="fileName" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="fileSize" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="fileType" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="rootPath" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="taskId" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="thumbImageUrl" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="uid" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <entity name="YCDownloadTask" representedClassName="YCDownloadTask" syncable="YES">
         <attribute name="compatibleKey" optional="YES" attributeType="String" syncable="YES"/>
@@ -26,7 +28,7 @@
         <attribute name="taskId" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <elements>
-        <element name="YCDownloadItem" positionX="-63" positionY="-18" width="128" height="180"/>
+        <element name="YCDownloadItem" positionX="-63" positionY="-18" width="128" height="30"/>
         <element name="YCDownloadTask" positionX="-63" positionY="54" width="128" height="225"/>
     </elements>
 </model>

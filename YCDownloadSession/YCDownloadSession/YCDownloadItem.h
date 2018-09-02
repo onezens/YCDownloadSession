@@ -39,10 +39,8 @@ typedef NS_ENUM(NSUInteger, YCDownloadStatus) {
 -(instancetype)initWithUrl:(NSString *)url fileId:(NSString *)fileId;
 +(instancetype)itemWithUrl:(NSString *)url fileId:(NSString *)fileId;
 
-@property (nonatomic, copy, readonly) NSString *fileId;
 @property (nonatomic, copy) NSString *taskId;
-@property (nonatomic, copy, readonly) NSString *savePath;
-@property (nonatomic, copy, readonly) NSString *saveName;
+@property (nonatomic, copy, readonly) NSString *fileId;
 @property (nonatomic, copy, readonly) NSString *downloadUrl;
 @property (nonatomic, copy, readonly) NSString *compatibleKey;
 @property (nonatomic, assign, readonly) NSUInteger fileSize;
@@ -50,17 +48,18 @@ typedef NS_ENUM(NSUInteger, YCDownloadStatus) {
 @property (nonatomic, assign) YCDownloadStatus downloadStatus;
 @property (nonatomic, weak) id <YCDownloadItemDelegate> delegate;
 @property (nonatomic, assign) BOOL enableSpeed;
-
-@property (nonatomic, copy) NSString *fileName;
-@property (nonatomic, copy) NSString *thumbImageUrl;
 @property (nonatomic, strong) NSData *extraData;
 @property (nonatomic, copy, readonly) YCProgressHanlder progressHanlder;
 @property (nonatomic, copy, readonly) YCCompletionHanlder completionHanlder;
-
 /**
  下载的文件在沙盒保存的类型，默认为video.可指定为pdf，image，等自定义类型
  */
-@property (nonatomic, copy) NSString *saveFileType;
+@property (nonatomic, copy) NSString *fileType;
+@property (nonatomic, copy) NSString *uid;
+@property (nonatomic, copy) NSString *saveRootPath;
+/**文件沙盒保存路径*/
+@property (nonatomic, copy, readonly) NSString *savePath;
+
 
 @end
 

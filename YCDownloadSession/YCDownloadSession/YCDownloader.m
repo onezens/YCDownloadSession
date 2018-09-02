@@ -355,7 +355,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     if(task.fileSize==0) [task updateTask];
     task.progress.totalUnitCount = totalBytesExpectedToWrite;
     task.progress.completedUnitCount = totalBytesWritten;
-    if(task.progressHandler) task.progressHandler(task.progress);
+    if(task.progressHandler) task.progressHandler(task.progress, task);
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionDownloadTask *)downloadTask didCompleteWithError:(NSError *)error {

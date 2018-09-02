@@ -23,7 +23,7 @@
     [super viewDidLoad];
     
     self.view.backgroundColor = [UIColor whiteColor];
-    self.title = self.playerItem.fileName;
+//    self.title = self.playerItem.fileName;
     self.originalFrame = CGRectMake(0, 64, self.view.bounds.size.width, 200);
     
     self.player = [[WMPlayer alloc] init];
