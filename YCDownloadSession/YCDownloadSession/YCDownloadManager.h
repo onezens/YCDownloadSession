@@ -138,7 +138,7 @@
 /**
  保存下载状态，一般不用，下载内部自己处理完成
  */
-+ (void)saveDownloadStatus;
+//+ (void)saveDownloadStatus;
 
 
 /**

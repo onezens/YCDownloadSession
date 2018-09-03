@@ -10,11 +10,9 @@
 
 #import "YCDownloadItem.h"
 #import "YCDownloadSession.h"
-#import "YCDownloadDB.h"
 
 NSString * const kDownloadTaskFinishedNoti = @"kDownloadTaskFinishedNoti";
 NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti";
-NSString * const kDownloadItemStoreEntity  = @"YCDownloadItem";
 
 @interface YCDownloadItem()
 @property (nonatomic, copy) NSString *fileExtension;
@@ -22,28 +20,10 @@ NSString * const kDownloadItemStoreEntity  = @"YCDownloadItem";
 @end
 
 @implementation YCDownloadItem
-
-@dynamic fileId;
-@dynamic taskId;
-@dynamic downloadUrl;
-@dynamic fileType;
-@dynamic uid;
-@dynamic saveRootPath;
-@dynamic extraData;
-@dynamic downloadStatus;
-@dynamic downloadedSize;
-@dynamic fileSize;
-@dynamic fileExtension;
-@dynamic rootPath;
-
-@synthesize delegate = _delegate;
-@synthesize enableSpeed = _enableSpeed;
 #pragma mark - init
 
-
 - (instancetype)initWithUrl:(NSString *)url fileId:(NSString *)fileId {
-    NSManagedObjectContext *ctx = [YCDownloadDB sharedDB].context;
-    if (self = [super initWithEntity:[NSEntityDescription entityForName:kDownloadItemStoreEntity inManagedObjectContext:ctx] insertIntoManagedObjectContext:ctx]) {
+    if (self) {
         [self setValue:url forKey:@"downloadUrl"];
         [self setValue:fileId forKey:@"fileId"];
     }
@@ -133,7 +113,7 @@ NSString * const kDownloadItemStoreEntity  = @"YCDownloadItem";
             [weakSelf downloadStatusChanged:YCDownloadStatusFailed downloadTask:nil];
             NSLog(@"[Item completionHanlder] move file failed error: %@ \nlocalPath: %@ \nsavePath:%@", saveError,localPath,self.savePath);
         }
-        [[YCDownloadDB sharedDB] save];
+        [YCDownloadDB saveItem:self];
     };
 }
 

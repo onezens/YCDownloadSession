@@ -8,6 +8,7 @@
 
 #import "YCDownloadUtils.h"
 #import <CommonCrypto/CommonDigest.h>
+#import <sqlite3.h>
 
 #define kCommonUtilsGigabyte (1024 * 1024 * 1024)
 #define kCommonUtilsMegabyte (1024 * 1024)
@@ -73,6 +74,113 @@
     if(![[NSFileManager defaultManager] fileExistsAtPath:path]) return 0;
     NSDictionary *dic = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:nil];
     return dic ? (NSInteger)[dic fileSize] : 0;
+}
+
+@end
+
+
+@implementation YCDownloadDB
+
+static sqlite3 *_db;
+static dispatch_queue_t _dbQueue;
+
++ (void)initialize {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        [self initDatabase];
+    });
+}
+
++ (void)initDatabase{
+    _dbQueue = dispatch_queue_create("YCDownloadDB_Queue", DISPATCH_QUEUE_SERIAL);
+    NSString *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true).firstObject;
+    path = [path stringByAppendingPathComponent:@"download.db"];
+    if (sqlite3_open(path.UTF8String, &_db) != SQLITE_OK) {
+        NSLog(@"[db error]");
+        return;
+    }
+    NSString *sql = @"CREATE TABLE IF NOT EXISTS downloadItem (pid integer PRIMARY KEY AUTOINCREMENT,fileId text,taskId text,downloadUrl text,uid text,fileType text,fileExtension text,rootPath text,fileSize integer,downloadSize integer,downloadStatus integer,extraData blob); \n"
+    "CREATE TABLE IF NOT EXISTS downloadTask (pid integer PRIMARY KEY AUTOINCREMENT,fileId text,taskId text,downloadUrl text,stid integer,saveName text,priority float,enableSpeed bool,fileSize INTEGER,downloadSize INTEGER,compatibleKey text,resumeData blob);";
+    [self performBlock:^BOOL{ return [self execSql:sql]; } sync:true] ? NSLog(@"[init db success]") : false;
+}
+
++ (BOOL)performBlock:(BOOL (^)(void))block sync:(BOOL)sync {
+    __block BOOL result = false;
+    if (sync) {
+        dispatch_sync(_dbQueue, ^{
+            result = block();
+        });
+    }else{
+        dispatch_async(_dbQueue, ^{
+            block();
+        });
+        result = true;
+    }
+    return result;
+}
+
++ (BOOL)execSql:(NSString *)sql {
+    char *error = NULL;
+    sqlite3_exec(_db, sql.UTF8String, NULL, NULL, &error);
+    error ? NSLog(@"[execSql error] %s", error) : false;
+    return error == NULL;
+}
+//while (sqlite3_step(stmt) == SQLITE_ROW) {}
++ (void)selectSql:(NSString *)sql results:(void (^)(sqlite3_stmt *stmt))results {
+    sqlite3_stmt *stmt;
+    if (sqlite3_prepare_v2(_db, sql.UTF8String, -1, &stmt, NULL) == SQLITE_OK) {
+        results(stmt);
+    }
+}
+
++ (NSArray <YCDownloadItem *> *)fetchAllDownloadItem {
+    return nil;
+}
++ (NSArray <YCDownloadItem *> *)fetchAllDownloadedItem {
+    return nil;
+}
++ (NSArray <YCDownloadItem *> *)fetchAllDownloadingItem {
+    return nil;
+}
++ (YCDownloadItem *)itemWithTaskId:(NSString *)taskId {
+    return nil;
+}
++ (YCDownloadItem *)itemWithUrl:(NSString *)downloadUrl {
+    return nil;
+}
++ (YCDownloadItem *)itemWithFid:(NSString *)fid {
+    return nil;
+}
++ (void)removeAllItems {
+    
+}
++ (BOOL)removeItemWithTaskId:(NSString *)taskId {
+    return true;
+}
++ (BOOL)saveItem:(YCDownloadItem *)item {
+    return true;
+}
+
++ (NSArray <YCDownloadTask *> *)fetchAllDownloadTasks {
+    return nil;
+}
++ (YCDownloadTask *)taskWithTid:(NSString *)tid {
+    return nil;
+}
++ (NSArray <YCDownloadTask *> *)taskWithUrl:(NSString *)url {
+    return nil;
+}
++ (YCDownloadTask *)taskWithStid:(NSInteger)stid {
+    return nil;
+}
++ (void)removeAllTasks {
+    
+}
++ (void)removeTask:(YCDownloadTask *)task {
+
+}
++ (BOOL)saveTask:(YCDownloadTask *)task {
+    return true;
 }
 
 @end

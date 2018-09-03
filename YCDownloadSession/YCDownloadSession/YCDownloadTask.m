@@ -8,36 +8,18 @@
 //  Github:     https://github.com/onezens/YCDownloadSession
 //
 
-#import "YCDownloadDB.h"
 #import "YCDownloadTask.h"
 #import "YCDownloadUtils.h"
 
 NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
-NSString * const kDownloadTaskEntityName = @"YCDownloadTask";
 
 @interface YCDownloadTask()
 
 @end
 
+
 @implementation YCDownloadTask
 
-@dynamic taskId;
-@dynamic downloadURL;
-@dynamic resumeData;
-@dynamic fileSize;
-@dynamic downloadedSize;
-@dynamic compatibleKey;
-@dynamic priority;
-@dynamic enableSpeed;
-@dynamic stid;
-
-@synthesize downloadTask = _downloadTask;
-@synthesize tmpName = _tmpName;
-@synthesize tempPath = _tempPath;
-@synthesize needToRestart = _needToRestart;
-@synthesize noNeedToStartNext = _noNeedToStartNext;
-@synthesize progressHandler = _progressHandler;
-@synthesize completionHanlder = _completionHanlder;
 @synthesize progress = _progress;
 
 - (instancetype)init {
@@ -46,8 +28,7 @@ NSString * const kDownloadTaskEntityName = @"YCDownloadTask";
 }
 
 - (instancetype)initWithRequest:(NSURLRequest *)request progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion priority:(float)priority{
-    NSManagedObjectContext *ctx = [YCDownloadDB sharedDB].context;
-    if (self = [super initWithEntity:[NSEntityDescription entityForName:kDownloadTaskEntityName inManagedObjectContext:ctx] insertIntoManagedObjectContext:ctx]) {
+    if (self) {
         NSString *url = request.URL.absoluteString ;
         [self setValue:url forKey:@"downloadURL"];
         [self setValue:[YCDownloadTask taskIdForUrl:url fileId:[NSUUID UUID].UUIDString] forKey:@"taskId"];

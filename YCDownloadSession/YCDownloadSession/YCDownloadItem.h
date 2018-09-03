@@ -34,7 +34,7 @@ typedef NS_ENUM(NSUInteger, YCDownloadStatus) {
 - (void)downloadItem:(YCDownloadItem *)item speed:(NSUInteger)speed speedDesc:(NSString *)speedDesc;
 @end
 
-@interface YCDownloadItem : NSManagedObject
+@interface YCDownloadItem : NSObject
 
 -(instancetype)initWithUrl:(NSString *)url fileId:(NSString *)fileId;
 +(instancetype)itemWithUrl:(NSString *)url fileId:(NSString *)fileId;

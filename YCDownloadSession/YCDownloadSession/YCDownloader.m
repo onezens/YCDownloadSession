@@ -9,7 +9,6 @@
 #import "YCDownloader.h"
 #import "YCDownloadUtils.h"
 #import "YCDownloadTask.h"
-#import "YCDownloadDB.h"
 
 typedef void(^BGRecreateSessionBlock)(void);
 static NSString * const kIsAllowCellar = @"kIsAllowCellar";
@@ -95,7 +94,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 - (void)recoveryExceptionTasks {
     NSMutableDictionary *dictM = [self.session valueForKey:@"tasks"];
     [dictM enumerateKeysAndObjectsUsingBlock:^(NSNumber *_Nonnull key, NSURLSessionDownloadTask *obj, BOOL * _Nonnull stop) {
-        YCDownloadTask *task = [[YCDownloadDB sharedDB] taskWithStid:key.integerValue];
+        YCDownloadTask *task = [YCDownloadDB taskWithStid:key.integerValue];
         NSAssert(task, @"recoveryExceptionTasks no nil!");
         [self memCacheDownloadTask:obj task:task];
         if (!task) [obj cancel];
@@ -116,11 +115,11 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 }
 
 - (void)appWillResignActive {
-    [self saveDownloadInfo];
+    
 }
 
 - (void)appWillTerminate {
-    [self saveDownloadInfo];
+    
 }
 
 #pragma mark - download handler
@@ -144,12 +143,12 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     NSAssert(downloadTask, @"downloadtask can not nil!");
     [self memCacheDownloadTask:downloadTask task:task];
     [task.downloadTask resume];
-    [self saveDownloadInfo];
+    [self saveDownloadTask:task];
     return task;
 }
 
 - (YCDownloadTask *)resumeDownloadTaskWithTid:(NSString *)tid progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion {
-    YCDownloadTask *task = [[YCDownloadDB sharedDB] taskWithTid:tid];
+    YCDownloadTask *task = [YCDownloadDB taskWithTid:tid];
     task.completionHanlder = completion;
     task.progressHandler = progress;
     [self resumeDownloadTask:task];
@@ -157,7 +156,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 }
 
 - (BOOL)canResumeTaskWithTid:(NSString *)tid {
-    YCDownloadTask *task = [[YCDownloadDB sharedDB] taskWithTid:tid];
+    YCDownloadTask *task = [YCDownloadDB taskWithTid:tid];
     return task && (task.downloadTask.state == NSURLSessionTaskStateRunning || task.resumeData != nil);
 }
 
@@ -188,7 +187,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 #pragma mark - recreate session
 
 - (void)prepareRecreateSession {
-    [[[YCDownloadDB sharedDB] fetchAllDownloadTasks] enumerateObjectsUsingBlock:^(YCDownloadTask * _Nonnull task, NSUInteger idx, BOOL * _Nonnull stop) {
+    [[YCDownloadDB fetchAllDownloadTasks] enumerateObjectsUsingBlock:^(YCDownloadTask * _Nonnull task, NSUInteger idx, BOOL * _Nonnull stop) {
         if (task.downloadTask.state == NSURLSessionTaskStateRunning) {
             task.needToRestart = true;
             task.noNeedToStartNext = true;
@@ -202,7 +201,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     
     _session = [self backgroundUrlSession];
     //恢复正在下载的task状态
-    [[[YCDownloadDB sharedDB] fetchAllDownloadTasks] enumerateObjectsUsingBlock:^(YCDownloadTask * _Nonnull task, NSUInteger idx, BOOL * _Nonnull stop) {
+    [[YCDownloadDB fetchAllDownloadTasks] enumerateObjectsUsingBlock:^(YCDownloadTask * _Nonnull task, NSUInteger idx, BOOL * _Nonnull stop) {
         task.downloadTask = nil;
         if (task.needToRestart) {
             task.needToRestart = false;
@@ -232,22 +231,24 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     task.downloadTask = downloadTask;
     task.stid = [self sessionTaskIdWithDownloadTask:downloadTask];
     [self.memCache setObject:task forKey:downloadTask];
-    [self saveDownloadInfo];
+    [self saveDownloadTask:task];
 }
 
 - (void)removeMembCacheTask:(NSURLSessionDownloadTask *)downloadTask task:(YCDownloadTask *)task {
     task.stid = -1;
     task.downloadTask = nil;
     [self.memCache removeObjectForKey:downloadTask];
-    [self saveDownloadInfo];
+    [self saveDownloadTask: task];
 }
 
-- (void)saveDownloadInfo{
-    [[YCDownloadDB sharedDB] save];
-}
+
 - (void)removeDownloadTask:(YCDownloadTask *)task {
-    [[YCDownloadDB sharedDB] removeTask:task];
+    [YCDownloadDB removeTask:task];
     
+}
+
+- (void)saveDownloadTask:(YCDownloadTask *)task {
+    [YCDownloadDB saveTask:task];
 }
 
 #pragma mark - hanlder

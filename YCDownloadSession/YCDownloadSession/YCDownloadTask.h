@@ -9,7 +9,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <CoreData/CoreData.h>
 @class YCDownloadTask;
 
 typedef void (^YCCompletionHanlder)(NSString *localPath, NSError *error);
@@ -21,7 +20,7 @@ extern NSString * const kDownloadTaskEntityName;
 
 #pragma mark - YCDownloadTask
 
-@interface YCDownloadTask : NSManagedObject
+@interface YCDownloadTask : NSObject
 
 @property (nonatomic, copy, readonly) NSString *taskId;
 @property (nonatomic, copy, readonly) NSString *downloadURL;
@@ -42,7 +41,7 @@ extern NSString * const kDownloadTaskEntityName;
 @property (nonatomic, copy) NSString *tempPath;
 @property (nonatomic, strong) NSURLSessionDownloadTask *downloadTask;
 @property (nonatomic, copy) NSString *compatibleKey;
-@property (nonatomic, strong,readonly) NSProgress *progress;
+@property (nonatomic, strong, readonly) NSProgress *progress;
 @property (nonatomic, assign) NSInteger stid;
 /**
  default value: NSURLSessionTaskPriorityDefault

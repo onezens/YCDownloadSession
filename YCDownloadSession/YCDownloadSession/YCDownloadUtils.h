@@ -38,3 +38,28 @@
 + (NSInteger)fileSizeWithPath:(NSString *)path;
 
 @end
+
+
+#import "YCDownloadItem.h"
+#import "YCDownloadTask.h"
+
+@interface YCDownloadDB : NSObject
+
++ (NSArray <YCDownloadItem *> *)fetchAllDownloadItem;
++ (NSArray <YCDownloadItem *> *)fetchAllDownloadedItem;
++ (NSArray <YCDownloadItem *> *)fetchAllDownloadingItem;
++ (YCDownloadItem *)itemWithTaskId:(NSString *)taskId;
++ (YCDownloadItem *)itemWithUrl:(NSString *)downloadUrl;
++ (YCDownloadItem *)itemWithFid:(NSString *)fid;
++ (void)removeAllItems;
++ (BOOL)removeItemWithTaskId:(NSString *)taskId;
++ (BOOL)saveItem:(YCDownloadItem *)item;
+
++ (NSArray <YCDownloadTask *> *)fetchAllDownloadTasks;
++ (YCDownloadTask *)taskWithTid:(NSString *)tid;
++ (NSArray <YCDownloadTask *> *)taskWithUrl:(NSString *)url;
++ (YCDownloadTask *)taskWithStid:(NSInteger)stid; //TODO: add url
++ (void)removeAllTasks;
++ (void)removeTask:(YCDownloadTask *)task;
++ (BOOL)saveTask:(YCDownloadTask *)task;
+@end
