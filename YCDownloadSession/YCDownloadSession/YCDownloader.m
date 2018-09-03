@@ -25,7 +25,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 }
 @property (nonatomic, strong) NSURLSession *session;
 @property (nonatomic, assign) BOOL isNeedCreateSession;
-@property (nonatomic, strong) NSCache *memCache;
+@property (nonatomic, strong) NSMutableDictionary *memCache;
 /**后台下载回调的handlers，所有的下载任务全部结束后调用*/
 @property (nonatomic, copy) BGCompletedHandler completedHandler;
 @end
@@ -47,7 +47,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     if (self = [super init]) {
         NSLog(@"[YCDownloader init]");
         _session = [self backgroundUrlSession];
-        _memCache = [NSCache new];
+        _memCache = [NSMutableDictionary dictionary];
         [self recoveryExceptionTasks];
         [self addNotification];
     }
@@ -183,8 +183,6 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 
 - (void)cancelDownloadTask:(YCDownloadTask *)task{
     [task.downloadTask cancel];
-    [self removeMembCacheTask:task.downloadTask task:task];
-    //TODO: remove task with db
 }
 
 #pragma mark - recreate session
@@ -249,6 +247,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 }
 - (void)removeDownloadTask:(YCDownloadTask *)task {
     [[YCDownloadDB sharedDB] removeTask:task];
+    
 }
 
 #pragma mark - hanlder
@@ -323,7 +322,6 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 - (YCDownloadTask *)taskWithSessionTask:(NSURLSessionDownloadTask *)downloadTask {
     NSAssert(downloadTask, @"taskWithSessionTask downloadTask can not nil!");
     YCDownloadTask *task = [self.memCache objectForKey:downloadTask];
-    NSAssert(task, @"taskWithSessionTask task canot nil!");
     return task;
 }
 
@@ -382,6 +380,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
             //cannot resume
             NSLog(@"[didCompleteWithError] : %@",error);
             task.completionHanlder(nil, error);
+            [self removeMembCacheTask:task.downloadTask task:task];
             [self removeDownloadTask:task];
         }
         [self removeMembCacheTask:downloadTask task:task];

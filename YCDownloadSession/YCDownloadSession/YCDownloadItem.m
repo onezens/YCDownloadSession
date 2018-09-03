@@ -42,7 +42,8 @@ NSString * const kDownloadItemStoreEntity  = @"YCDownloadItem";
 
 
 - (instancetype)initWithUrl:(NSString *)url fileId:(NSString *)fileId {
-    if (self = [super initWithContext:[YCDownloadDB sharedDB].context]) {
+    NSManagedObjectContext *ctx = [YCDownloadDB sharedDB].context;
+    if (self = [super initWithEntity:[NSEntityDescription entityForName:kDownloadItemStoreEntity inManagedObjectContext:ctx] insertIntoManagedObjectContext:ctx]) {
         [self setValue:url forKey:@"downloadUrl"];
         [self setValue:fileId forKey:@"fileId"];
     }

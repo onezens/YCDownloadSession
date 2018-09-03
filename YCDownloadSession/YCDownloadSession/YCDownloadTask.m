@@ -46,7 +46,8 @@ NSString * const kDownloadTaskEntityName = @"YCDownloadTask";
 }
 
 - (instancetype)initWithRequest:(NSURLRequest *)request progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion priority:(float)priority{
-    if (self = [super initWithContext:[YCDownloadDB sharedDB].context]) {
+    NSManagedObjectContext *ctx = [YCDownloadDB sharedDB].context;
+    if (self = [super initWithEntity:[NSEntityDescription entityForName:kDownloadTaskEntityName inManagedObjectContext:ctx] insertIntoManagedObjectContext:ctx]) {
         NSString *url = request.URL.absoluteString ;
         [self setValue:url forKey:@"downloadURL"];
         [self setValue:[YCDownloadTask taskIdForUrl:url fileId:[NSUUID UUID].UUIDString] forKey:@"taskId"];

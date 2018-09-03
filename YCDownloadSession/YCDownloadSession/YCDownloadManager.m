@@ -260,6 +260,7 @@ static id _instance;
     if (item == nil )  return;
     YCDownloadTask *task  = [self taskWithItem:item];
     [[YCDownloader downloader] cancelDownloadTask:task];
+    [[NSFileManager defaultManager] removeItemAtPath:item.savePath error:nil];
     [self removeItemWithTaskId:item.taskId];
     [self saveDownloadItems];
 }
