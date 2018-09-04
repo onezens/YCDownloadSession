@@ -14,7 +14,7 @@
 NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
 
 @interface YCDownloadTask()
-
+@property (nonatomic, assign) NSInteger pid;
 @end
 
 
@@ -27,18 +27,29 @@ NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
     return nil;
 }
 
+- (instancetype)initWithPrivate{
+    if (self = [super init]) {
+    }
+    return self;
+}
+
 - (instancetype)initWithRequest:(NSURLRequest *)request progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion priority:(float)priority{
-    if (self) {
+    if (self = [self initWithPrivate]) {
         NSString *url = request.URL.absoluteString ;
-        [self setValue:url forKey:@"downloadURL"];
-        [self setValue:[YCDownloadTask taskIdForUrl:url fileId:[NSUUID UUID].UUIDString] forKey:@"taskId"];
-        [self setValue:@(priority ? priority : NSURLSessionTaskPriorityDefault) forKey:@"priority"];
+        _downloadURL = url;
+        _taskId = [YCDownloadTask taskIdForUrl:url fileId:[NSUUID UUID].UUIDString];
+        _priority = priority ? priority : NSURLSessionTaskPriorityDefault;
         _progressHandler = progress;
         _completionHanlder = completion;
     }
     return self;
 }
 
++ (instancetype)taskWithDict:(NSMutableDictionary *)dict {
+    YCDownloadTask *task = [[self alloc] initWithPrivate];
+    [task setValuesForKeysWithDictionary:dict];
+    return task;
+}
 
 + (instancetype)taskWithRequest:(NSURLRequest *)request progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion {
     return [[self alloc] initWithRequest:request progress:progress completion:completion priority:0];
@@ -51,7 +62,7 @@ NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
 #pragma mark - public
 
 - (void)updateTask {
-    [self setValue:@([_downloadTask.response expectedContentLength]) forKey:@"fileSize"];
+    _fileSize = [_downloadTask.response expectedContentLength];
 }
 
 - (void)downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize {

@@ -38,7 +38,6 @@ extern NSString * const kDownloadTaskEntityName;
  */
 @property (nonatomic, assign) BOOL noNeedToStartNext;
 @property (nonatomic, copy) NSString *tmpName;
-@property (nonatomic, copy) NSString *tempPath;
 @property (nonatomic, strong) NSURLSessionDownloadTask *downloadTask;
 @property (nonatomic, copy) NSString *compatibleKey;
 @property (nonatomic, strong, readonly) NSProgress *progress;

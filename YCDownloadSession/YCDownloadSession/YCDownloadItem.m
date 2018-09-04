@@ -17,17 +17,28 @@ NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti";
 @interface YCDownloadItem()
 @property (nonatomic, copy) NSString *fileExtension;
 @property (nonatomic, copy) NSString *rootPath;
+@property (nonatomic, assign) NSInteger pid;
 @end
 
 @implementation YCDownloadItem
 #pragma mark - init
-
-- (instancetype)initWithUrl:(NSString *)url fileId:(NSString *)fileId {
-    if (self) {
-        [self setValue:url forKey:@"downloadUrl"];
-        [self setValue:fileId forKey:@"fileId"];
+- (instancetype)initWithPrivate{
+    if (self = [super init]) {
     }
     return self;
+}
+
+- (instancetype)initWithUrl:(NSString *)url fileId:(NSString *)fileId {
+    if (self = [self initWithPrivate]) {
+        _downloadURL = url;
+        _fileId = fileId;
+    }
+    return self;
+}
++ (instancetype)itemWithDict:(NSDictionary *)dict {
+    YCDownloadItem *item = [[YCDownloadItem alloc] initWithPrivate];
+    [item setValuesForKeysWithDictionary:dict];
+    return item;
 }
 + (instancetype)itemWithUrl:(NSString *)url fileId:(NSString *)fileId {
     return [[YCDownloadItem alloc] initWithUrl:url fileId:fileId];
@@ -35,16 +46,16 @@ NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti";
 
 #pragma mark - YCDownloadSessionDelegate
 - (void)downloadProgress:(YCDownloadTask *)task downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize {
-    if (self.fileSize==0)  [self setValue:@(fileSize) forKey:@"fileSize"];
+    if (self.fileSize==0)  _fileSize = fileSize;
     if (!self.fileExtension) [self setFileExtensionWithTask:task];
-    [self setValue:@(downloadedSize) forKey:@"downloadedSize"];
+    _downloadedSize = downloadedSize;
     if ([self.delegate respondsToSelector:@selector(downloadItem:downloadedSize:totalSize:)]) {
         [self.delegate downloadItem:self downloadedSize:downloadedSize totalSize:fileSize];
     }
 }
 
 - (void)downloadStatusChanged:(YCDownloadStatus)status downloadTask:(YCDownloadTask *)task {
-    [self setValue:@(status) forKey:@"downloadStatus"];
+    _downloadStatus = status;
     if ([self.delegate respondsToSelector:@selector(downloadItemStatusChanged:)]) {
         [self.delegate downloadItemStatusChanged:self];
     }
@@ -64,7 +75,7 @@ NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti";
 
 - (void)setSaveRootPath:(NSString *)saveRootPath {
     NSString *path = [saveRootPath stringByReplacingOccurrencesOfString:NSHomeDirectory() withString:@""];
-    [self setValue:path forKey:@"rootPath"];
+    _rootPath = path;
 }
 
 - (NSString *)saveRootPath {
@@ -84,7 +95,7 @@ NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti";
     NSString *extension = response.suggestedFilename.pathExtension;
     if(!extension) extension = [[response.allHeaderFields valueForKey:@"Content-Type"] componentsSeparatedByString:@"/"].lastObject;
     if(!extension) extension = @"data";
-    [self setValue:extension forKey:@"fileExtension"];
+    _fileExtension = extension;
 }
 
 - (YCProgressHanlder)progressHanlder {

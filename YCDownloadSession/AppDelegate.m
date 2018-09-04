@@ -20,11 +20,21 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
+    YCDownloadItem *item = [YCDownloadItem itemWithUrl:@"http://www.baidu.com" fileId:@"dfasfa"];
+    item.taskId = @"53D5BF92s-8891-424sBs-985C-61AEFF3D22B232";
+    item.downloadStatus = YCDownloadStatusPaused;
+    item.enableSpeed = 0;
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"video.json" ofType:nil];
+    item.extraData = [NSData dataWithContentsOfFile:path];
+    [YCDownloadDB saveItem:item];
+    
+    
+    
     //root vc
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-    MainTableViewController *vc = [[MainTableViewController alloc] init];
-    UIViewController *rootVc = [[UINavigationController alloc] initWithRootViewController:vc];
-    self.window.rootViewController = rootVc;
+//    MainTableViewController *vc = [[MainTableViewController alloc] init];
+//    UIViewController *rootVc = [[UINavigationController alloc] initWithRootViewController:vc];
+    self.window.rootViewController = [UIViewController new];
     [self.window makeKeyAndVisible];
     
     //注册通知

@@ -182,7 +182,7 @@ static id _instance;
     YCDownloadItem *oldItem = [YCDownloadDB itemWithTaskId:item.taskId];
     if (oldItem.downloadStatus == YCDownloadStatusFinished) return;
     [YCDownloadDB saveItem:item];
-    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:item.downloadUrl]];
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:item.downloadURL]];
     YCDownloadTask *task = [[YCDownloader downloader] downloadWithRequest:request progress:item.progressHanlder completion:item.completionHanlder priority:priority];
     item.taskId = task.taskId;
 //    YCDownloadTask *task =  [YCDownloadSession.downloadSession startDownloadWithUrl:item.downloadUrl fileId:item.fileId delegate:item priority:priority];
@@ -195,7 +195,7 @@ static id _instance;
 
 //下载文件时候的保存名称，如果没有fileid那么必须 savename = nil
 - (NSString *)saveNameForItem:(YCDownloadItem *)item {
-    NSString *saveName = [item.downloadUrl isEqualToString:item.fileId] ? nil : item.fileId;
+    NSString *saveName = [item.downloadURL isEqualToString:item.fileId] ? nil : item.fileId;
     return saveName;
 }
 

@@ -35,7 +35,7 @@
  */
 + (void)createPathIfNotExist:(NSString *)path;
 
-+ (NSInteger)fileSizeWithPath:(NSString *)path;
++ (NSUInteger)fileSizeWithPath:(NSString *)path;
 
 @end
 
@@ -60,6 +60,6 @@
 + (NSArray <YCDownloadTask *> *)taskWithUrl:(NSString *)url;
 + (YCDownloadTask *)taskWithStid:(NSInteger)stid; //TODO: add url
 + (void)removeAllTasks;
-+ (void)removeTask:(YCDownloadTask *)task;
++ (BOOL)removeTask:(YCDownloadTask *)task;
 + (BOOL)saveTask:(YCDownloadTask *)task;
 @end
