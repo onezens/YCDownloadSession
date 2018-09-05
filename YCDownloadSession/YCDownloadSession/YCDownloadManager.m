@@ -181,10 +181,10 @@ static id _instance;
     if(!item) return;
     YCDownloadItem *oldItem = [YCDownloadDB itemWithTaskId:item.taskId];
     if (oldItem.downloadStatus == YCDownloadStatusFinished) return;
-    [YCDownloadDB saveItem:item];
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:item.downloadURL]];
     YCDownloadTask *task = [[YCDownloader downloader] downloadWithRequest:request progress:item.progressHanlder completion:item.completionHanlder priority:priority];
     item.taskId = task.taskId;
+    [YCDownloadDB saveItem:item];
 //    YCDownloadTask *task =  [YCDownloadSession.downloadSession startDownloadWithUrl:item.downloadUrl fileId:item.fileId delegate:item priority:priority];
 //    task.enableSpeed = item.enableSpeed;
 }
