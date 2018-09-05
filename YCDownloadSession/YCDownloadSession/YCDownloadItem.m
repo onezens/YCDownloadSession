@@ -18,6 +18,7 @@ NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti";
 @property (nonatomic, copy) NSString *fileExtension;
 @property (nonatomic, copy) NSString *rootPath;
 @property (nonatomic, assign) NSInteger pid;
+@property (nonatomic, assign) BOOL isRemoved;
 @end
 
 @implementation YCDownloadItem
@@ -113,7 +114,7 @@ NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti";
     return ^(NSString *localPath, NSError *error){
         NSError *saveError = nil;
         if([[NSFileManager defaultManager] fileExistsAtPath:self.savePath]){
-            NSLog(@"[Item completionHanlder] Warning file Exist at path: %@ and replaced it!", self.savePath);
+            NSLog(@"[Item completionHanlder] Warning file Exist at path: %@ and replaced it!", weakSelf.savePath);
             [[NSFileManager defaultManager] removeItemAtPath:self.savePath error:nil];
         }
         if (error) {
@@ -124,7 +125,7 @@ NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti";
             [weakSelf downloadStatusChanged:YCDownloadStatusFailed downloadTask:nil];
             NSLog(@"[Item completionHanlder] move file failed error: %@ \nlocalPath: %@ \nsavePath:%@", saveError,localPath,self.savePath);
         }
-        [YCDownloadDB saveItem:self];
+        if(!weakSelf.isRemoved) [YCDownloadDB saveItem:weakSelf];
     };
 }
 

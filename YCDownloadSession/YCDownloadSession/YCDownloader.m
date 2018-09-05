@@ -162,6 +162,11 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 
 - (BOOL)resumeDownloadTask:(YCDownloadTask *)task {
     if (!task.resumeData) return false;
+    if (task.downloadTask && self.memCache[task.downloadTask]) {
+        return true;
+    }else if (task.downloadTask){
+        NSAssert(false, @"exception condition!");
+    }
     NSURLSessionDownloadTask *downloadTask = nil;
     @try {
         downloadTask = [YCResumeData downloadTaskWithCorrectResumeData:task.resumeData urlSession:self.session];
@@ -377,12 +382,13 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
             }
             task.resumeData = resumeData;
             task.downloadTask = nil;
+            [self saveDownloadTask:task];
         }else{
             //cannot resume
             NSLog(@"[didCompleteWithError] : %@",error);
             task.completionHanlder(nil, error);
-            [self removeMembCacheTask:task.downloadTask task:task];
             [self removeDownloadTask:task];
+            [self removeMembCacheTask:task.downloadTask task:task];
         }
         [self removeMembCacheTask:downloadTask task:task];
     }

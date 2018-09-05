@@ -63,6 +63,7 @@ static NSString * const kDownloadTaskIdKey = @"kDownloadTaskIdKey";
     self.progressLbl = lbl;
     [self.view addSubview:lbl];
     [YCDownloader downloader];
+    [self resume];
 }
 
 - (void)downloadProgress:(YCDownloadTask *)task downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize {

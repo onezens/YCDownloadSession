@@ -36,7 +36,6 @@ typedef void (^BGCompletedHandler)(void);
 
 - (void)cancelDownloadTask:(YCDownloadTask *)task;
 
-- (void)recoveryExceptionTasks;
 
 /**
  后台某一下载任务完成时，第一次在AppDelegate中的 -(void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler

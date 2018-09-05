@@ -394,7 +394,8 @@
 		D72C84EA1E77D46100EDCEEF /* YCDownloadSession */ = {
 			isa = PBXGroup;
 			children = (
-				D72C84EB1E77D47200EDCEEF /* YCDownloadSession.h */,
+				354D5ECD2134042900C33509 /* YCDownloader.h */,
+				354D5ECE2134042900C33509 /* YCDownloader.m */,
 				3532E34320DCD2E800B3EF5B /* YCDownloadUtils.h */,
 				3532E34420DCD2E800B3EF5B /* YCDownloadUtils.m */,
 				D775A4001E791C9E00117D97 /* YCDownloadTask.h */,
@@ -403,8 +404,7 @@
 				D750A1451F2AE2FC00EC6796 /* YCDownloadItem.m */,
 				D750A1411F2ADEDC00EC6796 /* YCDownloadManager.h */,
 				D750A1421F2ADEDC00EC6796 /* YCDownloadManager.m */,
-				354D5ECD2134042900C33509 /* YCDownloader.h */,
-				354D5ECE2134042900C33509 /* YCDownloader.m */,
+				D72C84EB1E77D47200EDCEEF /* YCDownloadSession.h */,
 			);
 			path = YCDownloadSession;
 			sourceTree = "<group>";

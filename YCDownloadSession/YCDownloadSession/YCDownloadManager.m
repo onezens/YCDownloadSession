@@ -10,6 +10,10 @@
 
 #import "YCDownloadManager.h"
 
+@interface YCDownloadItem(Mgr)
+@property (nonatomic, assign) BOOL isRemoved;
+@end
+
 @interface YCDownloadManager ()
 @property (nonatomic, assign) BOOL localPushOn;
 @property (nonatomic, strong) NSCache *memCache;
@@ -254,11 +258,12 @@ static id _instance;
 
 - (void)stopDownloadWithItem:(YCDownloadItem *)item {
     if (item == nil )  return;
+    item.isRemoved = true;
     YCDownloadTask *task  = [self taskWithItem:item];
     [[YCDownloader downloader] cancelDownloadTask:task];
     [[NSFileManager defaultManager] removeItemAtPath:item.savePath error:nil];
     [self removeItemWithTaskId:item.taskId];
-    [self saveDownloadItem:item];
+    [YCDownloadDB removeTask:task];
 }
 
 - (void)pauseAllDownloadTask {
