@@ -146,8 +146,8 @@
 		D72C84E21E77D42500EDCEEF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		D72C84E41E77D42500EDCEEF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D72C84EB1E77D47200EDCEEF /* YCDownloadSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YCDownloadSession.h; sourceTree = "<group>"; };
-		D750A1411F2ADEDC00EC6796 /* YCDownloadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YCDownloadManager.h; path = YCDownloadSession/YCDownloadSession/YCDownloadManager.h; sourceTree = SOURCE_ROOT; };
-		D750A1421F2ADEDC00EC6796 /* YCDownloadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YCDownloadManager.m; path = YCDownloadSession/YCDownloadSession/YCDownloadManager.m; sourceTree = SOURCE_ROOT; };
+		D750A1411F2ADEDC00EC6796 /* YCDownloadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YCDownloadManager.h; path = YCDownloadSession/YCDownloadManager.h; sourceTree = SOURCE_ROOT; };
+		D750A1421F2ADEDC00EC6796 /* YCDownloadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YCDownloadManager.m; path = YCDownloadSession/YCDownloadManager.m; sourceTree = SOURCE_ROOT; };
 		D750A1441F2AE2FC00EC6796 /* YCDownloadItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YCDownloadItem.h; sourceTree = "<group>"; };
 		D750A1451F2AE2FC00EC6796 /* YCDownloadItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YCDownloadItem.m; sourceTree = "<group>"; };
 		D75627FD1EE799F200A031FE /* video.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = video.json; sourceTree = "<group>"; };
@@ -379,7 +379,8 @@
 				D72C84E41E77D42500EDCEEF /* Info.plist */,
 				D72C84D31E77D42500EDCEEF /* Supporting Files */,
 			);
-			path = YCDownloadSession;
+			name = YCDownloadSession;
+			path = YCDownloadSessionDemo/YCDownloadSession;
 			sourceTree = "<group>";
 		};
 		D72C84D31E77D42500EDCEEF /* Supporting Files */ = {
@@ -406,7 +407,8 @@
 				D750A1421F2ADEDC00EC6796 /* YCDownloadManager.m */,
 				D72C84EB1E77D47200EDCEEF /* YCDownloadSession.h */,
 			);
-			path = YCDownloadSession;
+			name = YCDownloadSession;
+			path = ../../YCDownloadSession;
 			sourceTree = "<group>";
 		};
 		D789467E1E837BEF00284B35 /* ThirdLib */ = {
@@ -816,9 +818,9 @@
 				DEVELOPMENT_TEAM = 6QXR4W42GG;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/YCDownloadSession/ThirdLib/Bugly",
+					"$(PROJECT_DIR)/YCDownloadSessionDemo/YCDownloadSession/ThirdLib/Bugly",
 				);
-				INFOPLIST_FILE = YCDownloadSession/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/YCDownloadSessionDemo/YCDownloadSession/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = cc.onezen.YCDownload;
@@ -838,9 +840,9 @@
 				DEVELOPMENT_TEAM = 6QXR4W42GG;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/YCDownloadSession/ThirdLib/Bugly",
+					"$(PROJECT_DIR)/YCDownloadSessionDemo/YCDownloadSession/ThirdLib/Bugly",
 				);
-				INFOPLIST_FILE = YCDownloadSession/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/YCDownloadSessionDemo/YCDownloadSession/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = cc.onezen.YCDownload;
