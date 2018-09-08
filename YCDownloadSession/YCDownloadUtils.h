@@ -45,13 +45,15 @@
 
 @interface YCDownloadDB : NSObject
 
-+ (NSArray <YCDownloadItem *> *)fetchAllDownloadItem;
-+ (NSArray <YCDownloadItem *> *)fetchAllDownloadedItem;
-+ (NSArray <YCDownloadItem *> *)fetchAllDownloadingItem;
++ (void)saveAllData;
+
++ (NSArray <YCDownloadItem *> *)fetchAllDownloadItemWithUid:(NSString *)uid;
++ (NSArray <YCDownloadItem *> *)fetchAllDownloadedItemWithUid:(NSString *)uid;
++ (NSArray <YCDownloadItem *> *)fetchAllDownloadingItemWithUid:(NSString *)uid;
++ (NSArray <YCDownloadItem *> *)itemsWithUrl:(NSString *)downloadUrl uid:(NSString *)uid;
 + (YCDownloadItem *)itemWithTaskId:(NSString *)taskId;
-+ (YCDownloadItem *)itemWithUrl:(NSString *)downloadUrl;
-+ (YCDownloadItem *)itemWithFid:(NSString *)fid;
-+ (void)removeAllItems;
++ (YCDownloadItem *)itemWithFid:(NSString *)fid uid:(NSString *)uid;
++ (void)removeAllItemsWithUid:(NSString *)uid;
 + (BOOL)removeItemWithTaskId:(NSString *)taskId;
 + (BOOL)saveItem:(YCDownloadItem *)item;
 
@@ -62,4 +64,5 @@
 + (void)removeAllTasks;
 + (BOOL)removeTask:(YCDownloadTask *)task;
 + (BOOL)saveTask:(YCDownloadTask *)task;
+
 @end

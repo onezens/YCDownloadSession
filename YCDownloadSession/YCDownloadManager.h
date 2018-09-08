@@ -114,21 +114,6 @@
 + (void)removeAllCache;
 
 /**
- 根据 tid 判断该下载是否已经创建, tid可以是: fileId, downloadUrl
- */
-+ (BOOL)isDownloadWithId:(NSString *)tid;
-
-/**
- 根据 taskId 获取该资源的下载状态, tid可以是: fileId, downloadUrl
- */
-+ (YCDownloadStatus)downloasStatusWithId:(NSString *)tid;
-
-/**
- 根据 taskId 获取该资源的下载详细信息, tid可以是: fileId, downloadUrl
- */
-+ (YCDownloadItem *)downloadItemWithId:(NSString *)tid;
-
-/**
  获取所有的未完成的下载item
  */
 + (NSArray *)downloadList;
@@ -137,6 +122,16 @@
  获取所有已完成的下载item
  */
 + (NSArray *)finishList;
+
+/**
+ 根据fileId获取item
+ */
++ (YCDownloadItem *)itemWithFileId:(NSString *)fid;
+
+/**
+ 根据downloadUrl获取item
+ */
++ (NSArray *)itemsWithDownloadUrl:(NSString *)downloadUrl;
 
 /**
  获取所有下载数据所占用的磁盘空间，不包括YCDownloadSession单独下载的文件
@@ -160,7 +155,6 @@
  本地通知的开关，默认是false,可以根据通知名称自定义通知类型
  */
 + (void)localPushOn:(BOOL)isOn;
-
 
 
 @end

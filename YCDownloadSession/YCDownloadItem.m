@@ -9,7 +9,7 @@
 //
 
 #import "YCDownloadItem.h"
-#import "YCDownloadSession.h"
+#import "YCDownloadUtils.h"
 
 NSString * const kDownloadTaskFinishedNoti = @"kDownloadTaskFinishedNoti";
 NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti";
@@ -140,7 +140,7 @@ NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti";
 
 - (NSString *)saveDirectory {
     NSString *path = [self saveRootPath];
-    path = [path stringByAppendingFormat:@"/%@/%@", (self.uid ? self.uid : @"YCDownloadUID"), (self.fileType ? self.fileType : @"data")];
+    path = [path stringByAppendingFormat:@"/%@/%@", self.uid, (self.fileType ? self.fileType : @"data")];
     [YCDownloadUtils createPathIfNotExist:path];
     return path;
 }

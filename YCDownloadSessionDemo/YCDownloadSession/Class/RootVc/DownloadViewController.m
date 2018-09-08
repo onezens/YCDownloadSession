@@ -8,7 +8,6 @@
 
 #import "DownloadViewController.h"
 #import "YCDownloadSession.h"
-#import "YCDownloader.h"
 
 static NSString * const kDownloadTaskIdKey = @"kDownloadTaskIdKey";
 @interface DownloadViewController ()
@@ -53,7 +52,7 @@ static NSString * const kDownloadTaskIdKey = @"kDownloadTaskIdKey";
     [pauseBtn addTarget:self action:@selector(pause) forControlEvents:UIControlEventTouchUpInside];
     [pauseBtn setTitleColor:[UIColor cyanColor] forState:UIControlStateHighlighted];
     [self.view addSubview:pauseBtn];
-
+    
     self.downloadURL = @"http://dldir1.qq.com/qqfile/QQforMac/QQ_V6.0.1.dmg";
     
     UILabel *lbl = [[UILabel alloc] init];
@@ -63,7 +62,12 @@ static NSString * const kDownloadTaskIdKey = @"kDownloadTaskIdKey";
     self.progressLbl = lbl;
     [self.view addSubview:lbl];
     [YCDownloader downloader];
-    [self resume];
+    NSString *tid = [[NSUserDefaults standardUserDefaults] valueForKey:kDownloadTaskIdKey];
+    YCDownloadTask *task = [YCDownloadDB taskWithTid:tid];
+    if (task.downloadTask && task.downloadTask.state == NSURLSessionTaskStateRunning) {
+        [self resume];
+    }
+    
 }
 
 - (void)downloadProgress:(YCDownloadTask *)task downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize {
@@ -80,11 +84,12 @@ static NSString * const kDownloadTaskIdKey = @"kDownloadTaskIdKey";
 }
 
 - (void)start {
-     self.downloadTask = [[YCDownloader downloader] downloadWithUrl:self.downloadURL progress:^(NSProgress *progress, YCDownloadTask *task) {
-       self.progressLbl.text = [NSString stringWithFormat:@"%f",progress.fractionCompleted];
+    self.downloadTask = [[YCDownloader downloader] downloadWithUrl:self.downloadURL progress:^(NSProgress *progress, YCDownloadTask *task) {
+        self.progressLbl.text = [NSString stringWithFormat:@"%f",progress.fractionCompleted];
     } completion:^(NSString *localPath, NSError *error) {
         NSLog(@"%@", localPath);
     }];
+    self.downloadTask.extraData = [@"dfasdfasdfa" dataUsingEncoding:NSUTF8StringEncoding];
     [[NSUserDefaults standardUserDefaults] setValue:self.downloadTask.taskId forKey:kDownloadTaskIdKey];
     
 }

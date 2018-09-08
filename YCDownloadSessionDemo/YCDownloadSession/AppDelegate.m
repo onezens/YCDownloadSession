@@ -33,7 +33,7 @@
     }
     
     //setup bugly
-    [self setUpBugly];
+//    [self setUpBugly];
     
     //setup downloadsession
     [self setUpDownload];
@@ -47,7 +47,7 @@
     YCDownloadMgr.saveRootPath = path;
     YCDownloadMgr.uid = @"100006";
     YCDownloadMgr.maxTaskCount = 3;
-    [YCDownloader downloader].taskMode = YCDownloadTaskModeDefault;
+    [YCDownloader downloader].tasCachekMode = YCDownloadTaskCacheModeDefault;
 }
 
 - (void)setUpBugly {
@@ -67,7 +67,12 @@
 
 
 - (void)applicationWillResignActive:(UIApplication *)application {
+//    YCDownloadMgr.uid = [YCDownloadMgr.uid isEqualToString: @"100007"] ? @"100006" : @"100007";
+    NSLog(@"%s", __func__);
+}
 
+- (void)applicationWillTerminate:(UIApplication *)application {
+    NSLog(@"%s", __func__);
 }
 
 @end

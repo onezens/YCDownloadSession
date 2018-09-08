@@ -10,11 +10,15 @@
 #import "YCDownloadTask.h"
 typedef void (^BGCompletedHandler)(void);
 
-
-typedef enum : NSUInteger {
-    YCDownloadTaskModeDefault, /**下载完成后，删除库中的下载数据*/
-    YCDownloadTaskModeNoDeleteByFinished /**下载完成后，不删除库中的下载数据*/
-} YCDownloadTaskMode;
+/**
+ 下载完成后的数据处理行为
+ - YCDownloadTaskCacheModeDefault: 下载完成后，删除库中的下载数据
+ - YCDownloadTaskCacheModeKeep: 下载完成后，不删除库中的下载数据
+ */
+typedef NS_ENUM(NSUInteger, YCDownloadTaskCacheMode) {
+    YCDownloadTaskCacheModeDefault,
+    YCDownloadTaskCacheModeKeep
+};
 
 @interface YCDownloader : NSObject
 /**
@@ -25,7 +29,7 @@ typedef enum : NSUInteger {
 /**
  下载完成后的数据处理行为
  */
-@property (nonatomic, assign) YCDownloadTaskMode taskMode;
+@property (nonatomic, assign) YCDownloadTaskCacheMode tasCachekMode;
 
 + (instancetype)downloader;
 

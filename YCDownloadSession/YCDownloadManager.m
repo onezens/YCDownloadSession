@@ -17,12 +17,14 @@
 @end
 
 @interface YCDownloadManager ()
+
 @property (nonatomic, assign) BOOL localPushOn;
 @property (nonatomic, strong) NSMutableDictionary <NSString *, YCDownloadItem *> *memCache;
 @end
 
 @implementation YCDownloadManager
 
+@synthesize uid = _uniqueId;
 static id _instance;
 
 #pragma mark - init
@@ -45,11 +47,6 @@ static id _instance;
 
 - (void)saveDownloadItem:(YCDownloadItem *)item {
     [YCDownloadDB saveItem:item];
-}
-
-- (NSString *)downloadItemSavePath {
-    NSString *saveDir = @"";
-    return [saveDir stringByAppendingFormat:@"/video/items.data"];
 }
 
 - (void)addNotification {
@@ -106,28 +103,20 @@ static id _instance;
     [YCDownloadMgr removeAllCache];
 }
 
++ (YCDownloadItem *)itemWithFileId:(NSString *)fid {
+    return [YCDownloadMgr itemWithFileId:fid];
+}
+
++ (NSArray *)itemsWithDownloadUrl:(NSString *)downloadUrl {
+    return [YCDownloadManager itemsWithDownloadUrl:downloadUrl];
+}
+
 + (NSArray *)downloadList {
-    return [YCDownloadDB fetchAllDownloadingItem];
+    return [YCDownloadDB fetchAllDownloadingItemWithUid:YCDownloadMgr.uid];
 }
 + (NSArray *)finishList {
-    return [YCDownloadDB fetchAllDownloadedItem];
+    return [YCDownloadDB fetchAllDownloadedItemWithUid:YCDownloadMgr.uid];
 }
-
-+ (BOOL)isDownloadWithId:(NSString *)tid {
-    return [self downloadItemWithId:tid] != nil;
-}
-
-+ (YCDownloadStatus)downloasStatusWithId:(NSString *)tid {
-    YCDownloadItem *item = [self downloadItemWithId:tid];
-    return item ? item.downloadStatus : YCDownloadStatusNotExist;
-}
-
-+ (YCDownloadItem *)downloadItemWithId:(NSString *)tid {
-    YCDownloadItem *item = [YCDownloadDB itemWithFid:tid];
-    if (!item) item = [YCDownloadDB itemWithUrl:tid];
-    return item;
-}
-
 
 #pragma mark - setter or getter
 
@@ -139,9 +128,14 @@ static id _instance;
 }
 
 - (void)setUid:(NSString *)uid {
-    if ([_uid isEqualToString:uid]) return;
+    if ([_uniqueId isEqualToString:uid]) return;
     [self pauseAllDownloadTask];
-    _uid = uid;
+    [self.memCache removeAllObjects];
+    _uniqueId = uid;
+}
+
+- (NSString *)uid {
+    return _uniqueId ? : @"YCDownloadUID";
 }
 
 #pragma mark tools
@@ -185,15 +179,7 @@ static id _instance;
 }
 
 - (YCDownloadItem *)itemWithTaskId:(NSString *)taskId {
-    NSArray *items = [YCDownloadDB fetchAllDownloadItem];
-    __block YCDownloadItem *item = nil;
-    [items enumerateObjectsUsingBlock:^(YCDownloadItem *obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        if ([obj.taskId isEqualToString:taskId]) {
-            item = obj;
-            *stop = true;
-        }
-    }];
-    return item;
+    return [YCDownloadDB itemWithTaskId:taskId];
 }
 
 - (void)removeItemWithTaskId:(NSString *)taskId {
@@ -237,23 +223,24 @@ static id _instance;
     [YCDownloadDB removeTask:task];
 }
 
+
 - (void)pauseAllDownloadTask {
-    [[YCDownloadDB fetchAllDownloadingItem] enumerateObjectsUsingBlock:^(YCDownloadItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+    [[YCDownloadDB fetchAllDownloadingItemWithUid:self.uid] enumerateObjectsUsingBlock:^(YCDownloadItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         [self pauseDownloadWithItem:obj];
     }];
 }
 
 - (void)removeAllCache {
-    [[YCDownloadDB fetchAllDownloadItem] enumerateObjectsUsingBlock:^(YCDownloadItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+    [[YCDownloadDB fetchAllDownloadItemWithUid:self.uid] enumerateObjectsUsingBlock:^(YCDownloadItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         YCDownloadTask *task = [self taskWithItem:obj];
         [self stopDownloadWithItem:obj];
         [YCDownloadDB removeTask:task];
     }];
-    [YCDownloadDB removeAllItems];
+    [YCDownloadDB removeAllItemsWithUid:self.uid];
 }
 
 - (void)resumeAllDownloadTask{
-    NSArray <YCDownloadItem *> *downloading = [YCDownloadDB fetchAllDownloadingItem];
+    NSArray <YCDownloadItem *> *downloading = [YCDownloadDB fetchAllDownloadingItemWithUid:self.uid];
     [downloading enumerateObjectsUsingBlock:^(YCDownloadItem *item, NSUInteger idx, BOOL * _Nonnull stop) {
         if (item.downloadStatus == YCDownloadStatusPaused || item.downloadStatus == YCDownloadStatusFailed) {
             [self resumeDownloadWithItem:item];
@@ -273,6 +260,14 @@ static id _instance;
     self.localPushOn = isOn;
 }
 
+- (YCDownloadItem *)itemWithFileId:(NSString *)fid {
+    return [YCDownloadDB itemWithFid:fid uid:self.uid];
+}
+
+- (NSArray *)itemsWithDownloadUrl:(NSString *)downloadUrl {
+    return [YCDownloadDB itemsWithUrl:downloadUrl uid:self.uid];
+}
+
 #pragma mark notificaton
 
 - (void)downloadAllTaskFinished{
@@ -288,7 +283,6 @@ static id _instance;
     }
     [self saveDownloadItem:item];
 }
-
 
 #pragma mark local push
 

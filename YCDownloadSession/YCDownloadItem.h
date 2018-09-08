@@ -17,7 +17,7 @@ extern NSString * const kDownloadNeedSaveDataNoti;
 extern NSString * const kDownloadItemStoreEntity;
 
 typedef NS_ENUM(NSUInteger, YCDownloadStatus) {
-    YCDownloadStatusNotExist,
+    YCDownloadStatusUnknow,
     YCDownloadStatusWaiting,
     YCDownloadStatusDownloading,
     YCDownloadStatusPaused,

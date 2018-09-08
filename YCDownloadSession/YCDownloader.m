@@ -25,7 +25,6 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 @property (nonatomic, strong) NSURLSession *session;
 @property (nonatomic, assign) BOOL isNeedCreateSession;
 @property (nonatomic, strong) NSMutableDictionary *memCache;
-/**后台下载回调的handlers，所有的下载任务全部结束后调用*/
 @property (nonatomic, copy) BGCompletedHandler completedHandler;
 @end
 
@@ -98,23 +97,13 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 - (void)addNotification {
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive) name:UIApplicationWillResignActiveNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillTerminate) name:UIApplicationWillTerminateNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillBecomeActive) name:UIApplicationDidBecomeActiveNotification object:nil];
-    
 }
 
 #pragma mark - event
 
-- (void)appWillBecomeActive {
-    
-}
 
 - (void)appWillResignActive {
-    
-}
-
-- (void)appWillTerminate {
-    
+    [YCDownloadDB saveAllData];
 }
 
 #pragma mark - download handler
@@ -224,7 +213,6 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     return [[NSUserDefaults standardUserDefaults] boolForKey:kIsAllowCellar];
 }
 
-
 #pragma mark - cache
 
 - (void)memCacheDownloadTask:(NSURLSessionDownloadTask *)downloadTask  task:(YCDownloadTask *)task{
@@ -241,6 +229,12 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     [self saveDownloadTask: task];
 }
 
+- (void)completionDownloadTask:(YCDownloadTask *)task {
+    if (self.tasCachekMode == YCDownloadTaskCacheModeDefault) {
+        [self removeDownloadTask:task];
+        [self removeMembCacheTask:task.downloadTask task:task];
+    }
+}
 
 - (void)removeDownloadTask:(YCDownloadTask *)task {
     [YCDownloadDB removeTask:task];
@@ -339,7 +333,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     }else{
         if(task.completionHanlder) task.completionHanlder(localPath, nil);
     }
-    [self removeDownloadTask:task];
+    [self completionDownloadTask:task];
     
 }
 
@@ -381,8 +375,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
             //cannot resume
             NSLog(@"[didCompleteWithError] : %@",error);
             task.completionHanlder(nil, error);
-            [self removeDownloadTask:task];
-            [self removeMembCacheTask:task.downloadTask task:task];
+            [self completionDownloadTask:task];
         }
         [self removeMembCacheTask:downloadTask task:task];
     }
