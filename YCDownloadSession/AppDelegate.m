@@ -8,15 +8,14 @@
 
 #import "AppDelegate.h"
 #import "MainTableViewController.h"
-#import "YCDownloadManager.h"
 #import <Bugly/Bugly.h>
+#import "YCDownloadSession.h"
 
 @interface AppDelegate ()
 
 @end
 
 @implementation AppDelegate
-
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
@@ -43,21 +42,12 @@
 }
 
 - (void)setUpDownload {
-    //Thanks feedback: @一品戴砖侍卫
-    //https://developer.apple.com/library/content/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/FileSystemOverview/FileSystemOverview.html#//apple_ref/doc/uid/TP40010672-CH2-SW2
-    //必须在设置用户之前设置目录， 也可以忽略用户标志，根据不同的用户指定根路径
-//    [YCDownloadSession setSaveRootPath:^NSString *{
-//        NSString *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true).firstObject;
-//        path = [path stringByAppendingPathComponent:@"download/data"];
-//        return path;
-//    }];
-    
-    //不同用户，不同的下载数据.注意：切换用户之后重新调用下setGetUserIdentify:方法，来刷新数据
-//    [YCDownloadMgr setGetUserIdentify:^NSString *{
-//        //切换用户，这里最好使用get方法
-//        return @"10002";
-//    }];
-    
+    NSString *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true).firstObject;
+    path = [path stringByAppendingPathComponent:@"download"];
+    YCDownloadMgr.saveRootPath = path;
+    YCDownloadMgr.uid = @"100006";
+    YCDownloadMgr.maxTaskCount = 3;
+    [YCDownloader downloader].taskMode = YCDownloadTaskModeDefault;
 }
 
 - (void)setUpBugly {
@@ -72,14 +62,12 @@
 
 -(void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler{
     NSLog(@"%s", __func__);
-//    [[YCDownloadSession downloadSession] addCompletionHandler:completionHandler identifier:identifier];
+    [[YCDownloader downloader] addCompletionHandler:completionHandler identifier:identifier];
 }
 
 
 - (void)applicationWillResignActive:(UIApplication *)application {
-//    [YCDownloadMgr setGetUserIdentify:^NSString *{
-//        return @"10001";
-//    }];
+
 }
 
 @end

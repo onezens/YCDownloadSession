@@ -22,9 +22,12 @@ NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti";
 @end
 
 @implementation YCDownloadItem
+
 #pragma mark - init
+
 - (instancetype)initWithPrivate{
     if (self = [super init]) {
+        _version = [YCDownloadTask downloaderVerison];
     }
     return self;
 }
@@ -132,7 +135,7 @@ NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti";
 #pragma mark - public
 
 - (NSString *)compatibleKey {
-    return [YCDownloader downloadVersion];
+    return [YCDownloadTask downloaderVerison];
 }
 
 - (NSString *)saveDirectory {

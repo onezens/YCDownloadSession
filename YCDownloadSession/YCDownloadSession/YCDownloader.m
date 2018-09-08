@@ -58,11 +58,6 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     NSAssert(false, @"use +[YCDownloader downloader] instead!");
     return nil;
 }
-
-+ (NSString *)downloadVersion {
-    return @"2.0.0";
-}
-
 - (NSString *)backgroundSessionIdentifier {
     NSString *bundleId = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
     NSString *identifier = [NSString stringWithFormat:@"%@.BackgroundSession", bundleId];
@@ -314,7 +309,6 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 
 
 - (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(nullable NSError *)error {
-    
     if (self.isNeedCreateSession) {
         self.isNeedCreateSession = false;
         [self recreateSession];

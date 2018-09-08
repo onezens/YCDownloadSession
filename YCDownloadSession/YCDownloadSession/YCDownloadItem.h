@@ -42,7 +42,7 @@ typedef NS_ENUM(NSUInteger, YCDownloadStatus) {
 @property (nonatomic, copy) NSString *taskId;
 @property (nonatomic, copy, readonly) NSString *fileId;
 @property (nonatomic, copy, readonly) NSString *downloadURL;
-@property (nonatomic, copy, readonly) NSString *compatibleKey;
+@property (nonatomic, copy, readonly) NSString *version;
 @property (nonatomic, assign, readonly) NSUInteger fileSize;
 @property (nonatomic, assign, readonly) NSUInteger downloadedSize;
 @property (nonatomic, weak) id <YCDownloadItemDelegate> delegate;

@@ -41,6 +41,7 @@ NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
         _priority = priority ? priority : NSURLSessionTaskPriorityDefault;
         _progressHandler = progress;
         _completionHanlder = completion;
+        _version = [YCDownloadTask downloaderVerison];
     }
     return self;
 }
@@ -63,10 +64,6 @@ NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
 
 - (void)updateTask {
     _fileSize = [_downloadTask.response expectedContentLength];
-}
-
-- (void)downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize {
-
 }
 
 #pragma mark - setter
@@ -114,6 +111,9 @@ NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
     return url;
 }
 
++ (NSString *)downloaderVerison {
+    return @"2.0.0";
+}
 #pragma mark - private
 
 
@@ -134,15 +134,6 @@ NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
 //    _preDownloadedSize = _downloadedSize;
 //
 //}
-
-+ (NSString *)getPathExtensionWithUrl:(NSString *)url {
-    //过滤url中的参数，取出单独文件名
-    NSRange range = [url rangeOfString:@"?"];
-    if (range.location != NSNotFound) {
-        url = [url substringToIndex:range.location];
-    }
-    return url.pathExtension;
-}
 
 -(void)dealloc {
 //    [self stopTimer];

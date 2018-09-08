@@ -101,11 +101,11 @@ typedef NS_ENUM(NSUInteger, YCDownloadDBValueType) {
 static sqlite3 *_db;
 static dispatch_queue_t _dbQueue;
 //tasks
-static const char* allTaskKeys[] = {"taskId", "downloadURL", "stid", "priority", "enableSpeed", "fileSize", "downloadedSize", "compatibleKey", "tmpName", "resumeData"};
+static const char* allTaskKeys[] = {"taskId", "downloadURL", "stid", "priority", "enableSpeed", "fileSize", "downloadedSize", "version", "tmpName", "resumeData", "extraData"};
 static NSMutableDictionary *_memCacheTasks;
 
 //items
-static const char* allItemKeys[] = {"fileId", "taskId", "downloadURL", "uid", "fileType", "fileExtension", "rootPath", "fileSize", "downloadedSize", "downloadStatus", "extraData"};
+static const char* allItemKeys[] = {"fileId", "taskId", "downloadURL", "uid", "fileType", "fileExtension", "rootPath", "fileSize", "downloadedSize", "downloadStatus", "extraData", "version"};
 static NSMutableDictionary *_memCacheItems;
 
 #pragma mark - init db
@@ -125,8 +125,8 @@ static NSMutableDictionary *_memCacheItems;
         NSLog(@"[db error]");
         return;
     }
-    NSString *sql = @"CREATE TABLE IF NOT EXISTS downloadItem (pid integer PRIMARY KEY AUTOINCREMENT,taskId text not null unique,fileId text unique, downloadURL text,uid text,fileType text,fileExtension text,rootPath text,fileSize integer,downloadedSize integer,downloadStatus integer,extraData BLOB); \n"
-    "CREATE TABLE IF NOT EXISTS downloadTask (pid integer PRIMARY KEY AUTOINCREMENT,taskId text not null unique,downloadURL text,stid integer, text,priority float,enableSpeed integer,fileSize INTEGER,downloadedSize INTEGER,compatibleKey text,resumeData BLOB,tmpName text);";
+    NSString *sql = @"CREATE TABLE IF NOT EXISTS downloadItem (pid integer PRIMARY KEY AUTOINCREMENT,taskId text not null unique,fileId text unique, downloadURL text,uid text,fileType text,fileExtension text,rootPath text,fileSize integer,downloadedSize integer,downloadStatus integer,extraData BLOB, version text not null); \n"
+    "CREATE TABLE IF NOT EXISTS downloadTask (pid integer PRIMARY KEY AUTOINCREMENT,taskId text not null unique, downloadURL text, stid integer, priority float, enableSpeed integer, fileSize INTEGER, downloadedSize INTEGER, version text not null, tmpName text, resumeData BLOB, extraData BLOB);";
     [self performBlock:^BOOL{ return [self execSql:sql]; } sync:true] ? NSLog(@"[init db success]") : false;
     _memCacheTasks = [NSMutableDictionary dictionary];
     _memCacheItems = [NSMutableDictionary dictionary];

@@ -10,21 +10,31 @@
 
 #import <UIKit/UIKit.h>
 #import "YCDownloadItem.h"
-#import "YCDownloadSession.h"
 
 #define YCDownloadMgr [YCDownloadManager manager]
 
 @interface YCDownloadManager : NSObject
 
 /**
+ 设置用户标识
+ */
+@property (nonatomic, copy) NSString *uid;
+
+/**
+ 文件保存根路径，默认是Library/Cache/YCDownload目录，系统磁盘不足时，会被系统清理
+ 更多信息(@一品戴砖侍卫)： https://developer.apple.com/library/content/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/FileSystemOverview/FileSystemOverview.html#//apple_ref/doc/uid/TP40010672-CH2-SW2
+ */
+@property (nonatomic, copy) NSString *saveRootPath;
+
+/**
+ 最大下载任务个数
+ */
+@property (nonatomic, assign) NSUInteger maxTaskCount;
+
+/**
  下载manager单例
  */
 + (instancetype)manager;
-
-/**
- 设置下载任务的个数，最多支持3个下载任务同时进行。
- */
-+ (void)setMaxTaskCount:(NSInteger)count;
 
 /**
  开始/创建一个后台下载任务。开发者自己定义/扩展item中的数据和内容
@@ -52,10 +62,8 @@
  文件后缀名取downloadURLString的后缀名，[downloadURLString pathExtension]
 
  @param downloadURLString 下载的资源的url
- @param fileName 资源名称,可以为空
- @param imagUrl 资源的图片,可以为空
  */
-+ (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName imageUrl:(NSString *)imagUrl;
++ (void)startDownloadWithUrl:(NSString *)downloadURLString;
 
 /**
  开始/创建一个后台下载任务。downloadURLString作为整个下载任务的唯一标识。
@@ -63,11 +71,11 @@
  文件后缀名取downloadURLString的后缀名，[downloadURLString pathExtension]
  
  @param downloadURLString 下载的资源的url， 不可以为空， 下载任务标识
- @param fileName 资源名称,可以为空
- @param imagUrl 资源的图片,可以为空
  @param fileId 非资源的标识,可以为空，用作下载文件保存的名称
+ @param priority 下载任务的task，默认：NSURLSessionTaskPriorityDefault 可选参数：NSURLSessionTaskPriorityLow  NSURLSessionTaskPriorityHigh NSURLSessionTaskPriorityDefault 范围：0.0-1.1
+ @param extraData item对应的需要存储在本地数据库中的信息
  */
-+ (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName imageUrl:(NSString *)imagUrl fileId:(NSString *)fileId;
++ (void)startDownloadWithUrl:(NSString *)downloadURLString fileId:(NSString *)fileId  priority:(float)priority extraData:(NSData *)extraData;
 
 /**
  暂停一个后台下载任务
@@ -136,12 +144,6 @@
 + (NSUInteger)videoCacheSize;
 
 /**
- 保存下载状态，一般不用，下载内部自己处理完成
- */
-//+ (void)saveDownloadStatus;
-
-
-/**
  是否允许蜂窝煤网络下载，以及网络状态变为蜂窝煤是否允许下载，必须把所有的downloadTask全部暂停，然后重新创建。否则，原先创建的
  下载task依旧在网络切换为蜂窝煤网络时会继续下载
  
@@ -158,6 +160,7 @@
  本地通知的开关，默认是false,可以根据通知名称自定义通知类型
  */
 + (void)localPushOn:(BOOL)isOn;
+
 
 
 @end

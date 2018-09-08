@@ -9,7 +9,9 @@
 
 #import "VideoCacheListCell.h"
 #import "UIImageView+WebCache.h"
-#import "YCDownloadManager.h"
+#import "YCDownloadSession.h"
+#import "VideoListInfoModel.h"
+
 
 @interface VideoCacheListCell ()
 
@@ -48,8 +50,9 @@
 - (void)setItem:(YCDownloadItem *)item {
     
     _item = item;
-//    self.titleLbl.text = item.fileName;
-//    [self.coverImgView sd_setImageWithURL:[NSURL URLWithString:item.thumbImageUrl]];
+    VideoListInfoModel *mo = [VideoListInfoModel infoWithData:item.extraData];
+    self.titleLbl.text = mo.title;
+    [self.coverImgView sd_setImageWithURL:[NSURL URLWithString:mo.cover]];
     [self changeSizeLblDownloadedSize:item.downloadedSize totalSize:item.fileSize];
     [self setDownloadStatus:item.downloadStatus];
 }

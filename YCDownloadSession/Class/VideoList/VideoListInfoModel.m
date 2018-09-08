@@ -7,6 +7,7 @@
 //
 
 #import "VideoListInfoModel.h"
+#import <objc/runtime.h>
 
 @implementation VideoListInfoModel
 
@@ -27,6 +28,28 @@
         [self setValuesForKeysWithDictionary:dict];
     }
     return self;
+}
+
+- (NSArray *)getAllKeys{
+    unsigned int count = 0;
+    objc_property_t *properties = class_copyPropertyList(self.class, &count);
+    NSMutableArray *keys = [NSMutableArray array];
+    for (int i=0; i<count; i++) {
+        objc_property_t property = properties[i];
+        const char *name = property_getName(property);
+        [keys addObject:[NSString stringWithUTF8String:name]];
+    }
+    return keys;
+}
+
++ (NSData *)dateWithInfoModel:(VideoListInfoModel *)mo {
+    NSDictionary *dict = [mo dictionaryWithValuesForKeys:[mo getAllKeys]];
+    return [NSJSONSerialization dataWithJSONObject:dict options:0 error:nil];
+}
++ (VideoListInfoModel *)infoWithData:(NSData *)data {
+    NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+    VideoListInfoModel *mo = [[VideoListInfoModel alloc] initWithDict:dict];
+    return mo;
 }
 
 @end

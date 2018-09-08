@@ -9,16 +9,25 @@
 #import <Foundation/Foundation.h>
 #import "YCDownloadTask.h"
 typedef void (^BGCompletedHandler)(void);
-@interface YCDownloader : NSObject
 
+
+typedef enum : NSUInteger {
+    YCDownloadTaskModeDefault, /**下载完成后，删除库中的下载数据*/
+    YCDownloadTaskModeNoDeleteByFinished /**下载完成后，不删除库中的下载数据*/
+} YCDownloadTaskMode;
+
+@interface YCDownloader : NSObject
 /**
  是否允许蜂窝煤网络下载
  */
 @property (nonatomic, assign) BOOL allowsCellularAccess;
 
-+ (instancetype)downloader;
+/**
+ 下载完成后的数据处理行为
+ */
+@property (nonatomic, assign) YCDownloadTaskMode taskMode;
 
-+ (NSString *)downloadVersion;
++ (instancetype)downloader;
 
 - (YCDownloadTask *)downloadWithUrl:(NSString *)url progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion;
 
@@ -35,7 +44,6 @@ typedef void (^BGCompletedHandler)(void);
 - (void)pauseDownloadTask:(YCDownloadTask *)task;
 
 - (void)cancelDownloadTask:(YCDownloadTask *)task;
-
 
 /**
  后台某一下载任务完成时，第一次在AppDelegate中的 -(void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler

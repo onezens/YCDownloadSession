@@ -39,7 +39,7 @@ extern NSString * const kDownloadTaskEntityName;
 @property (nonatomic, assign) BOOL noNeedToStartNext;
 @property (nonatomic, copy) NSString *tmpName;
 @property (nonatomic, strong) NSURLSessionDownloadTask *downloadTask;
-@property (nonatomic, copy) NSString *compatibleKey;
+@property (nonatomic, copy) NSString *version;
 @property (nonatomic, strong, readonly) NSProgress *progress;
 @property (nonatomic, assign) NSInteger stid;
 /**
@@ -57,24 +57,16 @@ extern NSString * const kDownloadTaskEntityName;
 
 @property (nonatomic, copy) YCCompletionHanlder completionHanlder;
 @property (nonatomic, copy) YCProgressHanlder progressHandler;
+@property (nonatomic, strong) NSData *extraData;
 
 #pragma mark - method
+- (void)updateTask;
 
 + (instancetype)taskWithRequest:(NSURLRequest *)request progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion;
 
 + (instancetype)taskWithRequest:(NSURLRequest *)request progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion priority:(float)priority;
 
-/**
- 下载进度第一次回调调用，保存文件大小信息
- */
-- (void)updateTask;
-
-/**
- download progress use calculate task speed
- */
-- (void)downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize;
-
-
++ (NSString *)downloaderVerison;
 
 @end
 
