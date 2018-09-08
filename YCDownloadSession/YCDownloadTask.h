@@ -14,10 +14,6 @@
 typedef void (^YCCompletionHanlder)(NSString *localPath, NSError *error);
 typedef void (^YCProgressHanlder)(NSProgress *progress, YCDownloadTask *task);
 
-/**某一任务下载的状态发生变化的通知*/
-extern NSString * const kDownloadStatusChangedNoti;
-extern NSString * const kDownloadTaskEntityName;
-
 #pragma mark - YCDownloadTask
 
 @interface YCDownloadTask : NSObject

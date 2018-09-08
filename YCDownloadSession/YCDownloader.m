@@ -230,9 +230,11 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 }
 
 - (void)completionDownloadTask:(YCDownloadTask *)task {
-    if (self.tasCachekMode == YCDownloadTaskCacheModeDefault) {
+    if (self.taskCachekMode == YCDownloadTaskCacheModeDefault) {
         [self removeDownloadTask:task];
         [self removeMembCacheTask:task.downloadTask task:task];
+    }else{
+        [YCDownloadDB saveTask:task];
     }
 }
 

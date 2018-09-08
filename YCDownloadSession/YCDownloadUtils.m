@@ -279,10 +279,10 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
     [self performBlock:^BOOL{
         //fixme: transaction
         [_memCacheTasks enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, YCDownloadTask * _Nonnull obj, BOOL * _Nonnull stop) {
-            [self saveTask:obj];
+            [self saveDownloadTask:obj];
         }];
         [_memCacheItems enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, YCDownloadItem * _Nonnull obj, BOOL * _Nonnull stop) {
-            [self saveItem:obj];
+            [self saveDownloadItem:obj];
         }];
         return true;
     } sync:false];
@@ -432,43 +432,47 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
     return true;
 }
 
++ (BOOL)saveDownloadItem:(YCDownloadItem *)item {
+    NSString *sql = [NSString stringWithFormat:@"select * from downloadItem WHERE taskId == '%@'", item.taskId];
+    NSArray *results = [self selectSql:sql];
+    BOOL result = false;
+    if (results.count==0) {
+        _memCacheItems[item.taskId] = item;
+        NSMutableString *insertSqlKeys = [NSMutableString string];
+        NSMutableString *insertSqlValues = [NSMutableString string];
+        int count = sizeof(allItemKeys) / sizeof(allItemKeys[0]);
+        [self getSqlWithKeys:allItemKeys count:count obj:item oldItem:nil enumerateBlock:^(YCDownloadDBValueType type, NSString *key, id value, int idx) {
+            if (type == YCDownloadDBValueTypeNumber){
+                [insertSqlKeys appendFormat:@"%@%@", insertSqlKeys.length!=0 ? @", ": @"", key];
+                [insertSqlValues appendFormat:@"%@%@", insertSqlValues.length!=0 ? @", " : @"", [value stringValue]];
+            }else if(type == YCDownloadDBValueTypeString){
+                [insertSqlKeys appendFormat:@"%@%@", insertSqlKeys.length!=0 ? @", ": @"", key];
+                [insertSqlValues appendFormat:@"%@'%@'", insertSqlValues.length!=0 ? @", " : @"", value];
+            }
+        }];
+        sql = [NSString stringWithFormat:@"insert into downloadItem(%@) VALUES(%@)", insertSqlKeys, insertSqlValues];
+        result = [self execSql:sql];
+        if(result && item.extraData){
+            NSString *sql_data = [NSString stringWithFormat:@"update downloadItem set extraData=? where taskId == '%@'", item.taskId];
+            sqlite3_stmt *stmt = NULL;
+            if (sqlite3_prepare_v2(_db, [sql_data UTF8String], -1, &stmt, NULL) == SQLITE_OK) {
+                sqlite3_bind_blob64(stmt, 1, [item.extraData bytes], [item.extraData length], NULL);
+                if (sqlite3_step(stmt) == SQLITE_DONE) {
+                    NSLog(@"data success");
+                    return result;
+                }
+            }
+            result = false;
+        }
+    }else{
+        result = [self updateItem:item withResults:results];
+    }
+    return result;
+}
+
 + (BOOL)saveItem:(YCDownloadItem *)item {
     return [self performBlock:^BOOL{
-        NSString *sql = [NSString stringWithFormat:@"select * from downloadItem WHERE taskId == '%@'", item.taskId];
-        NSArray *results = [self selectSql:sql];
-        BOOL result = false;
-        if (results.count==0) {
-             _memCacheItems[item.taskId] = item;
-            NSMutableString *insertSqlKeys = [NSMutableString string];
-            NSMutableString *insertSqlValues = [NSMutableString string];
-            int count = sizeof(allItemKeys) / sizeof(allItemKeys[0]);
-            [self getSqlWithKeys:allItemKeys count:count obj:item oldItem:nil enumerateBlock:^(YCDownloadDBValueType type, NSString *key, id value, int idx) {
-                if (type == YCDownloadDBValueTypeNumber){
-                    [insertSqlKeys appendFormat:@"%@%@", insertSqlKeys.length!=0 ? @", ": @"", key];
-                    [insertSqlValues appendFormat:@"%@%@", insertSqlValues.length!=0 ? @", " : @"", [value stringValue]];
-                }else if(type == YCDownloadDBValueTypeString){
-                    [insertSqlKeys appendFormat:@"%@%@", insertSqlKeys.length!=0 ? @", ": @"", key];
-                    [insertSqlValues appendFormat:@"%@'%@'", insertSqlValues.length!=0 ? @", " : @"", value];
-                }
-            }];
-            sql = [NSString stringWithFormat:@"insert into downloadItem(%@) VALUES(%@)", insertSqlKeys, insertSqlValues];
-            result = [self execSql:sql];
-            if(result && item.extraData){
-                NSString *sql_data = [NSString stringWithFormat:@"update downloadItem set extraData=? where taskId == '%@'", item.taskId];
-                sqlite3_stmt *stmt = NULL;
-                if (sqlite3_prepare_v2(_db, [sql_data UTF8String], -1, &stmt, NULL) == SQLITE_OK) {
-                    sqlite3_bind_blob64(stmt, 1, [item.extraData bytes], [item.extraData length], NULL);
-                    if (sqlite3_step(stmt) == SQLITE_DONE) {
-                        NSLog(@"data success");
-                        return result;
-                    }
-                }
-                result = false;
-            }
-        }else{
-            result = [self updateItem:item withResults:results];
-        }
-        return result;
+        return [self saveDownloadItem:item];
     } sync:true];
 }
 #pragma mark - task
@@ -596,37 +600,41 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
     return results;
 }
 
++ (BOOL)saveDownloadTask:(YCDownloadTask *)task {
+    NSString *sql = [NSString stringWithFormat:@"select * from downloadTask WHERE taskId == '%@'", task.taskId];
+    NSArray *results = [self selectSql:sql];
+    BOOL result = false;
+    if (results.count==0) {
+        _memCacheTasks[task.taskId] = task;
+        NSMutableString *insertSqlKeys = [NSMutableString string];
+        NSMutableString *insertSqlValues = [NSMutableString string];
+        int count = sizeof(allTaskKeys) / sizeof(allTaskKeys[0]);
+        [self getSqlWithKeys:allTaskKeys count:count obj:task oldItem:nil enumerateBlock:^(YCDownloadDBValueType type, NSString *key, id value, int idx) {
+            if (type == YCDownloadDBValueTypeNumber){
+                [insertSqlKeys appendFormat:@"%@%@", insertSqlKeys.length!=0 ? @", ": @"", key];
+                [insertSqlValues appendFormat:@"%@%@", insertSqlValues.length!=0 ? @", " : @"", [value stringValue]];
+            }else if(type == YCDownloadDBValueTypeString){
+                [insertSqlKeys appendFormat:@"%@%@", insertSqlKeys.length!=0 ? @", ": @"", key];
+                [insertSqlValues appendFormat:@"%@'%@'", insertSqlValues.length!=0 ? @", " : @"", value];
+            }
+        }];
+        sql = [NSString stringWithFormat:@"insert into downloadTask(%@) VALUES(%@)", insertSqlKeys, insertSqlValues];
+        result = [self execSql:sql];
+        if(result && task.resumeData){
+            result = [self updateTaskDataWithTid:task.taskId data:task.resumeData dataKey:@"resumeData"];
+        }
+        if (result && task.extraData) {
+            result = [self updateTaskDataWithTid:task.taskId data:task.extraData dataKey:@"extraData"];
+        }
+    }else{
+        result = [self updateTask:task withResults:results];
+    }
+    return result;
+}
+
 + (BOOL)saveTask:(YCDownloadTask *)task {
     return [self performBlock:^BOOL{
-        NSString *sql = [NSString stringWithFormat:@"select * from downloadTask WHERE taskId == '%@'", task.taskId];
-        NSArray *results = [self selectSql:sql];
-        BOOL result = false;
-        if (results.count==0) {
-             _memCacheTasks[task.taskId] = task;
-            NSMutableString *insertSqlKeys = [NSMutableString string];
-            NSMutableString *insertSqlValues = [NSMutableString string];
-            int count = sizeof(allTaskKeys) / sizeof(allTaskKeys[0]);
-            [self getSqlWithKeys:allTaskKeys count:count obj:task oldItem:nil enumerateBlock:^(YCDownloadDBValueType type, NSString *key, id value, int idx) {
-                if (type == YCDownloadDBValueTypeNumber){
-                    [insertSqlKeys appendFormat:@"%@%@", insertSqlKeys.length!=0 ? @", ": @"", key];
-                    [insertSqlValues appendFormat:@"%@%@", insertSqlValues.length!=0 ? @", " : @"", [value stringValue]];
-                }else if(type == YCDownloadDBValueTypeString){
-                    [insertSqlKeys appendFormat:@"%@%@", insertSqlKeys.length!=0 ? @", ": @"", key];
-                    [insertSqlValues appendFormat:@"%@'%@'", insertSqlValues.length!=0 ? @", " : @"", value];
-                }
-            }];
-            sql = [NSString stringWithFormat:@"insert into downloadTask(%@) VALUES(%@)", insertSqlKeys, insertSqlValues];
-            result = [self execSql:sql];
-            if(result && task.resumeData){
-                result = [self updateTaskDataWithTid:task.taskId data:task.resumeData dataKey:@"resumeData"];
-            }
-            if (result && task.extraData) {
-                result = [self updateTaskDataWithTid:task.taskId data:task.extraData dataKey:@"extraData"];
-            }
-        }else{
-            result = [self updateTask:task withResults:results];
-        }
-        return result;
+        return [self saveDownloadTask:task];
     } sync:true];
 }
 

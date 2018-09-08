@@ -56,10 +56,17 @@
  点击下载
  */
 - (void)videoListCell:(VideoListInfoCell *)cell downloadVideo:(VideoListInfoModel *)model {
-
-    YCDownloadItem *item = [YCDownloadItem itemWithUrl:model.mp4_url fileId:model.file_id];
-    item.extraData = [VideoListInfoModel dateWithInfoModel:model];
-    [YCDownloadManager startDownloadWithItem:item];
+    YCDownloadItem *item = nil;
+    if (model.file_id) {
+        item = [YCDownloadManager itemWithFileId:model.file_id];
+    }else if (model.mp4_url){
+        item = [YCDownloadManager itemsWithDownloadUrl:model.mp4_url].firstObject;
+    }
+    if (!item) {
+        item = [YCDownloadItem itemWithUrl:model.mp4_url fileId:model.file_id];
+        item.extraData = [VideoListInfoModel dateWithInfoModel:model];
+        [YCDownloadManager startDownloadWithItem:item];
+    }
     VideoCacheController *vc = [[VideoCacheController alloc] init];
     [self.navigationController pushViewController:vc animated:true];
 }
@@ -76,7 +83,12 @@
     VideoListInfoModel *model = self.videoListArr[indexPath.row];
     [cell setVideoModel:model];
     cell.delegate = self;
-    YCDownloadItem *item = [YCDownloadManager itemWithFileId:model.file_id];
+    YCDownloadItem *item = nil;
+    if (model.file_id) {
+        item = [YCDownloadManager itemWithFileId:model.file_id];
+    }else if (model.mp4_url){
+        item = [YCDownloadManager itemsWithDownloadUrl:model.mp4_url].firstObject;
+    }
     [cell setDownloadStatus:item.downloadStatus];
     return cell;
 }

@@ -13,8 +13,7 @@
 @class YCDownloadItem;
 
 extern NSString * const kDownloadTaskFinishedNoti;
-extern NSString * const kDownloadNeedSaveDataNoti;
-extern NSString * const kDownloadItemStoreEntity;
+extern NSString * const kDownloadTaskAllFinishedNoti;
 
 typedef NS_ENUM(NSUInteger, YCDownloadStatus) {
     YCDownloadStatusUnknow,

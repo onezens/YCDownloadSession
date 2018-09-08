@@ -47,7 +47,7 @@
     YCDownloadMgr.saveRootPath = path;
     YCDownloadMgr.uid = @"100006";
     YCDownloadMgr.maxTaskCount = 3;
-    [YCDownloader downloader].tasCachekMode = YCDownloadTaskCacheModeDefault;
+    [YCDownloader downloader].taskCachekMode = YCDownloadTaskCacheModeKeep;
 }
 
 - (void)setUpBugly {

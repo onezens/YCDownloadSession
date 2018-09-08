@@ -50,14 +50,8 @@ static id _instance;
 }
 
 - (void)addNotification {
-    
-//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(saveDownloadItems) name:kDownloadStatusChangedNoti object:nil];
-//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadAllTaskFinished) name:kDownloadAllTaskFinishedNoti object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadTaskFinishedNoti:) name:kDownloadTaskFinishedNoti object:nil];
-//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(saveDownloadItems) name:kDownloadNeedSaveDataNoti object:nil];
-//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadUserChanged) name:kDownloadUserIdentifyChanged object:nil];
 }
-
 
 #pragma mark - public
 
@@ -108,7 +102,7 @@ static id _instance;
 }
 
 + (NSArray *)itemsWithDownloadUrl:(NSString *)downloadUrl {
-    return [YCDownloadManager itemsWithDownloadUrl:downloadUrl];
+    return [YCDownloadMgr itemsWithDownloadUrl:downloadUrl];
 }
 
 + (NSArray *)downloadList {

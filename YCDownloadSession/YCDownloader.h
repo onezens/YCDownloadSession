@@ -29,7 +29,7 @@ typedef NS_ENUM(NSUInteger, YCDownloadTaskCacheMode) {
 /**
  下载完成后的数据处理行为
  */
-@property (nonatomic, assign) YCDownloadTaskCacheMode tasCachekMode;
+@property (nonatomic, assign) YCDownloadTaskCacheMode taskCachekMode;
 
 + (instancetype)downloader;
 

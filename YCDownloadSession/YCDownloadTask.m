@@ -11,8 +11,6 @@
 #import "YCDownloadTask.h"
 #import "YCDownloadUtils.h"
 
-NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
-
 @interface YCDownloadTask()
 @property (nonatomic, assign) NSInteger pid;
 @end
@@ -29,6 +27,7 @@ NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
 
 - (instancetype)initWithPrivate{
     if (self = [super init]) {
+        _version = [YCDownloadTask downloaderVerison];
     }
     return self;
 }
@@ -41,7 +40,6 @@ NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
         _priority = priority ? priority : NSURLSessionTaskPriorityDefault;
         _progressHandler = progress;
         _completionHanlder = completion;
-        _version = [YCDownloadTask downloaderVerison];
     }
     return self;
 }
@@ -99,7 +97,6 @@ NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
 }
 
 + (NSString *)getURLFromTask:(NSURLSessionTask *)task {
-    
     //301/302定向的originRequest和currentRequest的url不同
     NSString *url = nil;
     NSURLRequest *req = [task originalRequest];
@@ -113,30 +110,6 @@ NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
 
 + (NSString *)downloaderVerison {
     return @"2.0.0";
-}
-#pragma mark - private
-
-
-//- (void)startTimer {
-//    _timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(timerCall) userInfo:nil repeats:true];
-//    [_timer fire];
-//    [[NSRunLoop currentRunLoop] addTimer:_timer forMode:NSDefaultRunLoopMode];
-//    [[NSRunLoop currentRunLoop] run];
-//}
-//
-//- (void)stopTimer {
-//    [_timer invalidate];
-//    _timer = nil;
-//}
-//
-//- (void)timerCall {
-//    NSUInteger speed = _downloadedSize - _preDownloadedSize;
-//    _preDownloadedSize = _downloadedSize;
-//
-//}
-
--(void)dealloc {
-//    [self stopTimer];
 }
 
 @end
