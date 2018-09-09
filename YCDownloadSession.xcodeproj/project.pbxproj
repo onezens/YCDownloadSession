@@ -293,7 +293,8 @@
 				356AAE1F1FDFE9DD0017FCD9 /* YCDownloadSessionTests.m */,
 				356AAE211FDFE9DD0017FCD9 /* Info.plist */,
 			);
-			path = YCDownloadSessionTests;
+			name = YCDownloadSessionTests;
+			path = YCDownloadSessionDemo/YCDownloadSessionTests;
 			sourceTree = "<group>";
 		};
 		3580D63B1F8CB8BC00966A3D /* RootVc */ = {
@@ -680,7 +681,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = cc.onezen.YCDownloadSessionTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/YCDownloadSession.app/YCDownloadSession";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/YCDownloadSession.temp_caseinsensitive_rename.app/YCDownloadSession.temp_caseinsensitive_rename";
 			};
 			name = Debug;
 		};
@@ -701,7 +702,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = cc.onezen.YCDownloadSessionTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/YCDownloadSession.app/YCDownloadSession";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/YCDownloadSession.temp_caseinsensitive_rename.app/YCDownloadSession.temp_caseinsensitive_rename";
 			};
 			name = Release;
 		};

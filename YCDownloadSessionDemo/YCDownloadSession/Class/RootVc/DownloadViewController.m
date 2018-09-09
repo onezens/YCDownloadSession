@@ -15,6 +15,8 @@ static NSString * const kDownloadTaskIdKey = @"kDownloadTaskIdKey";
 @property (nonatomic, copy) NSString *downloadURL;
 @property (nonatomic, weak) UILabel *progressLbl;
 @property (nonatomic, weak) YCDownloadTask *downloadTask;
+@property (nonatomic, copy) YCCompletionHanlder completion;
+@property (nonatomic, copy) YCProgressHanlder progress;
 
 @end
 
@@ -61,6 +63,20 @@ static NSString * const kDownloadTaskIdKey = @"kDownloadTaskIdKey";
     lbl.textAlignment = NSTextAlignmentCenter;
     self.progressLbl = lbl;
     [self.view addSubview:lbl];
+    
+    __weak typeof(self) weakSelf = self;
+    self.completion = ^(NSString *localPath, NSError *error) {
+        if (error) {
+            [weakSelf downloadStatusChanged:YCDownloadStatusFailed downloadTask:nil];
+        }else{
+            [weakSelf downloadStatusChanged:YCDownloadStatusFinished downloadTask:nil];
+            NSLog(@"%@", localPath);
+        }
+        weakSelf.downloadTask = nil;
+    };
+    self.progress = ^(NSProgress *progress, YCDownloadTask *task) {
+        weakSelf.progressLbl.text = [NSString stringWithFormat:@"%f",progress.fractionCompleted];
+    };
     [YCDownloader downloader];
     NSString *tid = [[NSUserDefaults standardUserDefaults] valueForKey:kDownloadTaskIdKey];
     YCDownloadTask *task = [YCDownloadDB taskWithTid:tid];
@@ -74,7 +90,6 @@ static NSString * const kDownloadTaskIdKey = @"kDownloadTaskIdKey";
     self.progressLbl.text = [NSString stringWithFormat:@"%f",(float)downloadedSize / fileSize * 100];
 }
 
-
 - (void)downloadStatusChanged:(YCDownloadStatus)status downloadTask:(YCDownloadTask *)task {
     if (status == YCDownloadStatusFinished) {
         self.progressLbl.text = @"download success!";
@@ -84,13 +99,14 @@ static NSString * const kDownloadTaskIdKey = @"kDownloadTaskIdKey";
 }
 
 - (void)start {
-    self.downloadTask = [[YCDownloader downloader] downloadWithUrl:self.downloadURL progress:^(NSProgress *progress, YCDownloadTask *task) {
-        self.progressLbl.text = [NSString stringWithFormat:@"%f",progress.fractionCompleted];
-    } completion:^(NSString *localPath, NSError *error) {
-        NSLog(@"%@", localPath);
-    }];
+    if (self.downloadTask) {
+        [self resume];
+        return;
+    }
+    self.downloadTask = [[YCDownloader downloader] downloadWithUrl:self.downloadURL progress:self.progress completion:self.completion];
     self.downloadTask.extraData = [@"dfasdfasdfa" dataUsingEncoding:NSUTF8StringEncoding];
     [[NSUserDefaults standardUserDefaults] setValue:self.downloadTask.taskId forKey:kDownloadTaskIdKey];
+    [self resume];
     
 }
 - (void)resume {
@@ -99,11 +115,7 @@ static NSString * const kDownloadTaskIdKey = @"kDownloadTaskIdKey";
     }else{
         //recovery download
         NSString *tid = [[NSUserDefaults standardUserDefaults] valueForKey:kDownloadTaskIdKey];
-        self.downloadTask = [[YCDownloader downloader] resumeDownloadTaskWithTid:tid progress:^(NSProgress *progress, YCDownloadTask *task) {
-            self.progressLbl.text = [NSString stringWithFormat:@"%f",progress.fractionCompleted];
-        } completion:^(NSString *localPath, NSError *error) {
-            NSLog(@"%@", localPath);
-        }];
+        self.downloadTask = [[YCDownloader downloader] resumeDownloadTaskWithTid:tid progress:self.progress completion:self.completion];
     }
 }
 

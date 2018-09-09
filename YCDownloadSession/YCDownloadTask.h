@@ -4,7 +4,7 @@
 //
 //  Created by wz on 17/3/15.
 //  Copyright © 2017年 onezen.cc. All rights reserved.
-//  Contact me: http://www.onezen.cc
+//  Contact me: http://www.onezen.cc/about/
 //  Github:     https://github.com/onezens/YCDownloadSession
 //
 
@@ -18,26 +18,16 @@ typedef void (^YCProgressHanlder)(NSProgress *progress, YCDownloadTask *task);
 
 @interface YCDownloadTask : NSObject
 
+@property (nonatomic, strong) NSData *resumeData;
 @property (nonatomic, copy, readonly) NSString *taskId;
 @property (nonatomic, copy, readonly) NSString *downloadURL;
-@property (nonatomic, strong) NSData *resumeData;
 @property (nonatomic, assign, readonly) NSInteger fileSize;
 @property (nonatomic, assign) NSInteger downloadedSize;
 /**重新创建下载session，恢复下载状态的session的标识*/
 @property (nonatomic, assign) BOOL needToRestart;
-/**
- 是否支持断点续传
- */
-@property (nonatomic, assign, readonly) BOOL isSupportRange;
-/**
- 是否 不需要下载下一个任务的标识，用来区分全部暂停和单个任务暂停后的操作
- */
-@property (nonatomic, assign) BOOL noNeedToStartNext;
-@property (nonatomic, copy) NSString *tmpName;
-@property (nonatomic, strong) NSURLSessionDownloadTask *downloadTask;
-@property (nonatomic, copy) NSString *version;
-@property (nonatomic, strong, readonly) NSProgress *progress;
 @property (nonatomic, assign) NSInteger stid;
+@property (nonatomic, copy) NSString *tmpName;
+@property (nonatomic, copy) NSString *version;
 /**
  default value: NSURLSessionTaskPriorityDefault
  option: NSURLSessionTaskPriorityDefault NSURLSessionTaskPriorityLow NSURLSessionTaskPriorityHigh
@@ -50,9 +40,14 @@ typedef void (^YCProgressHanlder)(NSProgress *progress, YCDownloadTask *task);
  default value: false
  */
 @property (nonatomic, assign) BOOL enableSpeed;
-
-@property (nonatomic, copy) YCCompletionHanlder completionHanlder;
+/**
+ 是否支持断点续传
+ */
+@property (nonatomic, assign, readonly) BOOL isSupportRange;
+@property (nonatomic, strong) NSURLSessionDownloadTask *downloadTask;
+@property (nonatomic, strong, readonly) NSProgress *progress;
 @property (nonatomic, copy) YCProgressHanlder progressHandler;
+@property (nonatomic, copy) YCCompletionHanlder completionHanlder;
 @property (nonatomic, strong) NSData *extraData;
 
 #pragma mark - method

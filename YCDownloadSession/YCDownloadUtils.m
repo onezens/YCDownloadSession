@@ -590,7 +590,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
 + (NSArray <YCDownloadTask *> *)fetchAllDownloadTasks {
     __block NSMutableArray *results = [NSMutableArray array];
     [self performBlock:^BOOL{
-        NSArray *rel = [self selectSql:@"select * from downloadItem"];
+        NSArray *rel = [self selectSql:@"select * from downloadTask"];
         [rel enumerateObjectsUsingBlock:^(NSDictionary * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             YCDownloadTask *task = [self taskWithDict:obj];
             [results addObject:task];

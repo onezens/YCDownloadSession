@@ -4,6 +4,8 @@
 //
 //  Created by wz on 2018/8/27.
 //  Copyright © 2018 onezen.cc. All rights reserved.
+//  Contact me: http://www.onezen.cc/about/
+//  Github:     https://github.com/onezens/YCDownloadSession
 //
 
 #import <Foundation/Foundation.h>

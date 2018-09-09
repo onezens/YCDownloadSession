@@ -4,17 +4,15 @@
 //
 //  Created by wz on 17/3/24.
 //  Copyright © 2017年 onezen.cc. All rights reserved.
-//  Contact me: http://www.onezen.cc
+//  Contact me: http://www.onezen.cc/about/
 //  Github:     https://github.com/onezens/YCDownloadSession
 //
 
 #import <UIKit/UIKit.h>
 #import "YCDownloadItem.h"
+#import "YCDownloader.h"
 
-#define YCDownloadMgr [YCDownloadManager manager]
-
-@interface YCDownloadManager : NSObject
-
+@interface YCDConfig: NSObject
 /**
  设置用户标识
  */
@@ -31,10 +29,23 @@
  */
 @property (nonatomic, assign) NSUInteger maxTaskCount;
 
+
+@property (nonatomic, assign) YCDownloadTaskCacheMode taskCachekMode;
+
 /**
- 下载manager单例
+ 冷启动是否自动恢复下载中的任务，否则会暂停所有任务
  */
-+ (instancetype)manager;
+@property (nonatomic, assign) BOOL hotLaunchAutoResumeDownload;
+
+@end
+
+
+@interface YCDownloadManager : NSObject
+
+/**
+ 下载管理配置
+ */
++ (void)mgrWithConfig:(YCDConfig *)config;
 
 /**
  开始/创建一个后台下载任务。开发者自己定义/扩展item中的数据和内容
@@ -150,11 +161,5 @@
  获取是否允许蜂窝煤访问
  */
 + (BOOL)isAllowsCellularAccess;
-
-/**
- 本地通知的开关，默认是false,可以根据通知名称自定义通知类型
- */
-+ (void)localPushOn:(BOOL)isOn;
-
 
 @end

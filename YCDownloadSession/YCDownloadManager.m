@@ -4,7 +4,7 @@
 //
 //  Created by wz on 17/3/24.
 //  Copyright © 2017年 onezen.cc. All rights reserved.
-//  Contact me: http://www.onezen.cc
+//  Contact me: http://www.onezen.cc/about/
 //  Github:     https://github.com/onezens/YCDownloadSession
 //
 
@@ -12,49 +12,85 @@
 #import "YCDownloadUtils.h"
 #import "YCDownloader.h"
 
+#define YCDownloadMgr [YCDownloadManager manager]
+
 @interface YCDownloadItem(Mgr)
 @property (nonatomic, assign) BOOL isRemoved;
+@property (nonatomic, assign) BOOL noNeedStartNext;
 @end
 
 @interface YCDownloadManager ()
-
-@property (nonatomic, assign) BOOL localPushOn;
-@property (nonatomic, strong) NSMutableDictionary <NSString *, YCDownloadItem *> *memCache;
+{
+    NSString *_uniqueId;
+}
+@property (nonatomic, strong) NSMutableArray *waitItems;
+@property (nonatomic, strong) NSMutableArray *runItems;
+@property (nonatomic, strong) YCDConfig *config;
 @end
 
 @implementation YCDownloadManager
 
-@synthesize uid = _uniqueId;
 static id _instance;
 
 #pragma mark - init
 
-+ (instancetype)manager {
++ (void)mgrWithConfig:(YCDConfig *)config {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         _instance = [[self alloc] init];
+        YCDownloadMgr.config = config;
+        [YCDownloadMgr initManager];
     });
+}
+
++ (instancetype)manager {
     return _instance;
 }
 
 - (instancetype)init {
     if (self = [super init]) {
         [self addNotification];
-        _memCache = [NSMutableDictionary dictionary];
+        _runItems  = [NSMutableArray array];
+        _waitItems = [NSMutableArray array];
     }
     return self;
 }
 
-- (void)saveDownloadItem:(YCDownloadItem *)item {
-    [YCDownloadDB saveItem:item];
+- (void)initManager{
+    [self setUid:self.config.uid];
+    [YCDownloader downloader].taskCachekMode = self.config.taskCachekMode;
+    [self restoreItems];
 }
 
 - (void)addNotification {
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadTaskFinishedNoti:) name:kDownloadTaskFinishedNoti object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadTaskFinishNoti:) name:kDownloadTaskFinishedNoti object:nil];
+}
+
+- (void)restoreItems {
+    [[YCDownloadDB fetchAllDownloadingItemWithUid:self.uid] enumerateObjectsUsingBlock:^(YCDownloadItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        [self downloadFinishedWithItem:obj];
+        if (obj.downloadStatus == YCDownloadStatusDownloading) {
+            YCDownloadTask *task = [self taskWithItem:obj];
+            task.completionHanlder = obj.completionHanlder;
+            task.progressHandler = obj.progressHanlder;
+            [self.runItems addObject:obj];
+        }
+        if(self.config.hotLaunchAutoResumeDownload){
+            if(obj.downloadStatus == YCDownloadStatusWaiting){
+                [self.waitItems addObject:obj];
+            }
+        }else{
+            if (obj.downloadStatus == YCDownloadStatusWaiting || obj.downloadStatus==YCDownloadStatusDownloading) {
+                [self pauseDownloadWithItem:obj];
+            }
+        }
+    }];
+    if (self.config.hotLaunchAutoResumeDownload && self.waitItems.count>0) {
+        [self resumeDownloadWithItem:self.waitItems.firstObject];
+    }
 }
 
 #pragma mark - public
-
 
 + (void)startDownloadWithUrl:(NSString *)downloadURLString{
     [self startDownloadWithUrl:downloadURLString fileId:nil priority:NSURLSessionTaskPriorityDefault extraData:nil];
@@ -124,7 +160,6 @@ static id _instance;
 - (void)setUid:(NSString *)uid {
     if ([_uniqueId isEqualToString:uid]) return;
     [self pauseAllDownloadTask];
-    [self.memCache removeAllObjects];
     _uniqueId = uid;
 }
 
@@ -132,10 +167,25 @@ static id _instance;
     return _uniqueId ? : @"YCDownloadUID";
 }
 
-#pragma mark tools
+#pragma mark - hanlder
 
-+(void)localPushOn:(BOOL)isOn {
-    [YCDownloadMgr localPushOn:isOn];
+- (void)saveDownloadItem:(YCDownloadItem *)item {
+    [YCDownloadDB saveItem:item];
+}
+
+- (void)downloadTaskFinishNoti:(NSNotification *)noti {
+    YCDownloadItem *item = noti.object;
+    [self.runItems removeObject:item];
+    [self startNextDownload];
+}
+- (void)startNextDownload {
+    YCDownloadItem *item = self.waitItems.firstObject;
+    if (item) {
+        [self.waitItems removeObject:item];
+        [self resumeDownloadWithItem:item];
+    }else{
+        NSLog(@"[startNextDownload] all finished!");
+    }
 }
 
 + (NSUInteger)videoCacheSize {
@@ -151,6 +201,10 @@ static id _instance;
     return size;
 }
 
+- (BOOL)canResumeDownload {
+    return self.runItems.count<self.config.maxTaskCount;
+}
+
 #pragma mark - private
 
 - (void)startDownloadWithItem:(YCDownloadItem *)item priority:(float)priority{
@@ -159,17 +213,42 @@ static id _instance;
     if (oldItem.downloadStatus == YCDownloadStatusFinished) return;
     item.downloadStatus = YCDownloadStatusWaiting;
     item.uid = self.uid;
-    item.saveRootPath = self.saveRootPath;
+    item.saveRootPath = self.config.saveRootPath;
     item.fileType = item.fileType ? : @"video";
+    if ([self downloadFinishedWithItem:item]) {
+        NSLog(@"[startDownloadWithItem] detect item finished!");
+        [self startNextDownload];
+        return;
+    }
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:item.downloadURL]];
     YCDownloadTask *task = [[YCDownloader downloader] downloadWithRequest:request progress:item.progressHanlder completion:item.completionHanlder priority:priority];
     item.taskId = task.taskId;
     [YCDownloadDB saveItem:item];
+    [self resumeDownloadWithItem:item];
 }
+
 - (void)startDownloadWithUrl:(NSString *)downloadURLString fileId:(NSString *)fileId  priority:(float)priority extraData:(NSData *)extraData {
     YCDownloadItem *item = [YCDownloadItem itemWithUrl:downloadURLString fileId:fileId];
     item.extraData = extraData;
     [self startDownloadWithItem:item priority:priority];
+}
+
+- (BOOL)downloadFinishedWithItem:(YCDownloadItem *)item {
+    NSUInteger localFileSize = [YCDownloadUtils fileSizeWithPath:item.savePath];
+    BOOL fileFinished = localFileSize>0 && localFileSize == item.fileSize;
+    if (fileFinished) {
+        [item setValue:@(localFileSize) forKey:@"_downloadedSize"];
+        item.downloadStatus = YCDownloadStatusFinished;
+        return true;
+    }
+    if (item.downloadStatus == YCDownloadStatusFinished){
+        NSLog(@"[downloadFinishedWithItem] status finished to failed, reason: savePath error! %@", item.savePath);
+        item.downloadStatus = YCDownloadStatusFailed;
+    }
+    if ([[NSFileManager defaultManager] fileExistsAtPath:item.savePath]) {
+        [[NSFileManager defaultManager] removeItemAtPath:item.savePath error:nil];
+    }
+    return false;
 }
 
 - (YCDownloadItem *)itemWithTaskId:(NSString *)taskId {
@@ -182,29 +261,43 @@ static id _instance;
 
 - (YCDownloadTask *)taskWithItem:(YCDownloadItem *)item {
     YCDownloadTask *task = nil;
-//    task = [_memCache objectForKey:item.taskId];
     if(!task) task = [YCDownloadDB taskWithTid:item.taskId];
     return task;
 }
 
 - (void)resumeDownloadWithItem:(YCDownloadItem *)item{
-    item.downloadStatus = YCDownloadStatusDownloading;
-    if ([[YCDownloader downloader] canResumeTaskWithTid:item.taskId]) {
-        YCDownloadTask *task = [self taskWithItem:item];
-        task.completionHanlder = item.completionHanlder;
-        task.progressHandler = item.progressHanlder;
-        [[YCDownloader downloader] resumeDownloadTask:task];
-    }else{
-        [self startDownloadWithItem:item priority:0];
+    if ([self downloadFinishedWithItem:item]) {
+        NSLog(@"[resumeDownloadWithItem] detect item finished!");
+        [self startNextDownload];
+        return;
     }
-    [self accessibilityNavigationStyle];
+    if (![self canResumeDownload]) {
+        item.downloadStatus = YCDownloadStatusWaiting;
+        [self.waitItems addObject:item];
+        return;
+    }
+    item.downloadStatus = YCDownloadStatusDownloading;
+    CGFloat priority = NSURLSessionTaskPriorityDefault;
+    YCDownloadTask *task = [self taskWithItem:item];
+    task.completionHanlder = item.completionHanlder;
+    task.progressHandler = item.progressHanlder;
+    priority = task.priority;
+    if([[YCDownloader downloader] resumeDownloadTask:task]) {
+        [self.runItems addObject:item];
+        return;
+    }
+    [self startDownloadWithItem:item priority:priority];
 }
+
 
 - (void)pauseDownloadWithItem:(YCDownloadItem *)item {
     item.downloadStatus = YCDownloadStatusPaused;
     YCDownloadTask *task  = [self taskWithItem:item];
     [[YCDownloader downloader] pauseDownloadTask:task];
     [self saveDownloadItem:item];
+    [self.runItems removeObject:item];
+    [self.waitItems removeObject:item];
+    if(!item.noNeedStartNext) [self startNextDownload];
 }
 
 - (void)stopDownloadWithItem:(YCDownloadItem *)item {
@@ -215,17 +308,21 @@ static id _instance;
     [[NSFileManager defaultManager] removeItemAtPath:item.savePath error:nil];
     [self removeItemWithTaskId:item.taskId];
     [YCDownloadDB removeTask:task];
+    [self.runItems removeObject:item];
+    if(!item.noNeedStartNext) [self startNextDownload];
 }
 
 
 - (void)pauseAllDownloadTask {
     [[YCDownloadDB fetchAllDownloadingItemWithUid:self.uid] enumerateObjectsUsingBlock:^(YCDownloadItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        obj.noNeedStartNext = true;
         [self pauseDownloadWithItem:obj];
     }];
 }
 
 - (void)removeAllCache {
     [[YCDownloadDB fetchAllDownloadItemWithUid:self.uid] enumerateObjectsUsingBlock:^(YCDownloadItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        obj.noNeedStartNext = true;
         YCDownloadTask *task = [self taskWithItem:obj];
         [self stopDownloadWithItem:obj];
         [YCDownloadDB removeTask:task];
@@ -240,6 +337,7 @@ static id _instance;
             [self resumeDownloadWithItem:item];
         }
     }];
+    [YCDownloadDB saveAllData];
 }
 
 -(void)allowsCellularAccess:(BOOL)isAllow {
@@ -250,10 +348,6 @@ static id _instance;
     return [YCDownloader downloader].allowsCellularAccess;
 }
 
-- (void)localPushOn:(BOOL)isOn {
-    self.localPushOn = isOn;
-}
-
 - (YCDownloadItem *)itemWithFileId:(NSString *)fid {
     return [YCDownloadDB itemWithFid:fid uid:self.uid];
 }
@@ -262,39 +356,13 @@ static id _instance;
     return [YCDownloadDB itemsWithUrl:downloadUrl uid:self.uid];
 }
 
-#pragma mark notificaton
-
-- (void)downloadAllTaskFinished{
-    [self localPushWithTitle:@"YCDownloadSession" detail:@"所有的下载任务已完成！"];
-}
-
-- (void)downloadTaskFinishedNoti:(NSNotification *)noti{
-    
-    YCDownloadItem *item = noti.object;
-    if (item) {
-        NSString *detail = @"";// [NSString stringWithFormat:@"%@ 视频，已经下载完成！", item.fileName];
-        [self localPushWithTitle:@"YCDownloadSession" detail:detail];
-    }
-    [self saveDownloadItem:item];
-}
-
-#pragma mark local push
-
-- (void)localPushWithTitle:(NSString *)title detail:(NSString *)body  {
-    
-    if (!self.localPushOn || title.length == 0) return;
-    UILocalNotification *localNote = [[UILocalNotification alloc] init];
-    localNote.fireDate = [NSDate dateWithTimeIntervalSinceNow:3.0];
-    localNote.alertBody = body;
-    localNote.alertAction = @"滑动来解锁";
-    localNote.hasAction = NO;
-    localNote.soundName = @"default";
-    localNote.userInfo = @{@"type" : @1};
-    [[UIApplication sharedApplication] scheduleLocalNotification:localNote];
-}
-
 -(void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
+
+@end
+
+
+@implementation YCDConfig
 
 @end

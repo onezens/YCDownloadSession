@@ -10,6 +10,7 @@
 #import "MainTableViewController.h"
 #import <Bugly/Bugly.h>
 #import "YCDownloadSession.h"
+#import "VideoListInfoModel.h"
 
 @interface AppDelegate ()
 
@@ -33,7 +34,7 @@
     }
     
     //setup bugly
-//    [self setUpBugly];
+    [self setUpBugly];
     
     //setup downloadsession
     [self setUpDownload];
@@ -44,10 +45,14 @@
 - (void)setUpDownload {
     NSString *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true).firstObject;
     path = [path stringByAppendingPathComponent:@"download"];
-    YCDownloadMgr.saveRootPath = path;
-    YCDownloadMgr.uid = @"100006";
-    YCDownloadMgr.maxTaskCount = 3;
-    [YCDownloader downloader].taskCachekMode = YCDownloadTaskCacheModeKeep;
+    YCDConfig *config = [YCDConfig new];
+    config.saveRootPath = path;
+    config.uid = @"100006";
+    config.maxTaskCount = 1;
+    config.taskCachekMode = YCDownloadTaskCacheModeKeep;
+    config.hotLaunchAutoResumeDownload = true;
+    [YCDownloadManager mgrWithConfig:config];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadTaskFinishedNoti:) name:kDownloadTaskFinishedNoti object:nil];
 }
 
 - (void)setUpBugly {
@@ -57,6 +62,36 @@
     config.unexpectedTerminatingDetectionEnable = true;
     config.symbolicateInProcessEnable =  true;
     [Bugly startWithAppId:@"900036376" config:config];
+}
+
+#pragma mark notificaton
+
+- (void)downloadAllTaskFinished{
+    [self localPushWithTitle:@"YCDownloadSession" detail:@"所有的下载任务已完成！"];
+}
+
+- (void)downloadTaskFinishedNoti:(NSNotification *)noti{
+    YCDownloadItem *item = noti.object;
+    if (item) {
+        VideoListInfoModel *mo = [VideoListInfoModel infoWithData:item.extraData];
+        NSString *detail = [NSString stringWithFormat:@"%@ 视频，已经下载完成！", mo.title];
+        [self localPushWithTitle:@"YCDownloadSession" detail:detail];
+    }
+}
+
+#pragma mark local push
+
+- (void)localPushWithTitle:(NSString *)title detail:(NSString *)body  {
+    
+    if (title.length == 0) return;
+    UILocalNotification *localNote = [[UILocalNotification alloc] init];
+    localNote.fireDate = [NSDate dateWithTimeIntervalSinceNow:3.0];
+    localNote.alertBody = body;
+    localNote.alertAction = @"滑动来解锁";
+    localNote.hasAction = NO;
+    localNote.soundName = @"default";
+    localNote.userInfo = @{@"type" : @1};
+    [[UIApplication sharedApplication] scheduleLocalNotification:localNote];
 }
 
 

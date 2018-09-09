@@ -28,7 +28,6 @@ static NSString * const kDefineStartAllTitle = @"开始所有";
     self.view.backgroundColor = [UIColor whiteColor];
     self.cacheVideoList = [NSMutableArray array];
     [self getCacheVideoList];
-    [YCDownloadManager localPushOn:true];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:kDefinePauseAllTitle style:UIBarButtonItemStyleDone target:self action:@selector(pauseAll)];
 }
 

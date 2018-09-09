@@ -4,7 +4,7 @@
 //
 //  Created by wz on 17/7/28.
 //  Copyright © 2017年 onezen.cc. All rights reserved.
-//  Contact me: http://www.onezen.cc
+//  Contact me: http://www.onezen.cc/about/
 //  Github:     https://github.com/onezens/YCDownloadSession
 //
 
@@ -20,8 +20,8 @@ typedef NS_ENUM(NSUInteger, YCDownloadStatus) {
     YCDownloadStatusWaiting,
     YCDownloadStatusDownloading,
     YCDownloadStatusPaused,
-    YCDownloadStatusFinished,
-    YCDownloadStatusFailed
+    YCDownloadStatusFailed,
+    YCDownloadStatusFinished
 };
 
 

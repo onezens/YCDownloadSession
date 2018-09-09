@@ -4,7 +4,7 @@
 //
 //  Created by wz on 17/7/28.
 //  Copyright © 2017年 onezen.cc. All rights reserved.
-//  Contact me: http://www.onezen.cc
+//  Contact me: http://www.onezen.cc/about/
 //  Github:     https://github.com/onezens/YCDownloadSession
 //
 
@@ -12,13 +12,14 @@
 #import "YCDownloadUtils.h"
 
 NSString * const kDownloadTaskFinishedNoti = @"kDownloadTaskFinishedNoti";
-NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti";
+NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
 
 @interface YCDownloadItem()
 @property (nonatomic, copy) NSString *fileExtension;
 @property (nonatomic, copy) NSString *rootPath;
 @property (nonatomic, assign) NSInteger pid;
 @property (nonatomic, assign) BOOL isRemoved;
+@property (nonatomic, assign) BOOL noNeedStartNext;
 @end
 
 @implementation YCDownloadItem
@@ -66,6 +67,7 @@ NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti";
     //通知优先级最后，不与上面的finished重合
     if (status == YCDownloadStatusFinished) {
         [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadTaskFinishedNoti object:self];
+        [YCDownloadDB saveItem:self];
     }
 }
 
@@ -76,6 +78,13 @@ NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti";
 }
 
 #pragma mark - getter & setter
+
+- (void)setDownloadStatus:(YCDownloadStatus)downloadStatus {
+    _downloadStatus = downloadStatus;
+    if ([self.delegate respondsToSelector:@selector(downloadItemStatusChanged:)]) {
+        [self.delegate downloadItemStatusChanged:self];
+    }
+}
 
 - (void)setSaveRootPath:(NSString *)saveRootPath {
     NSString *path = [saveRootPath stringByReplacingOccurrencesOfString:NSHomeDirectory() withString:@""];
@@ -94,7 +103,12 @@ NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti";
 }
 
 - (void)setFileExtensionWithTask:(YCDownloadTask *)task {
+    
     NSHTTPURLResponse *response = (NSHTTPURLResponse *)task.downloadTask.response;
+    if (!response) {
+        NSLog(@"[warn] downloadTask response nil!");
+        return;
+    }
     NSAssert([response isKindOfClass:[NSHTTPURLResponse class]], @"response can not nil & class must be NSHTTPURLResponse");
     NSString *extension = response.suggestedFilename.pathExtension;
     if(!extension) extension = [[response.allHeaderFields valueForKey:@"Content-Type"] componentsSeparatedByString:@"/"].lastObject;
@@ -121,6 +135,7 @@ NSString * const kDownloadNeedSaveDataNoti = @"kDownloadNeedSaveDataNoti";
             [[NSFileManager defaultManager] removeItemAtPath:self.savePath error:nil];
         }
         if (error) {
+            NSLog(@"[Item completionHanlder] error : %@", error);
             [weakSelf downloadStatusChanged:YCDownloadStatusFailed downloadTask:nil];
         }else if([[NSFileManager defaultManager] moveItemAtPath:localPath toPath:self.savePath error:&saveError]){
             [weakSelf downloadStatusChanged:YCDownloadStatusFinished downloadTask:nil];
