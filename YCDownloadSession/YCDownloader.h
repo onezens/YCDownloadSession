@@ -43,8 +43,6 @@ typedef NS_ENUM(NSUInteger, YCDownloadTaskCacheMode) {
 
 - (YCDownloadTask *)resumeDownloadTaskWithTid:(NSString *)tid progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion;
 
-- (BOOL)canResumeTaskWithTid:(NSString *)tid;
-
 - (BOOL)resumeDownloadTask:(YCDownloadTask *)task;
 
 - (void)pauseDownloadTask:(YCDownloadTask *)task;

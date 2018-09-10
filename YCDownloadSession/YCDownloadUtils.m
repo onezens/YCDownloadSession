@@ -503,7 +503,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
 }
 
 + (NSArray <YCDownloadTask *> *)taskWithUrl:(NSString *)url {
-    NSMutableArray *tasks = nil;
+    NSMutableArray *tasks = [NSMutableArray array];
     [self performBlock:^BOOL{
         NSString *sql = [NSString stringWithFormat:@"select * from downloadTask where downloadURL == '%@'", url];
         NSArray *rel = [self selectSql:sql];

@@ -27,6 +27,23 @@
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self getVideoList];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"缓存" style:UIBarButtonItemStylePlain target:self action:@selector(goCache)];
+    [self downloadAll];
+}
+
+- (void)downloadAll {
+    [_videoListArr enumerateObjectsUsingBlock:^(VideoListInfoModel* model, NSUInteger idx, BOOL * _Nonnull stop) {
+        YCDownloadItem *item = nil;
+        if (model.file_id) {
+            item = [YCDownloadManager itemWithFileId:model.file_id];
+        }else if (model.mp4_url){
+            item = [YCDownloadManager itemsWithDownloadUrl:model.mp4_url].firstObject;
+        }
+        if (!item) {
+            item = [YCDownloadItem itemWithUrl:model.mp4_url fileId:model.file_id];
+            item.extraData = [VideoListInfoModel dateWithInfoModel:model];
+            [YCDownloadManager startDownloadWithItem:item];
+        }
+    }];
 }
 
 - (void)viewWillAppear:(BOOL)animated {

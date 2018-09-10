@@ -14,6 +14,10 @@
 NSString * const kDownloadTaskFinishedNoti = @"kDownloadTaskFinishedNoti";
 NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
 
+@interface YCDownloadTask(Downloader)
+@property (nonatomic, strong) NSURLSessionDownloadTask *downloadTask;
+@end
+
 @interface YCDownloadItem()
 @property (nonatomic, copy) NSString *fileExtension;
 @property (nonatomic, copy) NSString *rootPath;
@@ -102,6 +106,7 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
     return rootPath;
 }
 
+
 - (void)setFileExtensionWithTask:(YCDownloadTask *)task {
     
     NSHTTPURLResponse *response = (NSHTTPURLResponse *)task.downloadTask.response;
@@ -167,5 +172,9 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
 
 - (NSString *)savePath {
     return [[self saveDirectory] stringByAppendingPathComponent:[self saveName]];
+}
+
+- (NSString *)description {
+    return [NSString stringWithFormat:@"<YCDownloadTask: %p>{taskId: %@, url: %@ fileId: %@}", self, self.taskId, self.downloadURL, self.fileId];
 }
 @end

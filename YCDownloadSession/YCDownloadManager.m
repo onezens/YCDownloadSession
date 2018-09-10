@@ -75,7 +75,7 @@ static id _instance;
             task.progressHandler = obj.progressHanlder;
             [self.runItems addObject:obj];
         }
-        if(self.config.hotLaunchAutoResumeDownload){
+        if(self.config.launchAutoResumeDownload){
             if(obj.downloadStatus == YCDownloadStatusWaiting){
                 [self.waitItems addObject:obj];
             }
@@ -85,9 +85,10 @@ static id _instance;
             }
         }
     }];
-    if (self.config.hotLaunchAutoResumeDownload && self.waitItems.count>0) {
+    if (self.config.launchAutoResumeDownload && self.waitItems.count>0) {
         [self resumeDownloadWithItem:self.waitItems.firstObject];
     }
+    [YCDownloadDB saveAllData];
 }
 
 #pragma mark - public
@@ -185,6 +186,7 @@ static id _instance;
         [self resumeDownloadWithItem:item];
     }else{
         NSLog(@"[startNextDownload] all finished!");
+        [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadTaskAllFinishedNoti object:nil];
     }
 }
 
@@ -260,14 +262,16 @@ static id _instance;
 }
 
 - (YCDownloadTask *)taskWithItem:(YCDownloadItem *)item {
+    NSAssert(item.taskId, @"item taskid not nil");
     YCDownloadTask *task = nil;
-    if(!task) task = [YCDownloadDB taskWithTid:item.taskId];
+    task = [YCDownloadDB taskWithTid:item.taskId];
+    NSAssert(task, @"task not nil!");
     return task;
 }
 
 - (void)resumeDownloadWithItem:(YCDownloadItem *)item{
     if ([self downloadFinishedWithItem:item]) {
-        NSLog(@"[resumeDownloadWithItem] detect item finished!");
+        NSLog(@"[resumeDownloadWithItem] detect item finished : %@", item);
         [self startNextDownload];
         return;
     }
@@ -292,7 +296,7 @@ static id _instance;
 
 - (void)pauseDownloadWithItem:(YCDownloadItem *)item {
     item.downloadStatus = YCDownloadStatusPaused;
-    YCDownloadTask *task  = [self taskWithItem:item];
+    YCDownloadTask *task = [self taskWithItem:item];
     [[YCDownloader downloader] pauseDownloadTask:task];
     [self saveDownloadItem:item];
     [self.runItems removeObject:item];
@@ -301,7 +305,7 @@ static id _instance;
 }
 
 - (void)stopDownloadWithItem:(YCDownloadItem *)item {
-    if (item == nil )  return;
+    if (item == nil)  return;
     item.isRemoved = true;
     YCDownloadTask *task  = [self taskWithItem:item];
     [[YCDownloader downloader] cancelDownloadTask:task];

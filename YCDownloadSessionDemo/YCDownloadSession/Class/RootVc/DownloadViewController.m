@@ -80,7 +80,7 @@ static NSString * const kDownloadTaskIdKey = @"kDownloadTaskIdKey";
     [YCDownloader downloader];
     NSString *tid = [[NSUserDefaults standardUserDefaults] valueForKey:kDownloadTaskIdKey];
     YCDownloadTask *task = [YCDownloadDB taskWithTid:tid];
-    if (task.downloadTask && task.downloadTask.state == NSURLSessionTaskStateRunning) {
+    if (task.isRunning) {
         [self resume];
     }
     

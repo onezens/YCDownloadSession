@@ -21,12 +21,8 @@ typedef void (^YCProgressHanlder)(NSProgress *progress, YCDownloadTask *task);
 @property (nonatomic, strong) NSData *resumeData;
 @property (nonatomic, copy, readonly) NSString *taskId;
 @property (nonatomic, copy, readonly) NSString *downloadURL;
-@property (nonatomic, assign, readonly) NSInteger fileSize;
-@property (nonatomic, assign) NSInteger downloadedSize;
-/**重新创建下载session，恢复下载状态的session的标识*/
-@property (nonatomic, assign) BOOL needToRestart;
-@property (nonatomic, assign) NSInteger stid;
-@property (nonatomic, copy) NSString *tmpName;
+@property (nonatomic, assign, readonly) NSUInteger fileSize;
+@property (nonatomic, assign) NSUInteger downloadedSize;
 @property (nonatomic, copy) NSString *version;
 /**
  default value: NSURLSessionTaskPriorityDefault
@@ -34,17 +30,12 @@ typedef void (^YCProgressHanlder)(NSProgress *progress, YCDownloadTask *task);
  poiority float value range: 0.0 - 1.0
  */
 @property (nonatomic, assign, readonly) float priority;
-
 /**
  enable calculate download task speed
  default value: false
  */
 @property (nonatomic, assign) BOOL enableSpeed;
-/**
- 是否支持断点续传
- */
-@property (nonatomic, assign, readonly) BOOL isSupportRange;
-@property (nonatomic, strong) NSURLSessionDownloadTask *downloadTask;
+@property (nonatomic, assign, readonly) BOOL isRunning;
 @property (nonatomic, strong, readonly) NSProgress *progress;
 @property (nonatomic, copy) YCProgressHanlder progressHandler;
 @property (nonatomic, copy) YCCompletionHanlder completionHanlder;

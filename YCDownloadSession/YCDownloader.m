@@ -16,7 +16,15 @@ typedef void(^BGRecreateSessionBlock)(void);
 static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 
 @interface YCDownloadTask(Downloader)
-
+@property (nonatomic, assign) NSInteger pid;
+@property (nonatomic, assign) NSInteger stid;
+@property (nonatomic, copy) NSString *tmpName;
+/**重新创建下载session，恢复下载状态的session的标识*/
+@property (nonatomic, assign) BOOL needToRestart;
+@property (nonatomic, strong) NSURLRequest *request;
+@property (nonatomic, assign, readonly) BOOL isFinished;
+@property (nonatomic, assign, readonly) BOOL isSupportRange;
+@property (nonatomic, strong) NSURLSessionDownloadTask *downloadTask;
 @end
 
 @interface YCDownloader()<NSURLSessionDelegate>
@@ -28,6 +36,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 @property (nonatomic, assign) BOOL isNeedCreateSession;
 @property (nonatomic, strong) NSMutableDictionary *memCache;
 @property (nonatomic, copy) BGCompletedHandler completedHandler;
+@property (nonatomic, strong) NSMutableArray <YCDownloadTask *> *bgRCSTasks;
 @end
 
 @implementation YCDownloader
@@ -48,6 +57,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
         NSLog(@"[YCDownloader init]");
         _session = [self backgroundUrlSession];
         _memCache = [NSMutableDictionary dictionary];
+        _bgRCSTasks = [NSMutableArray array];
         [self recoveryExceptionTasks];
         [self addNotification];
     }
@@ -75,16 +85,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 }
 
 - (NSInteger)sessionTaskIdWithDownloadTask:(NSURLSessionDownloadTask *)downloadTask {
-    NSMutableDictionary *dictM = [self.session valueForKey:@"tasks"];
-    __block NSInteger stid;
-    [dictM enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull task, BOOL * _Nonnull stop) {
-        if (task == downloadTask) {
-            stid = [key integerValue];
-            *stop = true;
-        }
-    }];
-    NSAssert(stid, @"sessionTaskIdWithDownloadTask stid not nil!");
-    return stid;
+    return downloadTask.taskIdentifier;
 }
 
 - (void)recoveryExceptionTasks {
@@ -129,8 +130,6 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 
 - (YCDownloadTask *)downloadWithRequest:(NSURLRequest *)request progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion priority:(float)priority{
     YCDownloadTask *task = [YCDownloadTask taskWithRequest:request progress:progress completion:completion];
-    NSURLSessionDownloadTask *downloadTask = [self.session downloadTaskWithRequest:request];
-    [self memCacheDownloadTask:downloadTask task:task];
     [self saveDownloadTask:task];
     return task;
 }
@@ -143,23 +142,30 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     return task;
 }
 
-- (BOOL)canResumeTaskWithTid:(NSString *)tid {
-    YCDownloadTask *task = [YCDownloadDB taskWithTid:tid];
-    return task && (task.downloadTask.state == NSURLSessionTaskStateRunning || task.resumeData != nil);
-}
-
 - (BOOL)resumeDownloadTask:(YCDownloadTask *)task {
+    if(!task) return false;
+    if (self.isNeedCreateSession) {
+        //fix crash: #25 #35 Attempted to create a task in a session that has been invalidated
+        [self.bgRCSTasks addObject:task];
+        return true;
+    }
     if (!task.resumeData && task.downloadTask.state == NSURLSessionTaskStateSuspended){
         [task.downloadTask resume];
         return true;
     }else if (task.downloadTask && self.memCache[task.downloadTask] && task.downloadTask.state == NSURLSessionTaskStateRunning) {
         return true;
-    }else if (task.downloadTask){
+    }else if (!task.resumeData && task.downloadTask){
         NSError *error = [NSError errorWithDomain:@"resume NSURLSessionDownloadTask error state" code:10004 userInfo:nil];
         [self completionDownloadTask:task localPath:nil error:error];
         return false;
+    }else if (!task.resumeData && task.request){
+        NSURLSessionDownloadTask *downloadTask = [self.session downloadTaskWithRequest:task.request];
+        [self memCacheDownloadTask:downloadTask task:task];
+        task.downloadTask = downloadTask;
+        [task.downloadTask resume];
+        return true;
     }else if (!task.resumeData){
-        NSError *error = [NSError errorWithDomain:@"resume data nil!" code:10004 userInfo:nil];
+        NSError *error = [NSError errorWithDomain:@"resume data nil!" code:10005 userInfo:nil];
         [self completionDownloadTask:task localPath:nil error:error];
         return false;
     }
@@ -234,6 +240,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 
 - (void)memCacheDownloadTask:(NSURLSessionDownloadTask *)downloadTask  task:(YCDownloadTask *)task{
     task.downloadTask = downloadTask;
+    //record taskId for coldLaunch recovery download
     task.stid = [self sessionTaskIdWithDownloadTask:downloadTask];
     [self.memCache setObject:task forKey:downloadTask];
     [self saveDownloadTask:task];
@@ -251,13 +258,14 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     if (self.taskCachekMode == YCDownloadTaskCacheModeDefault && task.completionHanlder) {
         [self removeDownloadTask:task];
     }else{
+        task.stid = -1;
+        task.downloadTask = nil;
         [self saveDownloadTask:task];
     }
 }
 
 - (void)removeDownloadTask:(YCDownloadTask *)task {
     [YCDownloadDB removeTask:task];
-    
 }
 
 - (void)saveDownloadTask:(YCDownloadTask *)task {
@@ -291,6 +299,11 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
         NSLog(@"background time will up, need to call completed hander!");
         __weak typeof(self) weakSelf = self;
         _bgRCSBlock = ^{
+            [weakSelf.bgRCSTasks.copy enumerateObjectsUsingBlock:^(YCDownloadTask *obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                [weakSelf resumeDownloadTask:obj];
+                NSLog(@"[session invalidated] fix pass!");
+            }];
+            [weakSelf.bgRCSTasks removeAllObjects];
             [weakSelf endTimer];
             [weakSelf callBgCompletedHandler];
         };
@@ -329,7 +342,20 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 
 - (YCDownloadTask *)taskWithSessionTask:(NSURLSessionDownloadTask *)downloadTask {
     NSAssert(downloadTask, @"taskWithSessionTask downloadTask can not nil!");
-    YCDownloadTask *task = [self.memCache objectForKey:downloadTask];
+    __block YCDownloadTask *task = [self.memCache objectForKey:downloadTask];
+    if (!task) {
+        NSString *url = downloadTask.originalRequest.URL.absoluteString ? : downloadTask.currentRequest.URL.absoluteString;
+        NSArray *tasks = [YCDownloadDB taskWithUrl:url];
+        //fixme: optimize logic for multible tasks for same url
+        [tasks enumerateObjectsUsingBlock:^(YCDownloadTask * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            if (obj.downloadTask == nil && downloadTask.taskIdentifier == obj.stid) {
+                task = obj;
+                *stop = true;
+            }
+        }];
+        if (!task) task = tasks.firstObject;
+    }
+    NSAssert(task, @"taskWithSessionTask task can not nil!");
     return task;
 }
 
@@ -337,7 +363,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     
     NSString *localPath = [location path];
     YCDownloadTask *task = [self taskWithSessionTask:downloadTask];
-    NSAssert(task, @"YCDownloadTask can not nil!");
+    if (task.fileSize==0) [task updateTask];
     NSUInteger fileSize = [YCDownloadUtils fileSizeWithPath:localPath];
     NSError *error = nil;
     if (fileSize>0 && fileSize != task.fileSize) {
@@ -345,6 +371,8 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
         NSLog(@"%@",errStr);
         error = [NSError errorWithDomain:errStr code:10001 userInfo:nil];
         localPath = nil;
+    }else{
+        task.downloadedSize = fileSize;
     }
     [self completionDownloadTask:task localPath:localPath error:error];
 }
@@ -355,7 +383,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
         [downloadTask cancel];
         NSAssert(false,@"didWriteData task nil!");
     }
-    task.downloadedSize = (NSInteger)totalBytesWritten;
+    task.downloadedSize = (NSUInteger)totalBytesWritten;
     if(task.fileSize==0) [task updateTask];
     task.progress.totalUnitCount = totalBytesExpectedToWrite;
     task.progress.completedUnitCount = totalBytesWritten;

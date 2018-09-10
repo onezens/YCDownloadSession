@@ -32,6 +32,7 @@
         UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeAlert | UIUserNotificationTypeBadge | UIUserNotificationTypeSound categories:nil];
         [application registerUserNotificationSettings:settings];
     }
+    NSArray *arr = [YCDownloadDB taskWithUrl:@"http://vd1.bdstatic.com/mda-hhmf74humzsjh5vu/mda-hhmf74humzsjh5vu.mp4?playlist=%5B%22hd%22%5D&auth_key=1506244931-0-0-e44269ae5ad22c5727c790735a4493dc&bcevod_channel=pae_search"];
     
     //setup bugly
     [self setUpBugly];
@@ -50,7 +51,7 @@
     config.uid = @"100006";
     config.maxTaskCount = 1;
     config.taskCachekMode = YCDownloadTaskCacheModeKeep;
-    config.hotLaunchAutoResumeDownload = true;
+    config.launchAutoResumeDownload = true;
     [YCDownloadManager mgrWithConfig:config];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadTaskFinishedNoti:) name:kDownloadTaskFinishedNoti object:nil];
 }

@@ -13,6 +13,13 @@
 
 @interface YCDownloadTask()
 @property (nonatomic, assign) NSInteger pid;
+@property (nonatomic, assign) NSInteger stid;
+@property (nonatomic, copy) NSString *tmpName;
+@property (nonatomic, assign) BOOL needToRestart;
+@property (nonatomic, strong) NSURLRequest *request;
+@property (nonatomic, assign, readonly) BOOL isFinished;
+@property (nonatomic, assign, readonly) BOOL isSupportRange;
+@property (nonatomic, strong) NSURLSessionDownloadTask *downloadTask;
 @end
 
 
@@ -34,7 +41,8 @@
 
 - (instancetype)initWithRequest:(NSURLRequest *)request progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion priority:(float)priority{
     if (self = [self initWithPrivate]) {
-        NSString *url = request.URL.absoluteString ;
+        NSString *url = request.URL.absoluteString;
+        _request = request;
         _downloadURL = url;
         _taskId = [YCDownloadTask taskIdForUrl:url fileId:[NSUUID UUID].UUIDString];
         _priority = priority ? priority : NSURLSessionTaskPriorityDefault;
@@ -89,6 +97,22 @@
         return rangeHeader.length>0 && etag.length>0;
     }
     return true;
+}
+
+- (BOOL)isRunning {
+    return self.downloadTask && self.downloadTask.state == NSURLSessionTaskStateRunning;
+}
+
+- (NSInteger)stid {
+    return self.downloadTask ? self.downloadTask.taskIdentifier : _stid;
+}
+
+- (BOOL)isFinished {
+    return self.fileSize != 0 && self.fileSize == self.downloadedSize;
+}
+
+- (NSString *)description {
+    return [NSString stringWithFormat:@"<YCDownloadTask: %p>{ taskId: %@, url: %@, stid: %ld}", self, self.taskId, self.downloadURL, (long)self.stid];
 }
 
 + (NSString *)taskIdForUrl:(NSString *)url fileId:(NSString *)fileId {
@@ -225,6 +249,7 @@ static NSString * const kNSURLSessionResumeServerDownloadDate = @"NSURLSessionRe
     NSData *result = [NSPropertyListSerialization dataWithPropertyList:archive format:NSPropertyListBinaryFormat_v1_0 options:0 error:nil];
     return result;
 }
+
 + (NSMutableDictionary *)getResumeDictionary:(NSData *)data
 {
     NSMutableDictionary *iresumeDictionary = nil;

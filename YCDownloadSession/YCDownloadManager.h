@@ -35,7 +35,7 @@
 /**
  冷启动是否自动恢复下载中的任务，否则会暂停所有任务
  */
-@property (nonatomic, assign) BOOL hotLaunchAutoResumeDownload;
+@property (nonatomic, assign) BOOL launchAutoResumeDownload;
 
 @end
 
