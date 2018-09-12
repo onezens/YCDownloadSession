@@ -281,16 +281,14 @@ static id _instance;
         return;
     }
     item.downloadStatus = YCDownloadStatusDownloading;
-    CGFloat priority = NSURLSessionTaskPriorityDefault;
     YCDownloadTask *task = [self taskWithItem:item];
     task.completionHanlder = item.completionHanlder;
     task.progressHandler = item.progressHanlder;
-    priority = task.priority;
     if([[YCDownloader downloader] resumeDownloadTask:task]) {
         [self.runItems addObject:item];
         return;
     }
-    [self startDownloadWithItem:item priority:priority];
+    [self startDownloadWithItem:item priority:task.priority];
 }
 
 

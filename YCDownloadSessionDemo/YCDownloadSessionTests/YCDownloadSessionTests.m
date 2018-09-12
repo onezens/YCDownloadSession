@@ -29,12 +29,6 @@
 
 - (void)testExample {
 
-    [YCDownloadManager saveDownloadStatus];
-    [YCDownloadManager saveDownloadStatus];
-    [YCDownloadManager saveDownloadStatus];
-    [YCDownloadManager saveDownloadStatus];
-    [YCDownloadManager saveDownloadStatus];
-    [YCDownloadManager saveDownloadStatus];
     
 }
 

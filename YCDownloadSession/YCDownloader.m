@@ -91,7 +91,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 - (void)recoveryExceptionTasks {
     NSMutableDictionary *dictM = [self.session valueForKey:@"tasks"];
     [dictM enumerateKeysAndObjectsUsingBlock:^(NSNumber *_Nonnull key, NSURLSessionDownloadTask *obj, BOOL * _Nonnull stop) {
-        YCDownloadTask *task = [YCDownloadDB taskWithStid:key.integerValue];
+        YCDownloadTask *task = [YCDownloadDB taskWithStid:key.integerValue].firstObject;
         task ? [self memCacheDownloadTask:obj task:task] : [obj cancel];
     }];
 }
@@ -200,14 +200,15 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 #pragma mark - recreate session
 
 - (void)prepareRecreateSession {
+    if (self.isNeedCreateSession) return;
+    self.isNeedCreateSession = true;
     [[YCDownloadDB fetchAllDownloadTasks] enumerateObjectsUsingBlock:^(YCDownloadTask * _Nonnull task, NSUInteger idx, BOOL * _Nonnull stop) {
-        if (task.downloadTask.state == NSURLSessionTaskStateRunning) {
+        if (task.downloadTask && task.downloadTask.state == NSURLSessionTaskStateRunning) {
             task.needToRestart = true;
             [self pauseDownloadTask:task];
         }
     }];
     [_session invalidateAndCancel];
-    self.isNeedCreateSession = true;
 }
 - (void)recreateSession {
     
@@ -236,6 +237,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     return [[NSUserDefaults standardUserDefaults] boolForKey:kIsAllowCellar];
 }
 
+
 #pragma mark - cache
 
 - (void)memCacheDownloadTask:(NSURLSessionDownloadTask *)downloadTask  task:(YCDownloadTask *)task{
@@ -244,24 +246,25 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     task.stid = [self sessionTaskIdWithDownloadTask:downloadTask];
     [self.memCache setObject:task forKey:downloadTask];
     [self saveDownloadTask:task];
+    NSLog(@"[memCache] add : %@ ",task);
 }
 
 - (void)removeMembCacheTask:(NSURLSessionDownloadTask *)downloadTask task:(YCDownloadTask *)task {
     task.stid = -1;
-    task.downloadTask = nil;
     [self.memCache removeObjectForKey:downloadTask];
+    NSLog(@"[memCache] remove : %@ ",task);
 }
 
 - (void)completionDownloadTask:(YCDownloadTask *)task localPath:(NSString *)localPath error:(NSError *)error {
-    task.completionHanlder ? task.completionHanlder(localPath, error) : false;
     if(task.downloadTask) [self removeMembCacheTask:task.downloadTask task:task];
+    task.completionHanlder ? task.completionHanlder(localPath, error) : false;
     if (self.taskCachekMode == YCDownloadTaskCacheModeDefault && task.completionHanlder) {
         [self removeDownloadTask:task];
     }else{
         task.stid = -1;
-        task.downloadTask = nil;
         [self saveDownloadTask:task];
     }
+    task.downloadTask = nil;
 }
 
 - (void)removeDownloadTask:(YCDownloadTask *)task {
@@ -270,6 +273,34 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 
 - (void)saveDownloadTask:(YCDownloadTask *)task {
     [YCDownloadDB saveTask:task];
+}
+
+- (YCDownloadTask *)taskWithSessionTask:(NSURLSessionDownloadTask *)downloadTask {
+    NSAssert(downloadTask, @"taskWithSessionTask downloadTask can not nil!");
+    __block YCDownloadTask *task = [self.memCache objectForKey:downloadTask];
+    NSString *url = [YCDownloadUtils urlStrWithDownloadTask:downloadTask];
+    if (!task) {
+        NSArray <YCDownloadTask *>* tasks = [YCDownloadDB taskWithStid:[self sessionTaskIdWithDownloadTask:downloadTask]];
+        [tasks enumerateObjectsUsingBlock:^(YCDownloadTask * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            if ([obj.downloadURL isEqualToString:url]) {
+                task = obj;
+                *stop = true;
+            }
+        }];
+    }
+    if (!task) {
+        NSArray *tasks = [YCDownloadDB taskWithUrl:url];
+        //fixme: optimize logic for multible tasks for same url
+        [tasks enumerateObjectsUsingBlock:^(YCDownloadTask * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            if (obj.downloadTask == nil && downloadTask.taskIdentifier == obj.stid) {
+                task = obj;
+                *stop = true;
+            }
+        }];
+        if (!task) task = tasks.firstObject;
+    }
+    NSAssert(task, @"taskWithSessionTask task can not nil!");
+    return task;
 }
 
 #pragma mark - hanlder
@@ -328,6 +359,9 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 
 #pragma mark - NSURLSession delegate
 
+- (void)URLSession:(NSURLSession *)session taskIsWaitingForConnectivity:(NSURLSessionTask *)task{
+    
+}
 
 - (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(nullable NSError *)error {
     if (self.isNeedCreateSession) {
@@ -338,25 +372,6 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
             _bgRCSBlock = nil;
         }
     }
-}
-
-- (YCDownloadTask *)taskWithSessionTask:(NSURLSessionDownloadTask *)downloadTask {
-    NSAssert(downloadTask, @"taskWithSessionTask downloadTask can not nil!");
-    __block YCDownloadTask *task = [self.memCache objectForKey:downloadTask];
-    if (!task) {
-        NSString *url = downloadTask.originalRequest.URL.absoluteString ? : downloadTask.currentRequest.URL.absoluteString;
-        NSArray *tasks = [YCDownloadDB taskWithUrl:url];
-        //fixme: optimize logic for multible tasks for same url
-        [tasks enumerateObjectsUsingBlock:^(YCDownloadTask * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            if (obj.downloadTask == nil && downloadTask.taskIdentifier == obj.stid) {
-                task = obj;
-                *stop = true;
-            }
-        }];
-        if (!task) task = tasks.firstObject;
-    }
-    NSAssert(task, @"taskWithSessionTask task can not nil!");
-    return task;
 }
 
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location {
@@ -391,33 +406,33 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionDownloadTask *)downloadTask didCompleteWithError:(NSError *)error {
+    if (!error) return;
     YCDownloadTask *task = [self taskWithSessionTask:downloadTask];
-    if (error) {
-        // check whether resume data are available
-        NSData *resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
-        if (resumeData) {
-            //can resume
-            if (YC_DEVICE_VERSION >= 11.0f && YC_DEVICE_VERSION < 11.2f) {
-                //修正iOS11 多次暂停继续 文件大小不对的问题
-                resumeData = [YCResumeData cleanResumeData:resumeData];
-            }
-            //通过之前保存的resumeData，获取断点的NSURLSessionTask，调用resume恢复下载
-            task.resumeData = resumeData;
-            id resumeDataObj = [NSPropertyListSerialization propertyListWithData:resumeData options:0 format:0 error:nil];
-            if ([resumeDataObj isKindOfClass:[NSDictionary class]]) {
-                NSDictionary *resumeDict = resumeDataObj;
-                task.tmpName = [resumeDict valueForKey:@"NSURLSessionResumeInfoTempFileName"];
-            }
-            task.resumeData = resumeData;
-            task.downloadTask = nil;
-            [self saveDownloadTask:task];
-        }else{
-            //cannot resume
-            NSLog(@"[didCompleteWithError] : %@",error);
-            [self completionDownloadTask:task localPath:nil error:error];
+    // check whether resume data are available
+    NSData *resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
+    if (resumeData) {
+        //can resume
+        if (YC_DEVICE_VERSION >= 11.0f && YC_DEVICE_VERSION < 11.2f) {
+            //修正iOS11 多次暂停继续 文件大小不对的问题
+            resumeData = [YCResumeData cleanResumeData:resumeData];
         }
+        //通过之前保存的resumeData，获取断点的NSURLSessionTask，调用resume恢复下载
+        task.resumeData = resumeData;
+        id resumeDataObj = [NSPropertyListSerialization propertyListWithData:resumeData options:0 format:0 error:nil];
+        if ([resumeDataObj isKindOfClass:[NSDictionary class]]) {
+            NSDictionary *resumeDict = resumeDataObj;
+            task.tmpName = [resumeDict valueForKey:@"NSURLSessionResumeInfoTempFileName"];
+        }
+        task.resumeData = resumeData;
+        [self saveDownloadTask:task];
         [self removeMembCacheTask:downloadTask task:task];
+        task.downloadTask = nil;
+    }else{
+        //cannot resume
+        NSLog(@"[didCompleteWithError] : %@",error);
+        [self completionDownloadTask:task localPath:nil error:error];
     }
+    
 }
 
 @end

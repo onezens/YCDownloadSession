@@ -120,18 +120,6 @@
     return name;
 }
 
-+ (NSString *)getURLFromTask:(NSURLSessionTask *)task {
-    //301/302定向的originRequest和currentRequest的url不同
-    NSString *url = nil;
-    NSURLRequest *req = [task originalRequest];
-    url = req.URL.absoluteString;
-    //bridge swift , sometimes originalRequest not have url
-    if(url.length==0){
-        url = [task currentRequest].URL.absoluteString;
-    }
-    return url;
-}
-
 + (NSString *)downloaderVerison {
     return @"2.0.0";
 }

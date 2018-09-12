@@ -74,6 +74,10 @@
     return dic ? (NSUInteger)[dic fileSize] : 0;
 }
 
++ (NSString *)urlStrWithDownloadTask:(NSURLSessionDownloadTask *)downloadTask {
+    return downloadTask.originalRequest.URL.absoluteString ? : downloadTask.currentRequest.URL.absoluteString;
+}
+
 @end
 
 @interface YCDownloadItem(YCDownloadDB)
@@ -516,15 +520,18 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
     return tasks;
 }
 
-+ (YCDownloadTask *)taskWithStid:(NSInteger)stid {
-    __block YCDownloadTask *task = nil;
++ (NSArray *)taskWithStid:(NSInteger)stid {
+    NSMutableArray *tasks = [NSMutableArray array];
     [self performBlock:^BOOL{
         NSString *sql = [NSString stringWithFormat:@"select * from downloadTask where stid == %zd", stid];
         NSArray *rel = [self selectSql:sql];
-        task = [self taskWithDict:rel.firstObject];
+        [rel enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            YCDownloadTask *task = [self taskWithDict:rel.firstObject];
+            [tasks addObject:task];
+        }];
         return true;
     } sync:true];
-    return task;
+    return tasks;
 }
 
 + (void)removeAllTasks {

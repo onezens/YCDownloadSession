@@ -37,6 +37,8 @@
 
 + (NSUInteger)fileSizeWithPath:(NSString *)path;
 
++ (NSString *)urlStrWithDownloadTask:(NSURLSessionDownloadTask *)downloadTask;
+
 @end
 
 
@@ -60,7 +62,7 @@
 + (NSArray <YCDownloadTask *> *)fetchAllDownloadTasks;
 + (YCDownloadTask *)taskWithTid:(NSString *)tid;
 + (NSArray <YCDownloadTask *> *)taskWithUrl:(NSString *)url;
-+ (YCDownloadTask *)taskWithStid:(NSInteger)stid; //TODO: add url
++ (NSArray <YCDownloadTask *> *)taskWithStid:(NSInteger)stid; //TODO: add url
 + (void)removeAllTasks;
 + (BOOL)removeTask:(YCDownloadTask *)task;
 + (BOOL)saveTask:(YCDownloadTask *)task;
