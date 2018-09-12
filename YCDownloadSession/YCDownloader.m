@@ -71,7 +71,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 }
 - (NSString *)backgroundSessionIdentifier {
     NSString *bundleId = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
-    NSString *identifier = [NSString stringWithFormat:@"%@.BackgroundSession", bundleId];
+    NSString *identifier = [NSString stringWithFormat:@"%@.BGS.YCDownloader", bundleId];
     return identifier;
 }
 

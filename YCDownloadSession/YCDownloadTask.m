@@ -19,6 +19,7 @@
 @property (nonatomic, strong) NSURLRequest *request;
 @property (nonatomic, assign, readonly) BOOL isFinished;
 @property (nonatomic, assign, readonly) BOOL isSupportRange;
+@property (nonatomic, assign, readonly) NSUInteger createTime;
 @property (nonatomic, strong) NSURLSessionDownloadTask *downloadTask;
 @end
 
@@ -34,6 +35,7 @@
 
 - (instancetype)initWithPrivate{
     if (self = [super init]) {
+        _createTime = [YCDownloadUtils sec_timestamp];
         _version = [YCDownloadTask downloaderVerison];
     }
     return self;

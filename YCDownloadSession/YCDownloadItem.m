@@ -19,11 +19,12 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
 @end
 
 @interface YCDownloadItem()
-@property (nonatomic, copy) NSString *fileExtension;
 @property (nonatomic, copy) NSString *rootPath;
 @property (nonatomic, assign) NSInteger pid;
 @property (nonatomic, assign) BOOL isRemoved;
 @property (nonatomic, assign) BOOL noNeedStartNext;
+@property (nonatomic, copy) NSString *fileExtension;
+@property (nonatomic, assign, readonly) NSUInteger createTime;
 @end
 
 @implementation YCDownloadItem
@@ -32,6 +33,7 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
 
 - (instancetype)initWithPrivate{
     if (self = [super init]) {
+        _createTime = [YCDownloadUtils sec_timestamp];
         _version = [YCDownloadTask downloaderVerison];
     }
     return self;

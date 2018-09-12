@@ -78,18 +78,24 @@
     return downloadTask.originalRequest.URL.absoluteString ? : downloadTask.currentRequest.URL.absoluteString;
 }
 
++ (NSUInteger)sec_timestamp {
+    return (NSUInteger)[[NSDate date] timeIntervalSince1970];
+}
+
 @end
 
 @interface YCDownloadItem(YCDownloadDB)
 @property (nonatomic, assign) NSInteger pid;
 @property (nonatomic, copy) NSString *fileExtension;
 @property (nonatomic, copy) NSString *rootPath;
+@property (nonatomic, assign, readonly) NSUInteger createTime;
 + (instancetype)itemWithDict:(NSDictionary *)dict;
 
 @end
 
 @interface YCDownloadTask(YCDownloadDB)
 @property (nonatomic, assign) NSInteger pid;
+@property (nonatomic, assign, readonly) NSUInteger createTime;
 + (instancetype)taskWithDict:(NSDictionary *)dict;
 @end
 
@@ -105,11 +111,11 @@ typedef NS_ENUM(NSUInteger, YCDownloadDBValueType) {
 static sqlite3 *_db;
 static dispatch_queue_t _dbQueue;
 //tasks
-static const char* allTaskKeys[] = {"taskId", "downloadURL", "stid", "priority", "enableSpeed", "fileSize", "downloadedSize", "version", "tmpName", "resumeData", "extraData"};
+static const char* allTaskKeys[] = {"taskId", "downloadURL", "stid", "priority", "enableSpeed", "fileSize", "downloadedSize", "version", "tmpName", "resumeData", "extraData", "createTime"};
 static NSMutableDictionary <NSString* ,YCDownloadTask *> *_memCacheTasks;
 
 //items
-static const char* allItemKeys[] = {"fileId", "taskId", "downloadURL", "uid", "fileType", "fileExtension", "rootPath", "fileSize", "downloadedSize", "downloadStatus", "extraData", "version"};
+static const char* allItemKeys[] = {"fileId", "taskId", "downloadURL", "uid", "fileType", "fileExtension", "rootPath", "fileSize", "downloadedSize", "downloadStatus", "extraData", "version", "createTime"};
 static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
 
 #pragma mark - init db
@@ -131,8 +137,8 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
         NSLog(@"[db error]");
         return;
     }
-    NSString *sql = @"CREATE TABLE IF NOT EXISTS downloadItem (pid integer PRIMARY KEY AUTOINCREMENT,taskId text not null unique,fileId text, downloadURL text,uid text,fileType text,fileExtension text,rootPath text,fileSize integer,downloadedSize integer,downloadStatus integer,extraData BLOB, version text not null); \n"
-    "CREATE TABLE IF NOT EXISTS downloadTask (pid integer PRIMARY KEY AUTOINCREMENT,taskId text not null unique, downloadURL text, stid integer, priority float, enableSpeed integer, fileSize INTEGER, downloadedSize INTEGER, version text not null, tmpName text, resumeData BLOB, extraData BLOB);";
+    NSString *sql = @"CREATE TABLE IF NOT EXISTS downloadItem (pid integer PRIMARY KEY AUTOINCREMENT,taskId text not null unique,fileId text, downloadURL text,uid text,fileType text,fileExtension text,rootPath text,fileSize integer,downloadedSize integer,downloadStatus integer,extraData BLOB, version text not null, createTime integer); \n"
+    "CREATE TABLE IF NOT EXISTS downloadTask (pid integer PRIMARY KEY AUTOINCREMENT,taskId text not null unique, downloadURL text, stid integer, priority float, enableSpeed integer, fileSize INTEGER, downloadedSize INTEGER, version text not null, tmpName text, resumeData BLOB, extraData BLOB, createTime integer);";
     [self performBlock:^BOOL{ return [self execSql:sql]; } sync:true] ? NSLog(@"[init db success]") : false;
     _memCacheTasks = [NSMutableDictionary dictionary];
     _memCacheItems = [NSMutableDictionary dictionary];
@@ -309,7 +315,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
 + (NSArray <YCDownloadItem *> *)fetchAllDownloadItemWithUid:(NSString *)uid {
     __block NSMutableArray *results = [NSMutableArray array];
     [self performBlock:^BOOL{
-        NSString *sql = [NSString stringWithFormat:@"select * from downloadItem where uid == '%@'",uid];
+        NSString *sql = [NSString stringWithFormat:@"select * from downloadItem where uid == '%@' ORDER BY createTime",uid];
         NSArray *rel = [self selectSql:sql];
         [rel enumerateObjectsUsingBlock:^(NSDictionary * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             YCDownloadItem *item = [self itemWithDict:obj];
@@ -323,7 +329,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
 + (NSArray <YCDownloadItem *> *)fetchAllDownloadedItemWithUid:(NSString *)uid {
     __block NSMutableArray *results = [NSMutableArray array];
     [self performBlock:^BOOL{
-        NSString *sql = [NSString stringWithFormat:@"select * from downloadItem where downloadStatus == %ld and uid == '%@'", YCDownloadStatusFinished, uid];
+        NSString *sql = [NSString stringWithFormat:@"select * from downloadItem where downloadStatus == %ld and uid == '%@' ORDER BY createTime", YCDownloadStatusFinished, uid];
         NSArray *rel = [self selectSql:sql];
         [rel enumerateObjectsUsingBlock:^(NSDictionary * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             YCDownloadItem *item = [self itemWithDict:obj];
@@ -333,10 +339,11 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
     } sync:true];
     return results;
 }
+
 + (NSArray <YCDownloadItem *> *)fetchAllDownloadingItemWithUid:(NSString *)uid {
     __block NSMutableArray *results = [NSMutableArray array];
     [self performBlock:^BOOL{
-        NSString *sql = [NSString stringWithFormat:@"select * from downloadItem where downloadStatus != %ld and uid == '%@'",YCDownloadStatusFinished, uid];
+        NSString *sql = [NSString stringWithFormat:@"select * from downloadItem where downloadStatus != %ld and uid == '%@' ORDER BY createTime",YCDownloadStatusFinished, uid];
         NSArray *rel = [self selectSql:sql];
         [rel enumerateObjectsUsingBlock:^(NSDictionary * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             YCDownloadItem *item = [self itemWithDict:obj];
@@ -346,6 +353,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
     } sync:true];
     return results;
 }
+
 + (YCDownloadItem *)itemWithTaskId:(NSString *)taskId {
     __block YCDownloadItem *item = _memCacheItems[taskId];
     if(!item){
@@ -358,6 +366,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
     }
     return item;
 }
+
 + (NSArray *)itemsWithUrl:(NSString *)downloadUrl uid:(NSString *)uid{
     NSMutableArray *items = [NSMutableArray array];
     [self performBlock:^BOOL{
@@ -372,6 +381,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
     } sync:true];
     return items;
 }
+
 + (YCDownloadItem *)itemWithFid:(NSString *)fid uid:(NSString *)uid{
     __block YCDownloadItem *item = nil;
     [self performBlock:^BOOL{
@@ -382,6 +392,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
     } sync:true];
     return item;
 }
+
 + (void)removeAllItemsWithUid:(NSString *)uid {
     [self performBlock:^BOOL{
         NSString *sql = [NSString stringWithFormat:@"delete from downloadItem where uid == '%@'",uid];
@@ -390,6 +401,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
         return result;
     } sync:false];
 }
+
 + (BOOL)removeItemWithTaskId:(NSString *)taskId {
     if(!taskId) return true;
     return [self performBlock:^BOOL{

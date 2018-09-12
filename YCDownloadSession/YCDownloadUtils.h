@@ -39,6 +39,8 @@
 
 + (NSString *)urlStrWithDownloadTask:(NSURLSessionDownloadTask *)downloadTask;
 
++ (NSUInteger)sec_timestamp;
+
 @end
 
 
