@@ -27,6 +27,23 @@
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self getVideoList];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"缓存" style:UIBarButtonItemStylePlain target:self action:@selector(goCache)];
+//    [self downloadAll];
+}
+
+- (void)downloadAll {
+    [_videoListArr enumerateObjectsUsingBlock:^(VideoListInfoModel* model, NSUInteger idx, BOOL * _Nonnull stop) {
+        YCDownloadItem *item = nil;
+        if (model.file_id) {
+            item = [YCDownloadManager itemWithFileId:model.file_id];
+        }else if (model.mp4_url){
+            item = [YCDownloadManager itemsWithDownloadUrl:model.mp4_url].firstObject;
+        }
+        if (!item) {
+            item = [YCDownloadItem itemWithUrl:model.mp4_url fileId:model.file_id];
+            item.extraData = [VideoListInfoModel dateWithInfoModel:model];
+            [YCDownloadManager startDownloadWithItem:item];
+        }
+    }];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -36,6 +53,7 @@
 }
 
 - (void)getVideoList {
+    
     NSString *dataPath = [[NSBundle mainBundle] pathForResource:@"video.json" ofType:nil];
     NSData *videoData = [[NSData alloc] initWithContentsOfFile:dataPath];
     NSArray *videoArr = [NSJSONSerialization JSONObjectWithData:videoData options:0 error:nil];
@@ -55,17 +73,16 @@
  点击下载
  */
 - (void)videoListCell:(VideoListInfoCell *)cell downloadVideo:(VideoListInfoModel *)model {
-
-    if ([model.file_id isEqualToString:@"10000"] || [model.file_id isEqualToString:@"10002"]) {
-        YCDownloadInfo *info = [[YCDownloadInfo alloc] initWithUrl:model.mp4_url fileId:model.file_id];
-        info.thumbImageUrl = model.cover;
-        info.fileName = model.title;
-        info.desc = @"扩展字段描述";
-        info.date = [NSDate date];
-        info.enableSpeed = true;
-        [YCDownloadManager startDownloadWithItem:info priority:0.8];
-    }else{
-        [YCDownloadManager startDownloadWithUrl:model.mp4_url fileName:model.title imageUrl:model.cover fileId:model.file_id];
+    YCDownloadItem *item = nil;
+    if (model.file_id) {
+        item = [YCDownloadManager itemWithFileId:model.file_id];
+    }else if (model.mp4_url){
+        item = [YCDownloadManager itemsWithDownloadUrl:model.mp4_url].firstObject;
+    }
+    if (!item) {
+        item = [YCDownloadItem itemWithUrl:model.mp4_url fileId:model.file_id];
+        item.extraData = [VideoListInfoModel dateWithInfoModel:model];
+        [YCDownloadManager startDownloadWithItem:item];
     }
     VideoCacheController *vc = [[VideoCacheController alloc] init];
     [self.navigationController pushViewController:vc animated:true];
@@ -78,13 +95,18 @@
     return self.videoListArr.count;
 }
 
-
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     VideoListInfoCell *cell = [VideoListInfoCell videoListInfoCellWithTableView:tableView];
     VideoListInfoModel *model = self.videoListArr[indexPath.row];
     [cell setVideoModel:model];
     cell.delegate = self;
-    [cell setDownloadStatus:[YCDownloadManager downloasStatusWithId:model.file_id ? : model.mp4_url]];
+    YCDownloadItem *item = nil;
+    if (model.file_id) {
+        item = [YCDownloadManager itemWithFileId:model.file_id];
+    }else if (model.mp4_url){
+        item = [YCDownloadManager itemsWithDownloadUrl:model.mp4_url].firstObject;
+    }
+    [cell setDownloadStatus:item.downloadStatus];
     return cell;
 }
 

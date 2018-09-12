@@ -20,4 +20,7 @@
 
 + (NSMutableArray <VideoListInfoModel *> *)getVideoListInfo:(NSArray <NSDictionary *>*)listInfos;
 
++ (NSData *)dateWithInfoModel:(VideoListInfoModel *)mo;
++ (VideoListInfoModel *)infoWithData:(NSData *)data;
+
 @end

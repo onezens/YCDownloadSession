@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:YCDownloadSession.xcodeproj">
+      location = "self:/Users/leaf/Documents/git/YCDownloadSession/YCDownloadSession.xcodeproj">
    </FileRef>
 </Workspace>

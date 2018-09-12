@@ -15,11 +15,8 @@ static NSString * const kDefinePauseAllTitle = @"暂停所有";
 static NSString * const kDefineStartAllTitle = @"开始所有";
 
 @interface VideoCacheController ()<UITableViewDelegate, UITableViewDataSource>
-
 @property (nonatomic, strong) UITableView *tableView;
-
 @property (nonatomic, strong) NSMutableArray *cacheVideoList;
-
 @end
 
 @implementation VideoCacheController
@@ -31,7 +28,6 @@ static NSString * const kDefineStartAllTitle = @"开始所有";
     self.view.backgroundColor = [UIColor whiteColor];
     self.cacheVideoList = [NSMutableArray array];
     [self getCacheVideoList];
-    [YCDownloadManager setMaxTaskCount:3];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:kDefinePauseAllTitle style:UIBarButtonItemStyleDone target:self action:@selector(pauseAll)];
 }
 

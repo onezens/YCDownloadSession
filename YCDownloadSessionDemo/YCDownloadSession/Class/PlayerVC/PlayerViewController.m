@@ -23,7 +23,7 @@
     [super viewDidLoad];
     
     self.view.backgroundColor = [UIColor whiteColor];
-    self.title = self.playerItem.fileName;
+//    self.title = self.playerItem.fileName;
     self.originalFrame = CGRectMake(0, 64, self.view.bounds.size.width, 200);
     
     self.player = [[WMPlayer alloc] init];
@@ -31,6 +31,7 @@
     [self.view addSubview:_player];
     //保存路径需要转换为url路径，才能播放
     NSURL *url = [NSURL fileURLWithPath:self.playerItem.savePath];
+    NSLog(@"[playViewVC] videoUrl:%@", url);
     [self.player setURLString:url.absoluteString];
     [_player play];
 }

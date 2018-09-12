@@ -4,107 +4,91 @@
 //
 //  Created by wz on 17/3/15.
 //  Copyright © 2017年 onezen.cc. All rights reserved.
-//  Contact me: http://www.onezen.cc
+//  Contact me: http://www.onezen.cc/about/
 //  Github:     https://github.com/onezens/YCDownloadSession
 //
 
 #import "YCDownloadTask.h"
-#import <objc/runtime.h>
-#import "YCDownloadSession.h"
-
-NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
+#import "YCDownloadUtils.h"
 
 @interface YCDownloadTask()
-{
-    NSString *_saveName;
-    float _priority;
-    NSUInteger _preDownloadedSize;
-}
-
-@property (nonatomic, strong) NSTimer *timer;
+@property (nonatomic, assign) NSInteger pid;
+@property (nonatomic, assign) NSInteger stid;
+@property (nonatomic, copy) NSString *tmpName;
+@property (nonatomic, assign) BOOL needToRestart;
+@property (nonatomic, strong) NSURLRequest *request;
+@property (nonatomic, assign, readonly) BOOL isFinished;
+@property (nonatomic, assign, readonly) BOOL isSupportRange;
+@property (nonatomic, assign, readonly) NSUInteger createTime;
+@property (nonatomic, strong) NSURLSessionDownloadTask *downloadTask;
 @end
+
 
 @implementation YCDownloadTask
 
+@synthesize progress = _progress;
+
 - (instancetype)init {
+    NSAssert(false, @"use - (instancetype)initWithRequest:(NSURLRequest *)request progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion");
+    return nil;
+}
+
+- (instancetype)initWithPrivate{
     if (self = [super init]) {
-        _priority = NSURLSessionTaskPriorityDefault;
+        _createTime = [YCDownloadUtils sec_timestamp];
+        _version = [YCDownloadTask downloaderVerison];
     }
     return self;
 }
 
-- (instancetype)initWithUrl:(NSString *)url fileId:(NSString *)fileId delegate:(id<YCDownloadTaskDelegate>)delegate {
-    
-    if(self = [super init]){
+- (instancetype)initWithRequest:(NSURLRequest *)request progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion priority:(float)priority{
+    if (self = [self initWithPrivate]) {
+        NSString *url = request.URL.absoluteString;
+        _request = request;
         _downloadURL = url;
-        _fileId = fileId;
-        _delegate = delegate;
-        _compatibleKey = [YCDownloadSession downloadSession].downloadVersion;
+        _taskId = [YCDownloadTask taskIdForUrl:url fileId:[NSUUID UUID].UUIDString];
+        _priority = priority ? priority : NSURLSessionTaskPriorityDefault;
+        _progressHandler = progress;
+        _completionHanlder = completion;
     }
     return self;
 }
 
-+ (instancetype)taskWithUrl:(NSString *)url fileId:(NSString *)fileId delegate:(id<YCDownloadTaskDelegate>)delegate {
-    return [[YCDownloadTask alloc] initWithUrl:url fileId:fileId delegate:delegate];
++ (instancetype)taskWithDict:(NSMutableDictionary *)dict {
+    YCDownloadTask *task = [[self alloc] initWithPrivate];
+    [task setValuesForKeysWithDictionary:dict];
+    return task;
+}
+
++ (instancetype)taskWithRequest:(NSURLRequest *)request progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion {
+    return [[self alloc] initWithRequest:request progress:progress completion:completion priority:0];
+}
+
++ (instancetype)taskWithRequest:(NSURLRequest *)request progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion priority:(float)priority {
+    return [[self alloc] initWithRequest:request progress:progress completion:completion priority:priority];
 }
 
 #pragma mark - public
 
 - (void)updateTask {
-    
-    _fileSize = (NSInteger)[_downloadTask.response expectedContentLength];
-}
-
-- (void)resume {
-    [YCDownloadSession.downloadSession resumeDownloadWithTask:self];
-}
-
-- (void)pause {
-    [YCDownloadSession.downloadSession pauseDownloadWithTask:self];
-    if (self.timer) {
-        [self stopTimer];
-    }
-}
-
-- (void)remove {
-    [YCDownloadSession.downloadSession stopDownloadWithTask:self];
-    if (self.timer) {
-        [self stopTimer];
-    }
-}
-
-
-- (void)downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize {
-    _downloadedSize = downloadedSize;
-    if (!self.timer && self.delegate) {
-        [self startTimer];
-    }
+    _fileSize = [_downloadTask.response expectedContentLength];
 }
 
 #pragma mark - setter
 
--  (void)setPriority:(float)priority {
-    _priority = priority;
-    if (self.downloadTask) {
-        self.downloadTask.priority = priority;
-    }
-}
-
 - (void)setDownloadTask:(NSURLSessionDownloadTask *)downloadTask {
+    NSAssert(downloadTask==nil || [downloadTask isKindOfClass:[NSURLSessionDownloadTask class]], @"downloadTask class", downloadTask.class);
     _downloadTask = downloadTask;
-    downloadTask.priority = _priority;
+    downloadTask.priority = self.priority;
 }
 
--(void)setDownloadStatus:(YCDownloadStatus)downloadStatus {
-    _downloadStatus = downloadStatus;
-    if(self.timer && (downloadStatus == YCDownloadStatusPaused || downloadStatus == YCDownloadStatusFailed || downloadStatus == YCDownloadStatusFinished)) {
-        [self stopTimer];
-    }
-}
+
 #pragma mark - getter
-
-- (float)priority {
-    return _priority;
+- (NSProgress *)progress {
+    if (!_progress) {
+        _progress = [NSProgress progressWithTotalUnitCount:NSURLSessionTransferSizeUnknown];
+    }
+    return _progress;
 }
     
 - (BOOL)isSupportRange {
@@ -117,37 +101,20 @@ NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
     return true;
 }
 
--(NSString *)taskId {
-    return [YCDownloadTask taskIdForUrl:self.downloadURL fileId:self.fileId];
+- (BOOL)isRunning {
+    return self.downloadTask && self.downloadTask.state == NSURLSessionTaskStateRunning;
 }
 
-- (NSString *)savePath {
-    if (_savePath.length>0) {
-        return _savePath;
-    }
-    return [YCDownloadTask savePathWithSaveName:self.saveName];
+- (NSInteger)stid {
+    return self.downloadTask ? self.downloadTask.taskIdentifier : _stid;
 }
 
--(BOOL)downloadFinished {
-    
-    NSDictionary *dic = [[NSFileManager defaultManager] attributesOfItemAtPath:self.savePath error:nil];
-    NSInteger fileSize = dic ? (NSInteger)[dic fileSize] : 0;
-    return [[NSFileManager defaultManager] fileExistsAtPath:self.savePath] && (fileSize == self.fileSize);
+- (BOOL)isFinished {
+    return self.fileSize != 0 && self.fileSize == self.downloadedSize;
 }
 
-- (NSString *)saveName {
-    if (_saveName.length==0) {
-        NSString *name = [YCDownloadTask taskIdForUrl:self.downloadURL fileId:self.fileId];
-        NSString *pathExtension =  [YCDownloadTask getPathExtensionWithUrl:self.downloadURL];
-        name = pathExtension.length>0 ? [name stringByAppendingPathExtension:pathExtension] : name;
-        return name;
-    }
-    return _saveName;
-}
-
-- (void)setSaveName:(NSString *)saveName {
-    _saveName = saveName;
-    [YCDownloadSession.downloadSession saveDownloadStatus];
+- (NSString *)description {
+    return [NSString stringWithFormat:@"<YCDownloadTask: %p>{ taskId: %@, url: %@, stid: %ld}", self, self.taskId, self.downloadURL, (long)self.stid];
 }
 
 + (NSString *)taskIdForUrl:(NSString *)url fileId:(NSString *)fileId {
@@ -155,105 +122,8 @@ NSString * const kDownloadStatusChangedNoti = @"kDownloadStatusChangedNoti";
     return name;
 }
 
-+ (NSString *)savePathWithSaveName:(NSString *)saveName {
-
-    NSString *saveDir = [self saveDir];
-    saveDir = [saveDir stringByAppendingPathComponent:saveName];
-    return saveDir;
-
-}
-
-+ (NSString *)saveDir{
-    NSString *saveDir = [YCDownloadSession saveRootPath];
-    saveDir = [saveDir stringByAppendingPathComponent:@"video"];
-    if (![[NSFileManager defaultManager] fileExistsAtPath:saveDir]) {
-        [[NSFileManager defaultManager] createDirectoryAtPath:saveDir withIntermediateDirectories:true attributes:nil error:nil];
-    }
-    return saveDir;
-}
-
-+ (NSString *)getURLFromTask:(NSURLSessionTask *)task {
-    
-    //301/302定向的originRequest和currentRequest的url不同
-    NSString *url = nil;
-    NSURLRequest *req = [task originalRequest];
-    url = req.URL.absoluteString;
-    //bridge swift , sometimes originalRequest not have url
-    if(url.length==0){
-        url = [task currentRequest].URL.absoluteString;
-    }
-    return url;
-}
-
-#pragma mark - private
-
-
-- (void)startTimer {
-    self.timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(timerCall) userInfo:nil repeats:true];
-    [self.timer fire];
-    [[NSRunLoop currentRunLoop] addTimer:_timer forMode:NSDefaultRunLoopMode];
-    [[NSRunLoop currentRunLoop] run];
-}
-
-- (void)stopTimer {
-    [self.timer invalidate];
-    self.timer = nil;
-}
-
-- (void)timerCall {
-    NSUInteger speed = _downloadedSize - _preDownloadedSize;
-    _preDownloadedSize = _downloadedSize;
-    if ([self.delegate respondsToSelector:@selector(downloadTask:speed:speedDesc:)]) {
-        [self.delegate downloadTask:self speed:speed speedDesc:[NSString stringWithFormat:@"%@/s",[YCDownloadUtils fileSizeStringFromBytes:speed]]];
-    }
-}
-
-///  解档
-- (instancetype)initWithCoder:(NSCoder *)coder
-{
-    if (self = [super init]) {
-        unsigned int count = 0;
-        Ivar *ivars = class_copyIvarList([self class], &count);
-        for (NSInteger i=0; i<count; i++) {
-            Ivar ivar = ivars[i];
-            NSString *name = [[NSString alloc] initWithUTF8String:ivar_getName(ivar)];
-            if ([name isEqualToString:@"_downloadTask"] || [name isEqualToString:@"_delegate"] || [name isEqualToString:@"_timer"]) continue;
-            id value = [coder decodeObjectForKey:name];
-            if(value) [self setValue:value forKey:name];
-        }
-        free(ivars);
-    }
-    return self;
-}
-
-///  归档
-- (void)encodeWithCoder:(NSCoder *)coder
-{
-    unsigned int count = 0;
-    Ivar *ivars = class_copyIvarList([self class], &count);
-    for (NSInteger i=0; i<count; i++) {
-        
-        Ivar ivar = ivars[i];
-        NSString *name = [[NSString alloc] initWithUTF8String:ivar_getName(ivar)];
-        if ([name isEqualToString:@"_downloadTask"] || [name isEqualToString:@"_delegate"] || [name isEqualToString:@"_timer"]) continue;
-        id value = [self valueForKey:name];
-        if(value) [coder encodeObject:value forKey:name];
-    }
-    free(ivars);
-}
-
-+ (NSString *)getPathExtensionWithUrl:(NSString *)url {
-    //过滤url中的参数，取出单独文件名
-    NSRange range = [url rangeOfString:@"?"];
-    if (range.location != NSNotFound) {
-        url = [url substringToIndex:range.location];
-    }
-    return url.pathExtension;
-}
-
--(void)dealloc {
-    NSLog(@"%s", __func__);
-    [self stopTimer];
++ (NSString *)downloaderVerison {
+    return @"2.0.0";
 }
 
 @end
@@ -311,12 +181,8 @@ static NSString * const kNSURLSessionResumeServerDownloadDate = @"NSURLSessionRe
         NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
         _downloadDate = [formatter dateFromString:downloadDate];
         
-        id obj = [NSKeyedUnarchiver unarchiveObjectWithData:currentReqData];
-        id obj2= [NSKeyedUnarchiver unarchiveObjectWithData:originalReqData];
-//        id obj3 = [NSPropertyListSerialization propertyListWithData:currentReqData options:0 format:0 error:nil];
-        NSLog(@"%@", [obj class]);
-        NSLog(@"%@", [obj2 class]);
-        NSLog(@"--------->resumeRange:  %@", resumeRange);
+        [NSKeyedUnarchiver unarchiveObjectWithData:currentReqData];
+        [NSKeyedUnarchiver unarchiveObjectWithData:originalReqData];
     }
 }
 
@@ -373,6 +239,7 @@ static NSString * const kNSURLSessionResumeServerDownloadDate = @"NSURLSessionRe
     NSData *result = [NSPropertyListSerialization dataWithPropertyList:archive format:NSPropertyListBinaryFormat_v1_0 options:0 error:nil];
     return result;
 }
+
 + (NSMutableDictionary *)getResumeDictionary:(NSData *)data
 {
     NSMutableDictionary *iresumeDictionary = nil;

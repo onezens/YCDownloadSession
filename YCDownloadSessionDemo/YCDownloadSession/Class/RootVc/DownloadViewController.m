@@ -9,11 +9,14 @@
 #import "DownloadViewController.h"
 #import "YCDownloadSession.h"
 
-@interface DownloadViewController ()<YCDownloadTaskDelegate>
+static NSString * const kDownloadTaskIdKey = @"kDownloadTaskIdKey";
+@interface DownloadViewController ()
 
 @property (nonatomic, copy) NSString *downloadURL;
 @property (nonatomic, weak) UILabel *progressLbl;
 @property (nonatomic, weak) YCDownloadTask *downloadTask;
+@property (nonatomic, copy) YCCompletionHanlder completion;
+@property (nonatomic, copy) YCProgressHanlder progress;
 
 @end
 
@@ -51,7 +54,7 @@
     [pauseBtn addTarget:self action:@selector(pause) forControlEvents:UIControlEventTouchUpInside];
     [pauseBtn setTitleColor:[UIColor cyanColor] forState:UIControlStateHighlighted];
     [self.view addSubview:pauseBtn];
-
+    
     self.downloadURL = @"http://dldir1.qq.com/qqfile/QQforMac/QQ_V6.0.1.dmg";
     
     UILabel *lbl = [[UILabel alloc] init];
@@ -61,35 +64,67 @@
     self.progressLbl = lbl;
     [self.view addSubview:lbl];
     
+    __weak typeof(self) weakSelf = self;
+    self.completion = ^(NSString *localPath, NSError *error) {
+        if (error) {
+            [weakSelf downloadStatusChanged:YCDownloadStatusFailed downloadTask:nil];
+        }else{
+            [weakSelf downloadStatusChanged:YCDownloadStatusFinished downloadTask:nil];
+            NSLog(@"%@", localPath);
+        }
+        weakSelf.downloadTask = nil;
+    };
+    self.progress = ^(NSProgress *progress, YCDownloadTask *task) {
+        weakSelf.progressLbl.text = [NSString stringWithFormat:@"%f",progress.fractionCompleted];
+    };
+    [YCDownloader downloader];
+    NSString *tid = [[NSUserDefaults standardUserDefaults] valueForKey:kDownloadTaskIdKey];
+    YCDownloadTask *task = [YCDownloadDB taskWithTid:tid];
+    if (task.isRunning) {
+        [self resume];
+    }
+    
 }
 
 - (void)downloadProgress:(YCDownloadTask *)task downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize {
     self.progressLbl.text = [NSString stringWithFormat:@"%f",(float)downloadedSize / fileSize * 100];
 }
 
-
 - (void)downloadStatusChanged:(YCDownloadStatus)status downloadTask:(YCDownloadTask *)task {
     if (status == YCDownloadStatusFinished) {
         self.progressLbl.text = @"download success!";
-        NSLog(@"save file path: %@", task.savePath);
     }else if (status == YCDownloadStatusFailed){
         self.progressLbl.text = @"download failed!";
     }
 }
 
 - (void)start {
-    self.downloadTask = [YCDownloadSession.downloadSession startDownloadWithUrl:self.downloadURL fileId:nil delegate:self];
+    if (self.downloadTask) {
+        [self resume];
+        return;
+    }
+    self.downloadTask = [[YCDownloader downloader] downloadWithUrl:self.downloadURL progress:self.progress completion:self.completion];
+    self.downloadTask.extraData = [@"dfasdfasdfa" dataUsingEncoding:NSUTF8StringEncoding];
+    [[NSUserDefaults standardUserDefaults] setValue:self.downloadTask.taskId forKey:kDownloadTaskIdKey];
+    [self resume];
+    
 }
 - (void)resume {
-    [self.downloadTask resume];
+    if (self.downloadTask) {
+        [[YCDownloader downloader] resumeDownloadTask:self.downloadTask];
+    }else{
+        //recovery download
+        NSString *tid = [[NSUserDefaults standardUserDefaults] valueForKey:kDownloadTaskIdKey];
+        self.downloadTask = [[YCDownloader downloader] resumeDownloadTaskWithTid:tid progress:self.progress completion:self.completion];
+    }
 }
 
 - (void)pause {
-    [self.downloadTask pause];
+    [[YCDownloader downloader] pauseDownloadTask:self.downloadTask];
 }
 
 - (void)stop {
-    [self.downloadTask remove];
+    [[YCDownloader downloader] cancelDownloadTask:self.downloadTask];
 }
 
 

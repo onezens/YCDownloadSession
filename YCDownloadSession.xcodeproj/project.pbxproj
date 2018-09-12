@@ -26,6 +26,7 @@
 		353E94F31F7F3D4A00B76CDF /* ViewController+MASAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 353E94E91F7F3D2E00B76CDF /* ViewController+MASAdditions.m */; };
 		353E94F41F7F3DF900B76CDF /* FastForwardView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 353E94C31F7F3BC200B76CDF /* FastForwardView.xib */; };
 		353E94F51F7F478700B76CDF /* WMPlayer.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 353E94C61F7F3BC200B76CDF /* WMPlayer.bundle */; };
+		354D5ECF2134042900C33509 /* YCDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 354D5ECE2134042900C33509 /* YCDownloader.m */; };
 		355578192025A5A500BD4F7D /* Bugly.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 355578182025A5A500BD4F7D /* Bugly.framework */; };
 		356AAE201FDFE9DD0017FCD9 /* YCDownloadSessionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 356AAE1F1FDFE9DD0017FCD9 /* YCDownloadSessionTests.m */; };
 		3580D64E1F8CB8D000966A3D /* MainTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3580D63F1F8CB8BC00966A3D /* MainTableViewController.m */; };
@@ -41,7 +42,6 @@
 		D72C84DE1E77D42500EDCEEF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D72C84DC1E77D42500EDCEEF /* Main.storyboard */; };
 		D72C84E01E77D42500EDCEEF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D72C84DF1E77D42500EDCEEF /* Assets.xcassets */; };
 		D72C84E31E77D42500EDCEEF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D72C84E11E77D42500EDCEEF /* LaunchScreen.storyboard */; };
-		D72C84ED1E77D47200EDCEEF /* YCDownloadSession.m in Sources */ = {isa = PBXBuildFile; fileRef = D72C84EC1E77D47200EDCEEF /* YCDownloadSession.m */; };
 		D750A1431F2ADEDC00EC6796 /* YCDownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D750A1421F2ADEDC00EC6796 /* YCDownloadManager.m */; };
 		D750A1461F2AE2FC00EC6796 /* YCDownloadItem.m in Sources */ = {isa = PBXBuildFile; fileRef = D750A1451F2AE2FC00EC6796 /* YCDownloadItem.m */; };
 		D75627FE1EE799F200A031FE /* video.json in Resources */ = {isa = PBXBuildFile; fileRef = D75627FD1EE799F200A031FE /* video.json */; };
@@ -113,6 +113,8 @@
 		353E94E71F7F3D2E00B76CDF /* View+MASShorthandAdditions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "View+MASShorthandAdditions.h"; sourceTree = "<group>"; };
 		353E94E81F7F3D2E00B76CDF /* ViewController+MASAdditions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ViewController+MASAdditions.h"; sourceTree = "<group>"; };
 		353E94E91F7F3D2E00B76CDF /* ViewController+MASAdditions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "ViewController+MASAdditions.m"; sourceTree = "<group>"; };
+		354D5ECD2134042900C33509 /* YCDownloader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YCDownloader.h; sourceTree = "<group>"; };
+		354D5ECE2134042900C33509 /* YCDownloader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YCDownloader.m; sourceTree = "<group>"; };
 		355578182025A5A500BD4F7D /* Bugly.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Bugly.framework; sourceTree = "<group>"; };
 		356AAE1D1FDFE9DD0017FCD9 /* YCDownloadSessionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = YCDownloadSessionTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		356AAE1F1FDFE9DD0017FCD9 /* YCDownloadSessionTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YCDownloadSessionTests.m; sourceTree = "<group>"; };
@@ -144,9 +146,8 @@
 		D72C84E21E77D42500EDCEEF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		D72C84E41E77D42500EDCEEF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D72C84EB1E77D47200EDCEEF /* YCDownloadSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YCDownloadSession.h; sourceTree = "<group>"; };
-		D72C84EC1E77D47200EDCEEF /* YCDownloadSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YCDownloadSession.m; sourceTree = "<group>"; };
-		D750A1411F2ADEDC00EC6796 /* YCDownloadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YCDownloadManager.h; path = YCDownloadSession/YCDownloadSession/YCDownloadManager.h; sourceTree = SOURCE_ROOT; };
-		D750A1421F2ADEDC00EC6796 /* YCDownloadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YCDownloadManager.m; path = YCDownloadSession/YCDownloadSession/YCDownloadManager.m; sourceTree = SOURCE_ROOT; };
+		D750A1411F2ADEDC00EC6796 /* YCDownloadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YCDownloadManager.h; path = YCDownloadSession/YCDownloadManager.h; sourceTree = SOURCE_ROOT; };
+		D750A1421F2ADEDC00EC6796 /* YCDownloadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YCDownloadManager.m; path = YCDownloadSession/YCDownloadManager.m; sourceTree = SOURCE_ROOT; };
 		D750A1441F2AE2FC00EC6796 /* YCDownloadItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YCDownloadItem.h; sourceTree = "<group>"; };
 		D750A1451F2AE2FC00EC6796 /* YCDownloadItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YCDownloadItem.m; sourceTree = "<group>"; };
 		D75627FD1EE799F200A031FE /* video.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = video.json; sourceTree = "<group>"; };
@@ -292,7 +293,8 @@
 				356AAE1F1FDFE9DD0017FCD9 /* YCDownloadSessionTests.m */,
 				356AAE211FDFE9DD0017FCD9 /* Info.plist */,
 			);
-			path = YCDownloadSessionTests;
+			name = YCDownloadSessionTests;
+			path = YCDownloadSessionDemo/YCDownloadSessionTests;
 			sourceTree = "<group>";
 		};
 		3580D63B1F8CB8BC00966A3D /* RootVc */ = {
@@ -378,7 +380,8 @@
 				D72C84E41E77D42500EDCEEF /* Info.plist */,
 				D72C84D31E77D42500EDCEEF /* Supporting Files */,
 			);
-			path = YCDownloadSession;
+			name = YCDownloadSession;
+			path = YCDownloadSessionDemo/YCDownloadSession;
 			sourceTree = "<group>";
 		};
 		D72C84D31E77D42500EDCEEF /* Supporting Files */ = {
@@ -393,18 +396,20 @@
 		D72C84EA1E77D46100EDCEEF /* YCDownloadSession */ = {
 			isa = PBXGroup;
 			children = (
+				354D5ECD2134042900C33509 /* YCDownloader.h */,
+				354D5ECE2134042900C33509 /* YCDownloader.m */,
 				3532E34320DCD2E800B3EF5B /* YCDownloadUtils.h */,
 				3532E34420DCD2E800B3EF5B /* YCDownloadUtils.m */,
 				D775A4001E791C9E00117D97 /* YCDownloadTask.h */,
 				D775A4011E791C9E00117D97 /* YCDownloadTask.m */,
-				D72C84EB1E77D47200EDCEEF /* YCDownloadSession.h */,
-				D72C84EC1E77D47200EDCEEF /* YCDownloadSession.m */,
 				D750A1441F2AE2FC00EC6796 /* YCDownloadItem.h */,
 				D750A1451F2AE2FC00EC6796 /* YCDownloadItem.m */,
 				D750A1411F2ADEDC00EC6796 /* YCDownloadManager.h */,
 				D750A1421F2ADEDC00EC6796 /* YCDownloadManager.m */,
+				D72C84EB1E77D47200EDCEEF /* YCDownloadSession.h */,
 			);
-			path = YCDownloadSession;
+			name = YCDownloadSession;
+			path = ../../YCDownloadSession;
 			sourceTree = "<group>";
 		};
 		D789467E1E837BEF00284B35 /* ThirdLib */ = {
@@ -514,6 +519,7 @@
 					D72C84CF1E77D42500EDCEEF = {
 						CreatedOnToolsVersion = 8.2.1;
 						DevelopmentTeam = 65RJX5V69R;
+						LastSwiftMigration = 0940;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
@@ -591,8 +597,8 @@
 				3532E34520DCD2E800B3EF5B /* YCDownloadUtils.m in Sources */,
 				D72C84D81E77D42500EDCEEF /* AppDelegate.m in Sources */,
 				D78946BD1E83A4B700284B35 /* SDWebImageDownloader.m in Sources */,
+				354D5ECF2134042900C33509 /* YCDownloader.m in Sources */,
 				3580D6541F8CB8E900966A3D /* DownloadViewController.m in Sources */,
-				D72C84ED1E77D47200EDCEEF /* YCDownloadSession.m in Sources */,
 				D72C84D51E77D42500EDCEEF /* main.m in Sources */,
 				D750A1461F2AE2FC00EC6796 /* YCDownloadItem.m in Sources */,
 				D78946B81E83A4B700284B35 /* MKAnnotationView+WebCache.m in Sources */,
@@ -675,7 +681,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = cc.onezen.YCDownloadSessionTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/YCDownloadSession.app/YCDownloadSession";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/YCDownloadSession.temp_caseinsensitive_rename.app/YCDownloadSession.temp_caseinsensitive_rename";
 			};
 			name = Debug;
 		};
@@ -696,7 +702,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = cc.onezen.YCDownloadSessionTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/YCDownloadSession.app/YCDownloadSession";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/YCDownloadSession.temp_caseinsensitive_rename.app/YCDownloadSession.temp_caseinsensitive_rename";
 			};
 			name = Release;
 		};
@@ -807,32 +813,43 @@
 		D72C84E81E77D42500EDCEEF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 65RJX5V69R;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/YCDownloadSession/ThirdLib/Bugly",
+					"$(PROJECT_DIR)/YCDownloadSessionDemo/YCDownloadSession/ThirdLib/Bugly",
 				);
-				INFOPLIST_FILE = YCDownloadSession/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/YCDownloadSessionDemo/YCDownloadSession/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = cc.onezen.YCDownloa;
+				PRODUCT_BUNDLE_IDENTIFIER = cc.onezen.Y2CDownload;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
 		D72C84E91E77D42500EDCEEF /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 65RJX5V69R;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/YCDownloadSession/ThirdLib/Bugly",
+					"$(PROJECT_DIR)/YCDownloadSessionDemo/YCDownloadSession/ThirdLib/Bugly",
 				);
-				INFOPLIST_FILE = YCDownloadSession/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/YCDownloadSessionDemo/YCDownloadSession/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = cc.onezen.YCDownloa;
+				PRODUCT_BUNDLE_IDENTIFIER = cc.onezen.Y2CDownload;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
