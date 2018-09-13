@@ -8,9 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
-
+typedef void(^VideoCacheStartAll)(void);
 @interface VideoCacheController : UIViewController
 
-
+@property (nonatomic, copy) VideoCacheStartAll startAllBlk;
 
 @end

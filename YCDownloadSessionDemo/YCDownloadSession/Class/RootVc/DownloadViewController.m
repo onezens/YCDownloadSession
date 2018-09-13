@@ -15,8 +15,8 @@ static NSString * const kDownloadTaskIdKey = @"kDownloadTaskIdKey";
 @property (nonatomic, copy) NSString *downloadURL;
 @property (nonatomic, weak) UILabel *progressLbl;
 @property (nonatomic, weak) YCDownloadTask *downloadTask;
-@property (nonatomic, copy) YCCompletionHanlder completion;
-@property (nonatomic, copy) YCProgressHanlder progress;
+@property (nonatomic, copy) YCCompletionHandler completion;
+@property (nonatomic, copy) YCProgressHandler progress;
 
 @end
 
@@ -111,7 +111,7 @@ static NSString * const kDownloadTaskIdKey = @"kDownloadTaskIdKey";
 }
 - (void)resume {
     if (self.downloadTask) {
-        [[YCDownloader downloader] resumeDownloadTask:self.downloadTask];
+        [[YCDownloader downloader] resumeTask:self.downloadTask];
     }else{
         //recovery download
         NSString *tid = [[NSUserDefaults standardUserDefaults] valueForKey:kDownloadTaskIdKey];
@@ -120,11 +120,11 @@ static NSString * const kDownloadTaskIdKey = @"kDownloadTaskIdKey";
 }
 
 - (void)pause {
-    [[YCDownloader downloader] pauseDownloadTask:self.downloadTask];
+    [[YCDownloader downloader] pauseTask:self.downloadTask];
 }
 
 - (void)stop {
-    [[YCDownloader downloader] cancelDownloadTask:self.downloadTask];
+    [[YCDownloader downloader] cancelTask:self.downloadTask];
 }
 
 

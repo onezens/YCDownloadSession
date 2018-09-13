@@ -67,12 +67,12 @@ static id _instance;
 }
 
 - (void)restoreItems {
-    [[YCDownloadDB fetchAllDownloadingItemWithUid:self.uid] enumerateObjectsUsingBlock:^(YCDownloadItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+    [[YCDownloadDB fetchAllDownloadItemWithUid:self.uid] enumerateObjectsUsingBlock:^(YCDownloadItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         [self downloadFinishedWithItem:obj];
         if (obj.downloadStatus == YCDownloadStatusDownloading) {
             YCDownloadTask *task = [self taskWithItem:obj];
-            task.completionHanlder = obj.completionHanlder;
-            task.progressHandler = obj.progressHanlder;
+            task.completionHandler = obj.completionHandler;
+            task.progressHandler = obj.progressHandler;
             [self.runItems addObject:obj];
         }
         if(self.config.launchAutoResumeDownload){
@@ -168,7 +168,7 @@ static id _instance;
     return _uniqueId ? : @"YCDownloadUID";
 }
 
-#pragma mark - hanlder
+#pragma mark - Handler
 
 - (void)saveDownloadItem:(YCDownloadItem *)item {
     [YCDownloadDB saveItem:item];
@@ -223,7 +223,7 @@ static id _instance;
         return;
     }
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:item.downloadURL]];
-    YCDownloadTask *task = [[YCDownloader downloader] downloadWithRequest:request progress:item.progressHanlder completion:item.completionHanlder priority:priority];
+    YCDownloadTask *task = [[YCDownloader downloader] downloadWithRequest:request progress:item.progressHandler completion:item.completionHandler priority:priority];
     item.taskId = task.taskId;
     [YCDownloadDB saveItem:item];
     [self resumeDownloadWithItem:item];
@@ -282,9 +282,9 @@ static id _instance;
     }
     item.downloadStatus = YCDownloadStatusDownloading;
     YCDownloadTask *task = [self taskWithItem:item];
-    task.completionHanlder = item.completionHanlder;
-    task.progressHandler = item.progressHanlder;
-    if([[YCDownloader downloader] resumeDownloadTask:task]) {
+    task.completionHandler = item.completionHandler;
+    task.progressHandler = item.progressHandler;
+    if([[YCDownloader downloader] resumeTask:task]) {
         [self.runItems addObject:item];
         return;
     }
@@ -295,7 +295,7 @@ static id _instance;
 - (void)pauseDownloadWithItem:(YCDownloadItem *)item {
     item.downloadStatus = YCDownloadStatusPaused;
     YCDownloadTask *task = [self taskWithItem:item];
-    [[YCDownloader downloader] pauseDownloadTask:task];
+    [[YCDownloader downloader] pauseTask:task];
     [self saveDownloadItem:item];
     [self.runItems removeObject:item];
     [self.waitItems removeObject:item];
@@ -306,11 +306,14 @@ static id _instance;
     if (item == nil)  return;
     item.isRemoved = true;
     YCDownloadTask *task  = [self taskWithItem:item];
-    [[YCDownloader downloader] cancelDownloadTask:task];
+    [[YCDownloader downloader] cancelTask:task];
+    BOOL isExist = [[NSFileManager defaultManager] fileExistsAtPath:item.savePath];
+    NSLog(@"[remove item] isExist : %d path: %@", isExist, item.savePath);
     [[NSFileManager defaultManager] removeItemAtPath:item.savePath error:nil];
     [self removeItemWithTaskId:item.taskId];
     [YCDownloadDB removeTask:task];
     [self.runItems removeObject:item];
+    [self.waitItems removeObject:item];
     if(!item.noNeedStartNext) [self startNextDownload];
 }
 
@@ -325,11 +328,8 @@ static id _instance;
 - (void)removeAllCache {
     [[YCDownloadDB fetchAllDownloadItemWithUid:self.uid] enumerateObjectsUsingBlock:^(YCDownloadItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         obj.noNeedStartNext = true;
-        YCDownloadTask *task = [self taskWithItem:obj];
         [self stopDownloadWithItem:obj];
-        [YCDownloadDB removeTask:task];
     }];
-    [YCDownloadDB removeAllItemsWithUid:self.uid];
 }
 
 - (void)resumeAllDownloadTask{

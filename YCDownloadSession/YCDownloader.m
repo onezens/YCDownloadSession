@@ -105,6 +105,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 
 - (void)appWillBecomActive {
     [self endTimer];
+    if (self.completedHandler) self.completedHandler();
     self.completedHandler = nil;
     _bgRCSBlock = nil;
 }
@@ -119,30 +120,30 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     return [NSMutableURLRequest requestWithURL:url];;
 }
 
-- (YCDownloadTask *)downloadWithUrl:(NSString *)url progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion {
+- (YCDownloadTask *)downloadWithUrl:(NSString *)url progress:(YCProgressHandler)progress completion:(YCCompletionHandler)completion {
     NSURLRequest *request = [self requestWithUrlStr:url];
     return [self downloadWithRequest:request progress:progress completion:completion];
 }
 
-- (YCDownloadTask *)downloadWithRequest:(NSURLRequest *)request progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion{
+- (YCDownloadTask *)downloadWithRequest:(NSURLRequest *)request progress:(YCProgressHandler)progress completion:(YCCompletionHandler)completion{
     return [self downloadWithRequest:request progress:progress completion:completion priority:0];
 }
 
-- (YCDownloadTask *)downloadWithRequest:(NSURLRequest *)request progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion priority:(float)priority{
+- (YCDownloadTask *)downloadWithRequest:(NSURLRequest *)request progress:(YCProgressHandler)progress completion:(YCCompletionHandler)completion priority:(float)priority{
     YCDownloadTask *task = [YCDownloadTask taskWithRequest:request progress:progress completion:completion];
     [self saveDownloadTask:task];
     return task;
 }
 
-- (YCDownloadTask *)resumeDownloadTaskWithTid:(NSString *)tid progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion {
+- (YCDownloadTask *)resumeDownloadTaskWithTid:(NSString *)tid progress:(YCProgressHandler)progress completion:(YCCompletionHandler)completion {
     YCDownloadTask *task = [YCDownloadDB taskWithTid:tid];
-    task.completionHanlder = completion;
+    task.completionHandler = completion;
     task.progressHandler = progress;
-    [self resumeDownloadTask:task];
+    [self resumeTask:task];
     return task;
 }
 
-- (BOOL)resumeDownloadTask:(YCDownloadTask *)task {
+- (BOOL)resumeTask:(YCDownloadTask *)task {
     if(!task) return false;
     if (self.isNeedCreateSession) {
         //fix crash: #25 #35 Attempted to create a task in a session that has been invalidated
@@ -189,11 +190,11 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     
 }
 
-- (void)pauseDownloadTask:(YCDownloadTask *)task{
+- (void)pauseTask:(YCDownloadTask *)task{
     [task.downloadTask cancelByProducingResumeData:^(NSData * _Nullable resumeData) { }];
 }
 
-- (void)cancelDownloadTask:(YCDownloadTask *)task{
+- (void)cancelTask:(YCDownloadTask *)task{
     [task.downloadTask cancel];
 }
 
@@ -205,7 +206,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     [[YCDownloadDB fetchAllDownloadTasks] enumerateObjectsUsingBlock:^(YCDownloadTask * _Nonnull task, NSUInteger idx, BOOL * _Nonnull stop) {
         if (task.downloadTask && task.downloadTask.state == NSURLSessionTaskStateRunning) {
             task.needToRestart = true;
-            [self pauseDownloadTask:task];
+            [self pauseTask:task];
         }
     }];
     [_session invalidateAndCancel];
@@ -218,7 +219,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
         task.downloadTask = nil;
         if (task.needToRestart) {
             task.needToRestart = false;
-            [self resumeDownloadTask:task];
+            [self resumeTask:task];
         }
     }];
     NSLog(@"recreate Session success");
@@ -236,7 +237,6 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 - (BOOL)allowsCellularAccess {
     return [[NSUserDefaults standardUserDefaults] boolForKey:kIsAllowCellar];
 }
-
 
 #pragma mark - cache
 
@@ -257,8 +257,8 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 
 - (void)completionDownloadTask:(YCDownloadTask *)task localPath:(NSString *)localPath error:(NSError *)error {
     if(task.downloadTask) [self removeMembCacheTask:task.downloadTask task:task];
-    task.completionHanlder ? task.completionHanlder(localPath, error) : false;
-    if (self.taskCachekMode == YCDownloadTaskCacheModeDefault && task.completionHanlder) {
+    task.completionHandler? task.completionHandler(localPath, error) : false;
+    if (self.taskCachekMode == YCDownloadTaskCacheModeDefault && task.completionHandler) {
         [self removeDownloadTask:task];
     }else{
         task.stid = -1;
@@ -303,7 +303,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     return task;
 }
 
-#pragma mark - hanlder
+#pragma mark - Handler
 
 - (void)startTimer {
     [self endTimer];
@@ -331,7 +331,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
         __weak typeof(self) weakSelf = self;
         _bgRCSBlock = ^{
             [weakSelf.bgRCSTasks.copy enumerateObjectsUsingBlock:^(YCDownloadTask *obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                [weakSelf resumeDownloadTask:obj];
+                [weakSelf resumeTask:obj];
                 NSLog(@"[session invalidated] fix pass!");
             }];
             [weakSelf.bgRCSTasks removeAllObjects];

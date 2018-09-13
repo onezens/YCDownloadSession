@@ -28,37 +28,36 @@ typedef NS_ENUM(NSUInteger, YCDownloadStatus) {
 @protocol YCDownloadItemDelegate <NSObject>
 
 @optional
-- (void)downloadItemStatusChanged:(YCDownloadItem *)item;
-- (void)downloadItem:(YCDownloadItem *)item downloadedSize:(int64_t)downloadedSize totalSize:(int64_t)totalSize;
-- (void)downloadItem:(YCDownloadItem *)item speed:(NSUInteger)speed speedDesc:(NSString *)speedDesc;
+- (void)downloadItemStatusChanged:(nonnull YCDownloadItem *)item;
+- (void)downloadItem:(nonnull YCDownloadItem *)item downloadedSize:(int64_t)downloadedSize totalSize:(int64_t)totalSize;
+- (void)downloadItem:(nonnull YCDownloadItem *)item speed:(NSUInteger)speed speedDesc:(NSString *)speedDesc;
 @end
 
 @interface YCDownloadItem : NSObject
 
--(instancetype)initWithUrl:(NSString *)url fileId:(NSString *)fileId;
-+(instancetype)itemWithUrl:(NSString *)url fileId:(NSString *)fileId;
+-(nonnull instancetype)initWithUrl:(nonnull NSString *)url fileId:(nullable NSString *)fileId;
++(nonnull instancetype)itemWithUrl:(nonnull NSString *)url fileId:(nullable NSString *)fileId;
 
-@property (nonatomic, copy) NSString *taskId;
-@property (nonatomic, copy, readonly) NSString *fileId;
-@property (nonatomic, copy, readonly) NSString *downloadURL;
-@property (nonatomic, copy, readonly) NSString *version;
+@property (nonatomic, copy, nonnull) NSString *taskId;
+@property (nonatomic, copy, readonly, nullable) NSString *fileId;
+@property (nonatomic, copy, readonly, nonnull) NSString *downloadURL;
+@property (nonatomic, copy, readonly, nonnull) NSString *version;
 @property (nonatomic, assign, readonly) NSUInteger fileSize;
 @property (nonatomic, assign, readonly) NSUInteger downloadedSize;
-@property (nonatomic, weak) id <YCDownloadItemDelegate> delegate;
+@property (nonatomic, weak, nullable) id <YCDownloadItemDelegate> delegate;
 @property (nonatomic, assign) BOOL enableSpeed;
-@property (nonatomic, strong) NSData *extraData;
+@property (nonatomic, strong, nullable) NSData *extraData;
 @property (nonatomic, assign, readwrite) YCDownloadStatus downloadStatus;
-@property (nonatomic, copy, readonly) YCProgressHanlder progressHanlder;
-@property (nonatomic, copy, readonly) YCCompletionHanlder completionHanlder;
+@property (nonatomic, copy, readonly, nullable) YCProgressHandler progressHandler;
+@property (nonatomic, copy, readonly, nullable) YCCompletionHandler completionHandler;
 /**
  下载的文件在沙盒保存的类型，默认为video.可指定为pdf，image，等自定义类型
  */
-@property (nonatomic, copy) NSString *fileType;
-@property (nonatomic, copy) NSString *uid;
-@property (nonatomic, copy) NSString *saveRootPath;
+@property (nonatomic, copy, nullable) NSString *fileType;
+@property (nonatomic, copy, nullable) NSString *uid;
+@property (nonatomic, copy, nonnull) NSString *saveRootPath;
 /**文件沙盒保存路径*/
-@property (nonatomic, copy, readonly) NSString *savePath;
-
+@property (nonatomic, copy, readonly, nonnull) NSString *savePath;
 
 @end
 

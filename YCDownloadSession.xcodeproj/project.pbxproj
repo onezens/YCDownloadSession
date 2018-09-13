@@ -135,6 +135,7 @@
 		3580D64B1F8CB8BD00966A3D /* VideoListInfoController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoListInfoController.m; sourceTree = "<group>"; };
 		3580D64C1F8CB8BD00966A3D /* VideoListInfoModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoListInfoModel.h; sourceTree = "<group>"; };
 		3580D64D1F8CB8BD00966A3D /* VideoListInfoModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoListInfoModel.m; sourceTree = "<group>"; };
+		35894A7C214A4D4D00D5E6D6 /* YCDownloadSession.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = YCDownloadSession.podspec; sourceTree = SOURCE_ROOT; };
 		359B8EC6202941F500CB67E5 /* YCDownloadInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YCDownloadInfo.h; sourceTree = "<group>"; };
 		359B8EC7202941F500CB67E5 /* YCDownloadInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YCDownloadInfo.m; sourceTree = "<group>"; };
 		D72C84D01E77D42500EDCEEF /* YCDownloadSession.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YCDownloadSession.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -378,6 +379,7 @@
 				D72C84DF1E77D42500EDCEEF /* Assets.xcassets */,
 				D72C84E11E77D42500EDCEEF /* LaunchScreen.storyboard */,
 				D72C84E41E77D42500EDCEEF /* Info.plist */,
+				35894A7C214A4D4D00D5E6D6 /* YCDownloadSession.podspec */,
 				D72C84D31E77D42500EDCEEF /* Supporting Files */,
 			);
 			name = YCDownloadSession;
@@ -813,6 +815,7 @@
 		D72C84E81E77D42500EDCEEF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
@@ -824,7 +827,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/YCDownloadSessionDemo/YCDownloadSession/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = cc.onezen.YCDownload;
+				PRODUCT_BUNDLE_IDENTIFIER = cc.onezen.Y2CDownload;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -835,6 +838,7 @@
 		D72C84E91E77D42500EDCEEF /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
@@ -846,7 +850,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/YCDownloadSessionDemo/YCDownloadSession/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = cc.onezen.YCDownload;
+				PRODUCT_BUNDLE_IDENTIFIER = cc.onezen.Y2CDownload;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 3.0;

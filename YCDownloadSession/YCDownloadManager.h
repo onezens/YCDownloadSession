@@ -16,13 +16,13 @@
 /**
  设置用户标识
  */
-@property (nonatomic, copy) NSString *uid;
+@property (nonatomic, copy, nullable) NSString *uid;
 
 /**
  文件保存根路径，默认是Library/Cache/YCDownload目录，系统磁盘不足时，会被系统清理
- 更多信息(@一品戴砖侍卫)： https://developer.apple.com/library/content/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/FileSystemOverview/FileSystemOverview.html#//apple_ref/doc/uid/TP40010672-CH2-SW2
+ 更多信息:https://developer.apple.com/library/content/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/FileSystemOverview/FileSystemOverview.html#//apple_ref/doc/uid/TP40010672-CH2-SW2
  */
-@property (nonatomic, copy) NSString *saveRootPath;
+@property (nonatomic, copy, nullable) NSString *saveRootPath;
 
 /**
  最大下载任务个数
@@ -45,69 +45,61 @@
 /**
  下载管理配置
  */
-+ (void)mgrWithConfig:(YCDConfig *)config;
++ (void)mgrWithConfig:(nonnull YCDConfig *)config;
 
 /**
- 开始/创建一个后台下载任务。开发者自己定义/扩展item中的数据和内容
- 扩展item中的属性时，推荐自定义item，并且继承YCDownloadItem
- 示例：到demo -> YCDownloadInfo
+ 开始/创建一个后台下载任务。
  
  @param item 下载信息的item
  */
-+ (void)startDownloadWithItem:(YCDownloadItem *)item;
++ (void)startDownloadWithItem:(nonnull YCDownloadItem *)item;
 
 /**
- 开始/创建一个后台下载任务。开发者自己定义/扩展item中的数据和内容
- 扩展item中的属性时，推荐自定义item，并且继承YCDownloadItem
- 示例：到demo -> YCDownloadInfo
+ 开始/创建一个后台下载任务。
  
  @param item 下载信息的item
  @param priority 下载任务的task，默认：NSURLSessionTaskPriorityDefault 可选参数：NSURLSessionTaskPriorityLow  NSURLSessionTaskPriorityHigh NSURLSessionTaskPriorityDefault 范围：0.0-1.1
  */
-+ (void)startDownloadWithItem:(YCDownloadItem *)item priority:(float)priority;
++ (void)startDownloadWithItem:(nonnull YCDownloadItem *)item priority:(float)priority;
 
 
 /**
- 开始/创建一个后台下载任务。downloadURLString作为整个下载任务的唯一标识。
- 下载成功后用downloadURLString的MD5的值来保存
- 文件后缀名取downloadURLString的后缀名，[downloadURLString pathExtension]
+ 开始/创建一个后台下载任务。
 
  @param downloadURLString 下载的资源的url
  */
-+ (void)startDownloadWithUrl:(NSString *)downloadURLString;
++ (void)startDownloadWithUrl:(nonnull NSString *)downloadURLString;
 
 /**
- 开始/创建一个后台下载任务。downloadURLString作为整个下载任务的唯一标识。
- 下载成功后用fileId来保存, 要确保fileId唯一
- 文件后缀名取downloadURLString的后缀名，[downloadURLString pathExtension]
+ 开始/创建一个后台下载任务。
  
- @param downloadURLString 下载的资源的url， 不可以为空， 下载任务标识
+ @param downloadURLString 下载的资源的url， 不可以为空
  @param fileId 非资源的标识,可以为空，用作下载文件保存的名称
  @param priority 下载任务的task，默认：NSURLSessionTaskPriorityDefault 可选参数：NSURLSessionTaskPriorityLow  NSURLSessionTaskPriorityHigh NSURLSessionTaskPriorityDefault 范围：0.0-1.1
  @param extraData item对应的需要存储在本地数据库中的信息
  */
-+ (void)startDownloadWithUrl:(NSString *)downloadURLString fileId:(NSString *)fileId  priority:(float)priority extraData:(NSData *)extraData;
++ (void)startDownloadWithUrl:(nonnull NSString *)downloadURLString fileId:(nullable NSString *)fileId  priority:(float)priority extraData:(nullable NSData *)extraData;
 
 /**
  暂停一个后台下载任务
  
  @param item 创建的下载任务item
  */
-+ (void)pauseDownloadWithItem:(YCDownloadItem *)item;
++ (void)pauseDownloadWithItem:(nonnull YCDownloadItem *)item;
 
 /**
  继续开始一个后台下载任务
  
  @param item 创建的下载任务item
  */
-+ (void)resumeDownloadWithItem:(YCDownloadItem *)item;
++ (void)resumeDownloadWithItem:(nonnull YCDownloadItem *)item;
 
 /**
  删除一个后台下载任务，同时会删除当前任务下载的缓存数据
  
  @param item 创建的下载任务item
  */
-+ (void)stopDownloadWithItem:(YCDownloadItem *)item;
++ (void)stopDownloadWithItem:(nonnull YCDownloadItem *)item;
 
 /**
  暂停所有的下载
@@ -127,22 +119,22 @@
 /**
  获取所有的未完成的下载item
  */
-+ (NSArray *)downloadList;
++ (nonnull NSArray *)downloadList;
 
 /**
  获取所有已完成的下载item
  */
-+ (NSArray *)finishList;
++ (nonnull NSArray *)finishList;
 
 /**
  根据fileId获取item
  */
-+ (YCDownloadItem *)itemWithFileId:(NSString *)fid;
++ (nullable YCDownloadItem *)itemWithFileId:(NSString *)fid;
 
 /**
  根据downloadUrl获取item
  */
-+ (NSArray *)itemsWithDownloadUrl:(NSString *)downloadUrl;
++ (nonnull NSArray *)itemsWithDownloadUrl:(nonnull NSString *)downloadUrl;
 
 /**
  获取所有下载数据所占用的磁盘空间，不包括YCDownloadSession单独下载的文件

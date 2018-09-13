@@ -11,19 +11,19 @@
 #import <UIKit/UIKit.h>
 @class YCDownloadTask;
 
-typedef void (^YCCompletionHanlder)(NSString *localPath, NSError *error);
-typedef void (^YCProgressHanlder)(NSProgress *progress, YCDownloadTask *task);
+typedef void (^YCCompletionHandler)(NSString *localPath, NSError *error);
+typedef void (^YCProgressHandler)(NSProgress *progress,YCDownloadTask *task);
 
 #pragma mark - YCDownloadTask
 
 @interface YCDownloadTask : NSObject
 
-@property (nonatomic, strong) NSData *resumeData;
-@property (nonatomic, copy, readonly) NSString *taskId;
-@property (nonatomic, copy, readonly) NSString *downloadURL;
+@property (nonatomic, strong, nullable) NSData *resumeData;
+@property (nonatomic, copy, readonly, nonnull) NSString *taskId;
+@property (nonatomic, copy, readonly, nonnull) NSString *downloadURL;
 @property (nonatomic, assign, readonly) NSUInteger fileSize;
 @property (nonatomic, assign) NSUInteger downloadedSize;
-@property (nonatomic, copy) NSString *version;
+@property (nonatomic, copy, nonnull) NSString *version;
 /**
  default value: NSURLSessionTaskPriorityDefault
  option: NSURLSessionTaskPriorityDefault NSURLSessionTaskPriorityLow NSURLSessionTaskPriorityHigh
@@ -36,19 +36,19 @@ typedef void (^YCProgressHanlder)(NSProgress *progress, YCDownloadTask *task);
  */
 @property (nonatomic, assign) BOOL enableSpeed;
 @property (nonatomic, assign, readonly) BOOL isRunning;
-@property (nonatomic, strong, readonly) NSProgress *progress;
-@property (nonatomic, copy) YCProgressHanlder progressHandler;
-@property (nonatomic, copy) YCCompletionHanlder completionHanlder;
-@property (nonatomic, strong) NSData *extraData;
+@property (nonatomic, strong, readonly, nonnull) NSProgress *progress;
+@property (nonatomic, copy, nullable) YCProgressHandler progressHandler;
+@property (nonatomic, copy, nullable) YCCompletionHandler completionHandler;
+@property (nonatomic, strong, nonnull) NSData *extraData;
 
 #pragma mark - method
 - (void)updateTask;
 
-+ (instancetype)taskWithRequest:(NSURLRequest *)request progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion;
++ (nonnull instancetype)taskWithRequest:(nonnull NSURLRequest *)request progress:(YCProgressHandler)progress completion:(YCCompletionHandler)completion;
 
-+ (instancetype)taskWithRequest:(NSURLRequest *)request progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion priority:(float)priority;
++ (nonnull instancetype)taskWithRequest:(nonnull NSURLRequest *)request progress:(YCProgressHandler)progress completion:(YCCompletionHandler)completion priority:(float)priority;
 
-+ (NSString *)downloaderVerison;
++ (nonnull NSString *)downloaderVerison;
 
 @end
 

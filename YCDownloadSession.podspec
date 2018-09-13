@@ -4,23 +4,27 @@
 #
 #  To learn more about Podspec attributes see http://docs.cocoapods.org/specification.html
 #  To see working Podspecs in the CocoaPods repo see https://github.com/CocoaPods/Specs/
-#
+# :tag => "#{s.version}"
 
 Pod::Spec.new do |s|
   s.name         = "YCDownloadSession"
-  s.version      = "1.2.6"
+  s.version      = "2.0.0-beta"
   s.summary      = "iOS background download video or file"
-  s.description  = <<-DESC
-                    iOS background download video or file lib
-                   DESC
   s.homepage     = "https://github.com/onezens/YCDownloadSession"
-  # s.screenshots  = "www.example.com/screenshots_1.gif", "www.example.com/screenshots_2.gif"
   s.license      = "MIT"
-  s.author             = { "onezens" => "mail@onezen.cc" }
+  s.author       = { "onezens" => "mail@onezen.cc" }
   s.platform     = :ios, "8.0"
-  s.source       = { :git => "https://github.com/onezens/YCDownloadSession.git", :tag => "#{s.version}" }
-  s.source_files  = "YCDownloadSession/YCDownloadSession/*.{h,m}"
-  s.public_header_files = "YCDownloadSession/YCDownloadSession/*.h"
+  s.source       = { :git => "https://github.com/onezens/YCDownloadSession.git", :branch => "master" }
   s.requires_arc = true
+
+  s.subspec 'Core' do |c|
+    c.source_files  = "YCDownloadSession/YCDownloader.h", "YCDownloadSession/YCDownloadTask.h", "YCDownloadSession/YCDownloadUtils.h", "YCDownloadSession/YCDownloadSession.h"
+    c.public_header_files = "YCDownloadSession/YCDownloader.m", "YCDownloadSession/YCDownloadTask.m", "YCDownloadSession/YCDownloadUtils.m", "YCDownloadSession/YCDownloadSession.m"
+  end
+
+  s.subspec 'Mgr' do |m|
+    m.source_files  = "YCDownloadSession/*.{h,m}"
+    m.public_header_files = "YCDownloadSession/*.h"
+  end
 
 end

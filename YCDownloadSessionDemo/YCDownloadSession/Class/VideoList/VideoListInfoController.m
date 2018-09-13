@@ -64,6 +64,9 @@
 
 - (void)goCache {
     VideoCacheController *vc = [[VideoCacheController alloc] init];
+    vc.startAllBlk = ^{
+        [self downloadAll];
+    };
     [self.navigationController pushViewController:vc animated:true];
 }
 #pragma mark - videolistcell delegate

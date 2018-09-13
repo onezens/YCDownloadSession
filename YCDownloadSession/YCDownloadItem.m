@@ -55,7 +55,7 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
     return [[YCDownloadItem alloc] initWithUrl:url fileId:fileId];
 }
 
-#pragma mark - YCDownloadSessionDelegate
+#pragma mark - Handler
 - (void)downloadProgress:(YCDownloadTask *)task downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize {
     if (self.fileSize==0)  _fileSize = fileSize;
     if (!self.fileExtension) [self setFileExtensionWithTask:task];
@@ -122,7 +122,7 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
     _fileExtension = extension;
 }
 
-- (YCProgressHanlder)progressHanlder {
+- (YCProgressHandler)progressHandler {
     __weak typeof(self) weakSelf = self;
     return ^(NSProgress *progress, YCDownloadTask *task){
         if(weakSelf.downloadStatus == YCDownloadStatusWaiting){
@@ -132,18 +132,19 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
     };
 }
 
-- (YCCompletionHanlder)completionHanlder {
+- (YCCompletionHandler)completionHandler {
     __weak typeof(self) weakSelf = self;
     return ^(NSString *localPath, NSError *error){
         YCDownloadTask *task = [YCDownloadDB taskWithTid:self.taskId];
+        // bg completion ,maybe had no extension
         if (!self.fileExtension) [self setFileExtensionWithTask:task];
         NSError *saveError = nil;
         if([[NSFileManager defaultManager] fileExistsAtPath:self.savePath]){
-            NSLog(@"[Item completionHanlder] Warning file Exist at path: %@ and replaced it!", weakSelf.savePath);
+            NSLog(@"[Item completionHandler] Warning file Exist at path: %@ and replaced it!", weakSelf.savePath);
             [[NSFileManager defaultManager] removeItemAtPath:self.savePath error:nil];
         }
         if (error) {
-            NSLog(@"[Item completionHanlder] error : %@", error);
+            NSLog(@"[Item completionHandler] error : %@", error);
             [weakSelf downloadStatusChanged:YCDownloadStatusFailed downloadTask:nil];
         }else if([[NSFileManager defaultManager] moveItemAtPath:localPath toPath:self.savePath error:&saveError]){
             NSAssert(self.fileExtension, @"file extension can not nil!");
@@ -151,7 +152,7 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
             [weakSelf downloadStatusChanged:YCDownloadStatusFinished downloadTask:nil];
         }else{
             [weakSelf downloadStatusChanged:YCDownloadStatusFailed downloadTask:nil];
-            NSLog(@"[Item completionHanlder] move file failed error: %@ \nlocalPath: %@ \nsavePath:%@", saveError,localPath,self.savePath);
+            NSLog(@"[Item completionHandler] move file failed error: %@ \nlocalPath: %@ \nsavePath:%@", saveError,localPath,self.savePath);
         }
         if(!weakSelf.isRemoved) [YCDownloadDB saveItem:weakSelf];
     };
@@ -163,9 +164,13 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
     return [YCDownloadTask downloaderVerison];
 }
 
+- (NSString *)saveUidDirectory {
+    return [[self saveRootPath] stringByAppendingPathComponent:self.uid];
+}
+
 - (NSString *)saveDirectory {
-    NSString *path = [self saveRootPath];
-    path = [path stringByAppendingFormat:@"/%@/%@", self.uid, (self.fileType ? self.fileType : @"data")];
+    NSString *path = [self saveUidDirectory];
+    path = [path stringByAppendingPathComponent:(self.fileType ? self.fileType : @"data")];
     [YCDownloadUtils createPathIfNotExist:path];
     return path;
 }
@@ -182,4 +187,6 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
 - (NSString *)description {
     return [NSString stringWithFormat:@"<YCDownloadTask: %p>{taskId: %@, url: %@ fileId: %@}", self, self.taskId, self.downloadURL, self.fileId];
 }
+
+
 @end

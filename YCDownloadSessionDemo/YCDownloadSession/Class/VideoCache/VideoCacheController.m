@@ -28,7 +28,7 @@ static NSString * const kDefineStartAllTitle = @"开始所有";
     self.view.backgroundColor = [UIColor whiteColor];
     self.cacheVideoList = [NSMutableArray array];
     [self getCacheVideoList];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:kDefinePauseAllTitle style:UIBarButtonItemStyleDone target:self action:@selector(pauseAll)];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:self.cacheVideoList.count > 0 ?  kDefinePauseAllTitle : kDefineStartAllTitle  style:UIBarButtonItemStyleDone target:self action:@selector(pauseAll)];
 }
 
 - (void)getCacheVideoList {
@@ -54,8 +54,13 @@ static NSString * const kDefineStartAllTitle = @"开始所有";
         [YCDownloadManager pauseAllDownloadTask];
         self.navigationItem.rightBarButtonItem.title = kDefineStartAllTitle;
     }else{
-        [YCDownloadManager resumeAllDownloadTask];
-        self.navigationItem.rightBarButtonItem.title = kDefinePauseAllTitle;
+        if (self.startAllBlk && self.cacheVideoList.count==0) {
+            self.startAllBlk();
+            [self getCacheVideoList];
+        }else{
+            [YCDownloadManager resumeAllDownloadTask];
+            self.navigationItem.rightBarButtonItem.title = kDefinePauseAllTitle;
+        }
     }
 }
 

@@ -126,7 +126,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
     });
 }
 
-#pragma makr - db hanlder
+#pragma makr - db Handler
 + (void)initDatabase{
     _dbQueue = dispatch_queue_create("YCDownloadDB_Queue", DISPATCH_QUEUE_SERIAL);
     NSString *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true).firstObject;
@@ -283,7 +283,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
     }
 }
 
-#pragma mark - hanlder
+#pragma mark - Handler
 
 + (void)saveAllData {
     [self performBlock:^BOOL{

@@ -29,7 +29,7 @@
 @synthesize progress = _progress;
 
 - (instancetype)init {
-    NSAssert(false, @"use - (instancetype)initWithRequest:(NSURLRequest *)request progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion");
+    NSAssert(false, @"use - (instancetype)initWithRequest:(NSURLRequest *)request progress:(YCProgressHandler)progress completion:(YCCompletionHandler)completion");
     return nil;
 }
 
@@ -41,7 +41,7 @@
     return self;
 }
 
-- (instancetype)initWithRequest:(NSURLRequest *)request progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion priority:(float)priority{
+- (instancetype)initWithRequest:(NSURLRequest *)request progress:(YCProgressHandler)progress completion:(YCCompletionHandler)completion priority:(float)priority{
     if (self = [self initWithPrivate]) {
         NSString *url = request.URL.absoluteString;
         _request = request;
@@ -49,7 +49,7 @@
         _taskId = [YCDownloadTask taskIdForUrl:url fileId:[NSUUID UUID].UUIDString];
         _priority = priority ? priority : NSURLSessionTaskPriorityDefault;
         _progressHandler = progress;
-        _completionHanlder = completion;
+        _completionHandler = completion;
     }
     return self;
 }
@@ -60,11 +60,11 @@
     return task;
 }
 
-+ (instancetype)taskWithRequest:(NSURLRequest *)request progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion {
++ (instancetype)taskWithRequest:(NSURLRequest *)request progress:(YCProgressHandler)progress completion:(YCCompletionHandler)completion {
     return [[self alloc] initWithRequest:request progress:progress completion:completion priority:0];
 }
 
-+ (instancetype)taskWithRequest:(NSURLRequest *)request progress:(YCProgressHanlder)progress completion:(YCCompletionHanlder)completion priority:(float)priority {
++ (instancetype)taskWithRequest:(NSURLRequest *)request progress:(YCProgressHandler)progress completion:(YCCompletionHandler)completion priority:(float)priority {
     return [[self alloc] initWithRequest:request progress:progress completion:completion priority:priority];
 }
 
