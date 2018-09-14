@@ -15,12 +15,17 @@ $ sudo gem install cocoapods
 
 **Podfile**
 
+分成主要两个包:
+
+- `Core` : YCDownloader 只有下载器
+- `Mgr`  : YCDownloader , YCDownloadManager 所有
+
 ```
 source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '8.0'
 
 target 'TargetName' do
-    pod 'YCDownloadSession', '~> 1.2.6'
+    pod 'YCDownloadSession', '~> 2.0.0-beta', :subspecs => ['Core', 'Mgr']
 end
 ```
 
@@ -38,171 +43,151 @@ $ pod setup
 
 ## 用法
 
-1. AppDelegate设置后台下载成功回调方法
+**引用头文件**
 
-	```
-	-(void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler{
-	    [[YCDownloadSession downloadSession] addCompletionHandler:completionHandler];
-	}
-	
-	```
+```
+#import "YCDownloadSession.h"
+```
 
 
-2. 直接使用YCDownloadSession下载文件
+**AppDelegate设置后台下载成功回调方法**
 
-	```
-	self.downloadURL = @"http://dldir1.qq.com/qqfile/QQforMac/QQ_V6.0.1.dmg";
-	
+```
+-(void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler{
+    [[YCDownloader downloader] addCompletionHandler:completionHandler identifier:identifier];
+}
+```
 
+### 下载器 `YCDownloader`
 
-    - (void)start {
-        self.downloadTask = [YCDownloadSession.downloadSession startDownloadWithUrl:self.downloadURL fileId:nil delegate:self];
-    }
-    - (void)resume {
-        [self.downloadTask resume];
-    }
-    
-    - (void)pause {
-        [self.downloadTask pause];
-    }
-    
-    - (void)stop {
-        [self.downloadTask remove];
-    }
-    	
-    //代理
-    - (void)downloadProgress:(YCDownloadTask *)task downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize {
-        self.progressLbl.text = [NSString stringWithFormat:@"%f",(float)downloadedSize / fileSize * 100];
-    }
-    
-    
-    - (void)downloadStatusChanged:(YCDownloadStatus)status downloadTask:(YCDownloadTask *)task {
-        if (status == YCDownloadStatusFinished) {
-            self.progressLbl.text = @"download success!";
-            NSLog(@"save file path: %@", task.savePath);
-        }else if (status == YCDownloadStatusFailed){
-            self.progressLbl.text = @"download failed!";
-        }
-    }
+创建下载任务
 
-	```
-	
-3. YCDownloadManager 为视频类型文件专用下载管理类
+```
+YCDownloadTask *task = [[YCDownloader downloader] downloadWithUrl:@"download_url" progress:^(NSProgress * _Nonnull progress, YCDownloadTask * _Nonnull task) {
+    NSLog(@"progress: %f", progress.fractionCompleted); 
+} completion:^(NSString * _Nullable localPath, NSError * _Nullable error) {
+        
+}];
+```
 
-	```
+开始下载任务：
+
+```
+[[YCDownloader downloader] resumeTask:self.downloadTask];
+```
+
+暂停下载任务：
+
+```
+[[YCDownloader downloader] pauseTask:self.downloadTask];
+```
+
+删除下载任务：
+
+```
+[[YCDownloader downloader] cancelTask:self.downloadTask];
+```
+
+异常退出应用后，恢复之前正在进行的任务的回调
+
+```
+/**
+ 恢复下载任务，继续下载任务，主要用于app异常退出状态恢复，继续下载任务的回调设置
+
+ @param tid 下载任务的taskId
+ @param progress 下载进度回调
+ @param completion 下载成功失败回调
+ @return 下载任务task
+ */
+- (nullable YCDownloadTask *)resumeDownloadTaskWithTid:(NSString *)tid progress:(YCProgressHandler)progress completion:(YCCompletionHandler)completion;
+```
+
+### 下载任务管理器`YCDownloadManager`
+
+1. 设置任务管理器配置
+
+    ```
+    NSString *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true).firstObject;
+    path = [path stringByAppendingPathComponent:@"download"];
+    YCDConfig *config = [YCDConfig new];
+    config.saveRootPath = path;
+    config.uid = @"100006";
+    config.maxTaskCount = 3;
+    config.taskCachekMode = YCDownloadTaskCacheModeKeep;
+    config.launchAutoResumeDownload = true;
+    [YCDownloadManager mgrWithConfig:config];
+    ```
+
+2. 下载任务相关通知
+
+    ```
+    //某一个YCDownloadItem下载成功通知
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadTaskFinishedNoti:) name:kDownloadTaskFinishedNoti object:nil];
+    //mgr 管理的所有任务完成通知
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadAllTaskFinished) name:kDownloadTaskAllFinishedNoti object:nil];
+    ```
+
+3. 开始下载任务
+
+    ```
+    YCDownloadItem *item = [YCDownloadItem itemWithUrl:model.mp4_url fileId:model.file_id];
+    item.extraData = ...;
+    [YCDownloadManager startDownloadWithItem:item];
+    ```
+4. 下载相关控制
+
+    ```
     /**
-     开始/创建一个后台下载任务。downloadURLString作为整个下载任务的唯一标识。
-     下载成功后用downloadURLString的MD5的值来保存
-     文件后缀名取downloadURLString的后缀名，[downloadURLString pathExtension]
-    
-     @param downloadURLString 下载的资源的url
-     @param fileName 资源名称,可以为空
-     @param imagUrl 资源的图片,可以为空
-     */
-    + (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName imageUrl:(NSString *)imagUrl;
-    
-    /**
-     开始/创建一个后台下载任务。downloadURLString作为整个下载任务的唯一标识。
-     下载成功后用fileId来保存, 要确保fileId唯一
-     文件后缀名取downloadURLString的后缀名，[downloadURLString pathExtension]
-     
-     @param downloadURLString 下载的资源的url， 不可以为空， 下载任务标识
-     @param fileName 资源名称,可以为空
-     @param imagUrl 资源的图片,可以为空
-     @param fileId 非资源的标识,可以为空，用作下载文件保存的名称
-     */
-    + (void)startDownloadWithUrl:(NSString *)downloadURLString fileName:(NSString *)fileName imageUrl:(NSString *)imagUrl fileId:(NSString *)fileId;
-
-    
-        /**
      暂停一个后台下载任务
      
      @param item 创建的下载任务item
      */
-    + (void)pauseDownloadWithItem:(YCDownloadItem *)item;
+    + (void)pauseDownloadWithItem:(nonnull YCDownloadItem *)item;
     
     /**
      继续开始一个后台下载任务
      
      @param item 创建的下载任务item
      */
-    + (void)resumeDownloadWithItem:(YCDownloadItem *)item;
+    + (void)resumeDownloadWithItem:(nonnull YCDownloadItem *)item;
     
     /**
      删除一个后台下载任务，同时会删除当前任务下载的缓存数据
      
      @param item 创建的下载任务item
      */
-    + (void)stopDownloadWithItem:(YCDownloadItem *)item;
+    + (void)stopDownloadWithItem:(nonnull YCDownloadItem *)item;
+    ```
+5. 蜂窝煤网络访问控制
+
+    ```
+    /**
+     是否允许蜂窝煤网络下载，以及网络状态变为蜂窝煤是否允许下载，必须把所有的downloadTask全部暂停，然后重新创建。否则，原先创建的
+     下载task依旧在网络切换为蜂窝煤网络时会继续下载
+     
+     @param isAllow 是否允许蜂窝煤网络下载
+     */
+    + (void)allowsCellularAccess:(BOOL)isAllow;
     
     /**
-     暂停所有的下载
+     获取是否允许蜂窝煤访问
      */
-    + (void)pauseAllDownloadTask;
-
-	
-	```
-
-4. 蜂窝煤是否允许下载的方法(YCDownloadSession, YCDownloadManager)
-
-	```
-	YCDownloadSession: 
-	/**
-	 是否允许蜂窝煤网络下载，以及网络状态变为蜂窝煤是否允许下载，必须把所有的downloadTask全部暂停，然后重新创建。否则，原先创建的
-	 下载task依旧在网络切换为蜂窝煤网络时会继续下载
-	 
-	 @param isAllow 是否允许蜂窝煤网络下载
-	 */
-	- (void)allowsCellularAccess:(BOOL)isAllow;
-	
-	YCDownloadManager:
-	/**
-	 获取当前是否允许蜂窝煤访问状态
-	 */
-	- (BOOL)isAllowsCellularAccess;
-	```
-
-5. 设置最大同时进行下载的任务数
-
-	```
-	YCDownloadSession: 
-	/**
-	 设置下载任务的个数，最多支持3个下载任务同时进行。
-	 NSURLSession最多支持5个任务同时进行
-	 但是5个任务，在某些情况下，部分任务会出现等待的状态，所有设置最多支持3个
-	 */
-	@property (nonatomic, assign) NSInteger maxTaskCount;
-	
-	
-	
-	YCDownloadManager:
-	/**
-	 设置下载任务的个数，最多支持3个下载任务同时进行。
-	 */
-	+ (void)setMaxTaskCount:(NSInteger)count;
-	```
-	
-6. 下载完成的通知
-	* 当前session中所有的任务下载完成的通知。 不包括失败、暂停的任务: `kDownloadAllTaskFinishedNoti`
-	* 某一的任务下载完成的通知object为YCDownloadItem对象：`kDownloadTaskFinishedNoti`
-
-7. 某一任务下载的状态发生变化的通知: `kDownloadStatusChangedNoti` 主要用于状态改变后，及时保存下载数据信息。
-
-
+    + (BOOL)isAllowsCellularAccess;
+    ```
 
 ## 使用效果图
 
 1. 单文件下载测试
 
-  ![单文件下载测试](http://src.onezen.cc/demo/download/1.gif)
+  ![单文件下载测试](http: //src.onezen.cc/demo/download/1.gif)
 
 2. 多视频下载测试
 
-  ![多视频下载测试](http://src.onezen.cc/demo/download/2.gif)
+  ![多视频下载测试](http:// src.onezen.cc/demo/download/2.gif)
   
 3. 下载通知
 
-  ![下载通知](http://src.onezen.cc/demo/download/4.png)
+  ![下载通知](http:// src.onezen.cc/demo/download/4.png)
 
 
 ## TODO

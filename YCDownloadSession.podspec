@@ -23,6 +23,7 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'Mgr' do |m|
+    m.dependency 'YCDownloadSession/Core'
     m.source_files  = "YCDownloadSession/*.{h,m}"
     m.public_header_files = "YCDownloadSession/*.h"
   end
