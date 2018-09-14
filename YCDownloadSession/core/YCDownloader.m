@@ -382,7 +382,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     NSUInteger fileSize = [YCDownloadUtils fileSizeWithPath:localPath];
     NSError *error = nil;
     if (fileSize>0 && fileSize != task.fileSize) {
-        NSString *errStr = [NSString stringWithFormat:@"[YCDownloader didFinishDownloadingToURL] fileSize Error, task fileSize: %zd tmp fileSize: %zd", task.fileSize, fileSize];
+        NSString *errStr = [NSString stringWithFormat:@"[YCDownloader didFinishDownloadingToURL] fileSize Error, task fileSize: %lu tmp fileSize: %lu", (unsigned long)task.fileSize, fileSize];
         NSLog(@"%@",errStr);
         error = [NSError errorWithDomain:errStr code:10001 userInfo:nil];
         localPath = nil;

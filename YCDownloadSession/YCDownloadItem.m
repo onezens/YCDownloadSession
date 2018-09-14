@@ -128,7 +128,7 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
         if(weakSelf.downloadStatus == YCDownloadStatusWaiting){
             [weakSelf downloadStatusChanged:YCDownloadStatusDownloading downloadTask:nil];
         }
-        [weakSelf downloadProgress:task downloadedSize:progress.completedUnitCount fileSize:progress.totalUnitCount];
+        [weakSelf downloadProgress:task downloadedSize:(NSUInteger)progress.completedUnitCount fileSize:(NSUInteger)progress.totalUnitCount];
     };
 }
 

@@ -179,15 +179,15 @@ YCDownloadTask *task = [[YCDownloader downloader] downloadWithUrl:@"download_url
 
 1. 单文件下载测试
 
-  ![单文件下载测试](http: //src.onezen.cc/demo/download/1.gif)
+  ![单文件下载测试](http://src.onezen.cc/demo/download/1.gif)
 
 2. 多视频下载测试
 
-  ![多视频下载测试](http:// src.onezen.cc/demo/download/2.gif)
+  ![多视频下载测试](http://src.onezen.cc/demo/download/2.gif)
   
 3. 下载通知
 
-  ![下载通知](http:// src.onezen.cc/demo/download/4.png)
+  ![下载通知](http://src.onezen.cc/demo/download/4.png)
 
 
 ## TODO

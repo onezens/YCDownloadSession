@@ -337,7 +337,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
 + (NSArray <YCDownloadItem *> *)fetchAllDownloadedItemWithUid:(NSString *)uid {
     __block NSMutableArray *results = [NSMutableArray array];
     [self performBlock:^BOOL{
-        NSString *sql = [NSString stringWithFormat:@"select * from downloadItem where downloadStatus == %ld and uid == '%@' ORDER BY createTime", YCDownloadStatusFinished, uid];
+        NSString *sql = [NSString stringWithFormat:@"select * from downloadItem where downloadStatus == %lu and uid == '%@' ORDER BY createTime", YCDownloadStatusFinished, uid];
         NSArray *rel = [self selectSql:sql];
         [rel enumerateObjectsUsingBlock:^(NSDictionary * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             YCDownloadItem *item = [self itemWithDict:obj];
@@ -351,7 +351,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
 + (NSArray <YCDownloadItem *> *)fetchAllDownloadingItemWithUid:(NSString *)uid {
     __block NSMutableArray *results = [NSMutableArray array];
     [self performBlock:^BOOL{
-        NSString *sql = [NSString stringWithFormat:@"select * from downloadItem where downloadStatus != %ld and uid == '%@' ORDER BY createTime",YCDownloadStatusFinished, uid];
+        NSString *sql = [NSString stringWithFormat:@"select * from downloadItem where downloadStatus != %lu and uid == '%@' ORDER BY createTime",YCDownloadStatusFinished, uid];
         NSArray *rel = [self selectSql:sql];
         [rel enumerateObjectsUsingBlock:^(NSDictionary * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             YCDownloadItem *item = [self itemWithDict:obj];
@@ -545,7 +545,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
 + (NSArray *)taskWithStid:(NSInteger)stid {
     NSMutableArray *tasks = [NSMutableArray array];
     [self performBlock:^BOOL{
-        NSString *sql = [NSString stringWithFormat:@"select * from downloadTask where stid == %zd", stid];
+        NSString *sql = [NSString stringWithFormat:@"select * from downloadTask where stid == %ld", stid];
         NSArray *rel = [self selectSql:sql];
         [rel enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             YCDownloadTask *task = [self taskWithDict:rel.firstObject];
