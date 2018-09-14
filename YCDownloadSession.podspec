@@ -18,8 +18,8 @@ Pod::Spec.new do |s|
   s.requires_arc = true
 
   s.subspec 'Core' do |c|
-    c.source_files  = "YCDownloadSession/YCDownloader.h", "YCDownloadSession/YCDownloadTask.h", "YCDownloadSession/YCDownloadUtils.h", "YCDownloadSession/YCDownloadSession.h"
-    c.public_header_files = "YCDownloadSession/YCDownloader.m", "YCDownloadSession/YCDownloadTask.m", "YCDownloadSession/YCDownloadUtils.m", "YCDownloadSession/YCDownloadSession.m"
+    c.source_files  = "YCDownloadSession/core/*.{h,m}"
+    c.public_header_files = "YCDownloadSession/core/*.h"
   end
 
   s.subspec 'Mgr' do |m|

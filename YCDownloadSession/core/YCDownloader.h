@@ -22,7 +22,14 @@ typedef NS_ENUM(NSUInteger, YCDownloadTaskCacheMode) {
     YCDownloadTaskCacheModeKeep
 };
 
-@interface YCDownloader : NSObject
+@protocol YCDownloader <NSObject>
+/**
+ 单利downloader
+ */
++ (nonnull instancetype)downloader;
+@end
+
+@interface YCDownloader : NSObject <YCDownloader>
 /**
  是否允许蜂窝煤网络下载
  */

@@ -7,26 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		351ADEBE1FE3D503005B78C7 /* YCDownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 351ADEB61FE3D503005B78C7 /* YCDownloadManager.m */; };
-		351ADEBF1FE3D503005B78C7 /* YCDownloadItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 351ADEBB1FE3D503005B78C7 /* YCDownloadItem.m */; };
-		351ADEC01FE3D503005B78C7 /* YCDownloadSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 351ADEBC1FE3D503005B78C7 /* YCDownloadSession.m */; };
-		351ADEC11FE3D503005B78C7 /* YCDownloadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 351ADEBD1FE3D503005B78C7 /* YCDownloadTask.m */; };
 		357B35271FCCF6AD007CE251 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357B35261FCCF6AD007CE251 /* AppDelegate.swift */; };
 		357B35291FCCF6AD007CE251 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357B35281FCCF6AD007CE251 /* ViewController.swift */; };
 		357B352C1FCCF6AD007CE251 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 357B352A1FCCF6AD007CE251 /* Main.storyboard */; };
 		357B352E1FCCF6AD007CE251 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 357B352D1FCCF6AD007CE251 /* Assets.xcassets */; };
 		357B35311FCCF6AD007CE251 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 357B352F1FCCF6AD007CE251 /* LaunchScreen.storyboard */; };
+		35894A92214A586A00D5E6D6 /* YCDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 35894A8D214A586A00D5E6D6 /* YCDownloader.m */; };
+		35894A93214A586A00D5E6D6 /* YCDownloadUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 35894A8F214A586A00D5E6D6 /* YCDownloadUtils.m */; };
+		35894A94214A586A00D5E6D6 /* YCDownloadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 35894A91214A586A00D5E6D6 /* YCDownloadTask.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		351ADEB61FE3D503005B78C7 /* YCDownloadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YCDownloadManager.m; sourceTree = "<group>"; };
-		351ADEB71FE3D503005B78C7 /* YCDownloadItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YCDownloadItem.h; sourceTree = "<group>"; };
-		351ADEB81FE3D503005B78C7 /* YCDownloadSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YCDownloadSession.h; sourceTree = "<group>"; };
-		351ADEB91FE3D503005B78C7 /* YCDownloadTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YCDownloadTask.h; sourceTree = "<group>"; };
-		351ADEBA1FE3D503005B78C7 /* YCDownloadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YCDownloadManager.h; sourceTree = "<group>"; };
-		351ADEBB1FE3D503005B78C7 /* YCDownloadItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YCDownloadItem.m; sourceTree = "<group>"; };
-		351ADEBC1FE3D503005B78C7 /* YCDownloadSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YCDownloadSession.m; sourceTree = "<group>"; };
-		351ADEBD1FE3D503005B78C7 /* YCDownloadTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YCDownloadTask.m; sourceTree = "<group>"; };
 		357B35231FCCF6AD007CE251 /* SwiftBridgeDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftBridgeDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		357B35261FCCF6AD007CE251 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		357B35281FCCF6AD007CE251 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -35,6 +26,13 @@
 		357B35301FCCF6AD007CE251 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		357B35321FCCF6AD007CE251 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		357B35381FCCF6C3007CE251 /* Bridge-header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Bridge-header.h"; sourceTree = "<group>"; };
+		35894A8B214A586A00D5E6D6 /* YCDownloadUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YCDownloadUtils.h; sourceTree = "<group>"; };
+		35894A8C214A586A00D5E6D6 /* YCDownloadSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YCDownloadSession.h; sourceTree = "<group>"; };
+		35894A8D214A586A00D5E6D6 /* YCDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YCDownloader.m; sourceTree = "<group>"; };
+		35894A8E214A586A00D5E6D6 /* YCDownloadTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YCDownloadTask.h; sourceTree = "<group>"; };
+		35894A8F214A586A00D5E6D6 /* YCDownloadUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YCDownloadUtils.m; sourceTree = "<group>"; };
+		35894A90214A586A00D5E6D6 /* YCDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YCDownloader.h; sourceTree = "<group>"; };
+		35894A91214A586A00D5E6D6 /* YCDownloadTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YCDownloadTask.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,22 +46,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		351ADEB51FE3D503005B78C7 /* YCDownloadSession */ = {
-			isa = PBXGroup;
-			children = (
-				351ADEB61FE3D503005B78C7 /* YCDownloadManager.m */,
-				351ADEB71FE3D503005B78C7 /* YCDownloadItem.h */,
-				351ADEB81FE3D503005B78C7 /* YCDownloadSession.h */,
-				351ADEB91FE3D503005B78C7 /* YCDownloadTask.h */,
-				351ADEBA1FE3D503005B78C7 /* YCDownloadManager.h */,
-				351ADEBB1FE3D503005B78C7 /* YCDownloadItem.m */,
-				351ADEBC1FE3D503005B78C7 /* YCDownloadSession.m */,
-				351ADEBD1FE3D503005B78C7 /* YCDownloadTask.m */,
-			);
-			name = YCDownloadSession;
-			path = ../../YCDownloadSession/YCDownloadSession;
-			sourceTree = "<group>";
-		};
 		357B351A1FCCF6AD007CE251 = {
 			isa = PBXGroup;
 			children = (
@@ -83,7 +65,7 @@
 		357B35251FCCF6AD007CE251 /* SwiftBridgeDemo */ = {
 			isa = PBXGroup;
 			children = (
-				351ADEB51FE3D503005B78C7 /* YCDownloadSession */,
+				35894A8A214A586A00D5E6D6 /* core */,
 				357B35261FCCF6AD007CE251 /* AppDelegate.swift */,
 				357B35281FCCF6AD007CE251 /* ViewController.swift */,
 				357B352A1FCCF6AD007CE251 /* Main.storyboard */,
@@ -93,6 +75,21 @@
 				357B35381FCCF6C3007CE251 /* Bridge-header.h */,
 			);
 			path = SwiftBridgeDemo;
+			sourceTree = "<group>";
+		};
+		35894A8A214A586A00D5E6D6 /* core */ = {
+			isa = PBXGroup;
+			children = (
+				35894A8C214A586A00D5E6D6 /* YCDownloadSession.h */,
+				35894A8B214A586A00D5E6D6 /* YCDownloadUtils.h */,
+				35894A8F214A586A00D5E6D6 /* YCDownloadUtils.m */,
+				35894A90214A586A00D5E6D6 /* YCDownloader.h */,
+				35894A8D214A586A00D5E6D6 /* YCDownloader.m */,
+				35894A8E214A586A00D5E6D6 /* YCDownloadTask.h */,
+				35894A91214A586A00D5E6D6 /* YCDownloadTask.m */,
+			);
+			name = core;
+			path = ../../YCDownloadSession/core;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -167,12 +164,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				351ADEC11FE3D503005B78C7 /* YCDownloadTask.m in Sources */,
 				357B35291FCCF6AD007CE251 /* ViewController.swift in Sources */,
+				35894A93214A586A00D5E6D6 /* YCDownloadUtils.m in Sources */,
+				35894A94214A586A00D5E6D6 /* YCDownloadTask.m in Sources */,
 				357B35271FCCF6AD007CE251 /* AppDelegate.swift in Sources */,
-				351ADEBF1FE3D503005B78C7 /* YCDownloadItem.m in Sources */,
-				351ADEBE1FE3D503005B78C7 /* YCDownloadManager.m in Sources */,
-				351ADEC01FE3D503005B78C7 /* YCDownloadSession.m in Sources */,
+				35894A92214A586A00D5E6D6 /* YCDownloader.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -83,7 +83,7 @@
 }
 
 @end
-
+#if YCDownload_Mgr_Item
 @interface YCDownloadItem(YCDownloadDB)
 @property (nonatomic, assign) NSInteger pid;
 @property (nonatomic, copy) NSString *fileExtension;
@@ -92,6 +92,7 @@
 + (instancetype)itemWithDict:(NSDictionary *)dict;
 
 @end
+#endif
 
 @interface YCDownloadTask(YCDownloadDB)
 @property (nonatomic, assign) NSInteger pid;
@@ -114,9 +115,11 @@ static dispatch_queue_t _dbQueue;
 static const char* allTaskKeys[] = {"taskId", "downloadURL", "stid", "priority", "enableSpeed", "fileSize", "downloadedSize", "version", "tmpName", "resumeData", "extraData", "createTime"};
 static NSMutableDictionary <NSString* ,YCDownloadTask *> *_memCacheTasks;
 
+#if YCDownload_Mgr_Item
 //items
 static const char* allItemKeys[] = {"fileId", "taskId", "downloadURL", "uid", "fileType", "fileExtension", "rootPath", "fileSize", "downloadedSize", "downloadStatus", "extraData", "version", "createTime"};
 static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
+#endif
 
 #pragma mark - init db
 + (void)initialize {
@@ -141,7 +144,9 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
     "CREATE TABLE IF NOT EXISTS downloadTask (pid integer PRIMARY KEY AUTOINCREMENT,taskId text not null unique, downloadURL text, stid integer, priority float, enableSpeed integer, fileSize INTEGER, downloadedSize INTEGER, version text not null, tmpName text, resumeData BLOB, extraData BLOB, createTime integer);";
     [self performBlock:^BOOL{ return [self execSql:sql]; } sync:true] ? NSLog(@"[init db success]") : false;
     _memCacheTasks = [NSMutableDictionary dictionary];
+#if YCDownload_Mgr_Item
     _memCacheItems = [NSMutableDictionary dictionary];
+#endif
 }
 
 + (BOOL)performBlock:(BOOL (^)(void))block sync:(BOOL)sync {
@@ -291,15 +296,18 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
         [_memCacheTasks enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, YCDownloadTask * _Nonnull obj, BOOL * _Nonnull stop) {
             [self saveDownloadTask:obj];
         }];
+#if YCDownload_Mgr_Item
         [_memCacheItems enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, YCDownloadItem * _Nonnull obj, BOOL * _Nonnull stop) {
             [self saveDownloadItem:obj];
         }];
+#endif
         return true;
     } sync:false];
 }
 
-#pragma mark - item
 
+#pragma mark - item
+#if YCDownload_Mgr_Item
 + (YCDownloadItem *)itemWithDict:(NSDictionary *)dict {
     if(!dict) return nil;
     NSString *taskId = [dict valueForKey:@"taskId"];
@@ -491,6 +499,8 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
         return [self saveDownloadItem:item];
     } sync:true];
 }
+#endif
+
 #pragma mark - task
 
 + (YCDownloadTask *)taskWithDict:(NSDictionary *)dict {

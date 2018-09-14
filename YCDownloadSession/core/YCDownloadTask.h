@@ -11,8 +11,8 @@
 #import <UIKit/UIKit.h>
 @class YCDownloadTask;
 
-typedef void (^YCCompletionHandler)(NSString *localPath, NSError *error);
-typedef void (^YCProgressHandler)(NSProgress *progress,YCDownloadTask *task);
+typedef void (^YCCompletionHandler)(NSString  * _Nullable localPath, NSError * _Nullable error);
+typedef void (^YCProgressHandler)(NSProgress * _Nonnull progress,YCDownloadTask * _Nonnull task);
 
 #pragma mark - YCDownloadTask
 

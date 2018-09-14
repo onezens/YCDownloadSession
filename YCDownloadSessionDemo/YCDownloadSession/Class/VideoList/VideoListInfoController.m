@@ -11,7 +11,6 @@
 #import "VideoListInfoModel.h"
 #import "VideoCacheController.h"
 #import "YCDownloadManager.h"
-#import "YCDownloadInfo.h"
 
 @interface VideoListInfoController ()<VideoListInfoCellDelegate>
 

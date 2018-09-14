@@ -10,6 +10,18 @@
 
 #define YC_DEVICE_VERSION [[[UIDevice currentDevice] systemVersion] floatValue]
 
+#ifndef YCDownload_Mgr_Item
+#if __has_include(<YCDownloadItem.h>)
+#define YCDownload_Mgr_Item 1
+#import <YCDownloadItem.h>
+#elif __has_include("YCDownloadItem.h")
+#define YCDownload_Mgr_Item 1
+#import "YCDownloadItem.h"
+#else
+#define YCDownload_Mgr_Item 0
+#endif
+#endif
+
 @interface YCDownloadUtils : NSObject
 
 /**
@@ -43,14 +55,23 @@
 
 @end
 
-
-#import "YCDownloadItem.h"
 #import "YCDownloadTask.h"
 
 @interface YCDownloadDB : NSObject
 
++ (NSArray <YCDownloadTask *> *)fetchAllDownloadTasks;
++ (YCDownloadTask *)taskWithTid:(NSString *)tid;
++ (NSArray <YCDownloadTask *> *)taskWithUrl:(NSString *)url;
++ (NSArray <YCDownloadTask *> *)taskWithStid:(NSInteger)stid; //TODO: add url
++ (void)removeAllTasks;
++ (BOOL)removeTask:(YCDownloadTask *)task;
++ (BOOL)saveTask:(YCDownloadTask *)task;
 + (void)saveAllData;
 
+@end
+
+#if YCDownload_Mgr_Item
+@interface YCDownloadDB(item)
 + (NSArray <YCDownloadItem *> *)fetchAllDownloadItemWithUid:(NSString *)uid;
 + (NSArray <YCDownloadItem *> *)fetchAllDownloadedItemWithUid:(NSString *)uid;
 + (NSArray <YCDownloadItem *> *)fetchAllDownloadingItemWithUid:(NSString *)uid;
@@ -60,13 +81,5 @@
 + (void)removeAllItemsWithUid:(NSString *)uid;
 + (BOOL)removeItemWithTaskId:(NSString *)taskId;
 + (BOOL)saveItem:(YCDownloadItem *)item;
-
-+ (NSArray <YCDownloadTask *> *)fetchAllDownloadTasks;
-+ (YCDownloadTask *)taskWithTid:(NSString *)tid;
-+ (NSArray <YCDownloadTask *> *)taskWithUrl:(NSString *)url;
-+ (NSArray <YCDownloadTask *> *)taskWithStid:(NSInteger)stid; //TODO: add url
-+ (void)removeAllTasks;
-+ (BOOL)removeTask:(YCDownloadTask *)task;
-+ (BOOL)saveTask:(YCDownloadTask *)task;
-
 @end
+#endif

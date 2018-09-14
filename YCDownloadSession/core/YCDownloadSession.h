@@ -16,10 +16,10 @@
 #import "YCDownloadUtils.h"
 
 #ifndef YCDownload_Manager
-#if __has_include(<YCDownloadManager.h>)
+#if __has_include(<YCDownloadManager.h>)   &&  __has_include(<YCDownloadItem.h>)
 #define YCDownload_Manager 1
 #import <YCDownloadManager.h>
-#elif __has_include("YCDownloadManager.h")
+#elif __has_include("YCDownloadManager.h") &&  __has_include("YCDownloadItem.h")
 #define YCDownload_Manager 1
 #import "YCDownloadManager.h"
 #else

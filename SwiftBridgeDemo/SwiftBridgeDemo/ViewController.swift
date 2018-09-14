@@ -15,36 +15,37 @@ class ViewController: UIViewController {
     var task:YCDownloadTask? = nil
     
     @IBAction func start(_ sender: Any) {
-        task = YCDownloadSession.downloadSession().startDownload(withUrl: downloadUrl, fileId: "qq.dmg", delegate: self)
+        task = YCDownloader.downloader().download(withUrl: downloadUrl, progress: { (progress, task) in
+            
+            print(progress.fractionCompleted)
+            
+        }, completion: { (path, error) in
+            if (error != nil) {
+                print(error!)
+            }else{
+                print(path!)
+            }
+        })
+
         
     }
     @IBAction func pause(_ sender: Any) {
-        task?.pause()
+        if let dTask = task {
+            YCDownloader.downloader().pause(dTask)
+        }
+        
     }
     
     @IBAction func resume(_ sender: Any) {
-        task?.resume()
+        if let dTask = task {
+            YCDownloader.downloader().resumeTask(dTask)
+        }
     }
     @IBAction func stop(_ sender: Any) {
-        YCDownloadSession.downloadSession().stopDownload(with: task)
+        if let dTask = task {
+            YCDownloader.downloader().cancel(dTask)
+        }
     }
 }
 
-
-extension ViewController : YCDownloadTaskDelegate{
-    
-    func downloadCreated(_ task: YCDownloadTask!) {
-        print("start download: \(task.downloadURL)")
-    }
-    
-    func downloadStatusChanged(_ status: YCDownloadStatus, downloadTask task: YCDownloadTask!) {
-        print("downloadStatusChanged: \(task.downloadStatus.rawValue)")
-    }
-    
-    func downloadProgress(_ task: YCDownloadTask!, downloadedSize: UInt, fileSize: UInt) {
-        
-        print("download progress: \(Float(downloadedSize) / Float(fileSize))")
-    }
-    
-}
 
