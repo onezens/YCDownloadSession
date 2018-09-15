@@ -281,6 +281,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
             isEqual = false;
         }else{
             NSAssert(value==nil && oValue==nil, @"cls err");
+            isEqual = true;
         }
         if (!isEqual) {
             enumerateBlock(value ? type : [self getTypeWithValue:oValue], key, value, i);

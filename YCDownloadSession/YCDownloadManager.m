@@ -44,6 +44,7 @@ static id _instance;
 }
 
 + (instancetype)manager {
+    NSAssert(_instance, @"please set config: [YCDownloadManager mgrWithConfig:config];");
     return _instance;
 }
 
@@ -212,16 +213,15 @@ static id _instance;
 - (void)startDownloadWithItem:(YCDownloadItem *)item priority:(float)priority{
     if(!item) return;
     YCDownloadItem *oldItem = [YCDownloadDB itemWithTaskId:item.taskId];
-    if (oldItem.downloadStatus == YCDownloadStatusFinished) return;
-    item.downloadStatus = YCDownloadStatusWaiting;
-    item.uid = self.uid;
-    item.saveRootPath = self.config.saveRootPath;
-    item.fileType = item.fileType ? : @"video";
-    if ([self downloadFinishedWithItem:item]) {
+    if (oldItem && [self downloadFinishedWithItem:oldItem]) {
         NSLog(@"[startDownloadWithItem] detect item finished!");
         [self startNextDownload];
         return;
     }
+    item.downloadStatus = YCDownloadStatusWaiting;
+    item.uid = self.uid;
+    item.saveRootPath = self.config.saveRootPath;
+    item.fileType = item.fileType ? : @"video";
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:item.downloadURL]];
     YCDownloadTask *task = [[YCDownloader downloader] downloadWithRequest:request progress:item.progressHandler completion:item.completionHandler priority:priority];
     item.taskId = task.taskId;
@@ -320,8 +320,10 @@ static id _instance;
 
 - (void)pauseAllDownloadTask {
     [[YCDownloadDB fetchAllDownloadingItemWithUid:self.uid] enumerateObjectsUsingBlock:^(YCDownloadItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        obj.noNeedStartNext = true;
-        [self pauseDownloadWithItem:obj];
+        if (obj.downloadStatus == YCDownloadStatusWaiting || obj.downloadStatus == YCDownloadStatusDownloading) {
+            obj.noNeedStartNext = true;
+            [self pauseDownloadWithItem:obj];
+        }
     }];
 }
 
@@ -366,5 +368,9 @@ static id _instance;
 
 
 @implementation YCDConfig
+
+- (NSUInteger)maxTaskCount {
+    return _maxTaskCount ? _maxTaskCount : 1;
+}
 
 @end

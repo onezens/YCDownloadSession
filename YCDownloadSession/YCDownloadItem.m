@@ -117,8 +117,8 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
         return;
     }
     NSAssert([response isKindOfClass:[NSHTTPURLResponse class]], @"response can not nil & class must be NSHTTPURLResponse");
-    NSString *extension = response.suggestedFilename.pathExtension;
-    if(!extension) extension = [[response.allHeaderFields valueForKey:@"Content-Type"] componentsSeparatedByString:@"/"].lastObject;
+    NSString *extension = [[response.allHeaderFields valueForKey:@"Content-Type"] componentsSeparatedByString:@"/"].lastObject;
+    if(extension.length==0) extension = response.suggestedFilename.pathExtension;
     _fileExtension = extension;
 }
 
@@ -128,7 +128,7 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
         if(weakSelf.downloadStatus == YCDownloadStatusWaiting){
             [weakSelf downloadStatusChanged:YCDownloadStatusDownloading downloadTask:nil];
         }
-        [weakSelf downloadProgress:task downloadedSize:(NSUInteger)progress.completedUnitCount fileSize:(NSUInteger)progress.totalUnitCount];
+        [weakSelf downloadProgress:task downloadedSize:(NSUInteger)progress.completedUnitCount fileSize:(NSUInteger)(progress.totalUnitCount>0 ? progress.totalUnitCount : 0)];
     };
 }
 
@@ -148,7 +148,9 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
             [weakSelf downloadStatusChanged:YCDownloadStatusFailed downloadTask:nil];
         }else if([[NSFileManager defaultManager] moveItemAtPath:localPath toPath:self.savePath error:&saveError]){
             NSAssert(self.fileExtension, @"file extension can not nil!");
-            self->_downloadedSize = weakSelf.fileSize;
+            NSUInteger fileSize = [YCDownloadUtils fileSizeWithPath:weakSelf.savePath];
+            self->_downloadedSize = fileSize;
+            self->_fileSize = fileSize;
             [weakSelf downloadStatusChanged:YCDownloadStatusFinished downloadTask:nil];
         }else{
             [weakSelf downloadStatusChanged:YCDownloadStatusFailed downloadTask:nil];
@@ -177,7 +179,7 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
 
 - (NSString *)saveName {
     NSString *saveName = self.fileId ? self.fileId : self.taskId;
-    return [saveName stringByAppendingPathExtension: self.fileExtension ? : @"data"];
+    return [saveName stringByAppendingPathExtension: self.fileExtension.length>0 ? self.fileExtension : @"data"];
 }
 
 - (NSString *)savePath {
