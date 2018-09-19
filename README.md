@@ -25,7 +25,7 @@ source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '8.0'
 
 target 'TargetName' do
-    pod 'YCDownloadSession', '~> 2.0.0-beta', :subspecs => ['Core', 'Mgr']
+    pod 'YCDownloadSession', '~> 2.0.0', :subspecs => ['Core', 'Mgr']
 end
 ```
 
@@ -38,7 +38,23 @@ $ pod install
 提示错误 `[!] Unable to find a specification for YCDownloadSession ` 解决办法：
 
 ```
-$ pod setup
+$ pod repo update master
+```
+## 通过Carthage安装
+安装carthage：
+
+```
+brew install carthage
+```
+添加下面配置到`Cartfile`里：
+
+```
+github "onezens/YCDownloadSession"
+```
+安装, 然后添加Framework到项目：
+
+```
+carthage update --platform ios
 ```
 
 ## 用法
@@ -46,7 +62,7 @@ $ pod setup
 **引用头文件**
 
 ```
-#import "YCDownloadSession.h"
+#import <YCDownloadSession.h>
 ```
 
 

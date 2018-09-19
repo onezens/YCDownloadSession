@@ -8,14 +8,13 @@
 
 Pod::Spec.new do |s|
   s.name         = "YCDownloadSession"
-  s.version      = "2.0.0-beta"
+  s.version      = "2.0.0"
   s.summary      = "iOS background download video or file"
   s.homepage     = "https://github.com/onezens/YCDownloadSession"
   s.license      = "MIT"
   s.author       = { "onezens" => "mail@onezen.cc" }
   s.platform     = :ios, "8.0"
   s.source       = { :git => "https://github.com/onezens/YCDownloadSession.git", :tag => "#{s.version}" }
-  s.requires_arc = true
 
   s.subspec 'Core' do |c|
     c.source_files  = "YCDownloadSession/core/*.{h,m}"
@@ -28,4 +27,6 @@ Pod::Spec.new do |s|
     m.public_header_files = "YCDownloadSession/*.h"
   end
 
+  s.default_subspec = 'Core'
+  s.requires_arc = true
 end
