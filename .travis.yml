@@ -1,6 +1,6 @@
 language: objective-c
 osx_image: xcode9
-xcode_project: YCDownloadSession.xcodeproj
+xcode_project: YCDownloadSessionDemo.xcodeproj
 xcode_scheme: YCDownloadSession
 
 before_install:
