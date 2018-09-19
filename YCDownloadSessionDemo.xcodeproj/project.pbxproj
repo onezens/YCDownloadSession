@@ -7,6 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3508D7DC215262C100D70A7C /* YCDownloadSession.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3508D7D5215262C100D70A7C /* YCDownloadSession.framework */; };
+		3508D7DD215262C100D70A7C /* YCDownloadSession.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3508D7D5215262C100D70A7C /* YCDownloadSession.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3508D7E2215262F000D70A7C /* YCDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 35894A82214A53AC00D5E6D6 /* YCDownloader.m */; };
+		3508D7E3215262F000D70A7C /* YCDownloadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 35894A86214A53AC00D5E6D6 /* YCDownloadTask.m */; };
+		3508D7E4215262F000D70A7C /* YCDownloadUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 35894A84214A53AC00D5E6D6 /* YCDownloadUtils.m */; };
+		3508D7E5215262F000D70A7C /* YCDownloadItem.m in Sources */ = {isa = PBXBuildFile; fileRef = D750A1451F2AE2FC00EC6796 /* YCDownloadItem.m */; };
+		3508D7E6215262F000D70A7C /* YCDownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D750A1421F2ADEDC00EC6796 /* YCDownloadManager.m */; };
+		3508D7E7215262FE00D70A7C /* YCDownloader.h in Headers */ = {isa = PBXBuildFile; fileRef = 35894A85214A53AC00D5E6D6 /* YCDownloader.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3508D7E82152630A00D70A7C /* YCDownloadTask.h in Headers */ = {isa = PBXBuildFile; fileRef = 35894A83214A53AC00D5E6D6 /* YCDownloadTask.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3508D7E92152630A00D70A7C /* YCDownloadUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 35894A80214A53AC00D5E6D6 /* YCDownloadUtils.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3508D7EA2152630A00D70A7C /* YCDownloadSession.h in Headers */ = {isa = PBXBuildFile; fileRef = 35894A81214A53AC00D5E6D6 /* YCDownloadSession.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3508D7EB2152630A00D70A7C /* YCDownloadItem.h in Headers */ = {isa = PBXBuildFile; fileRef = D750A1441F2AE2FC00EC6796 /* YCDownloadItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3508D7EC2152630A00D70A7C /* YCDownloadManager.h in Headers */ = {isa = PBXBuildFile; fileRef = D750A1411F2ADEDC00EC6796 /* YCDownloadManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3536388E1F9496650070CFA3 /* VideoCacheListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3580D6451F8CB8BC00966A3D /* VideoCacheListCell.xib */; };
 		3536388F1F9496700070CFA3 /* VideoListInfoCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3580D6491F8CB8BD00966A3D /* VideoListInfoCell.xib */; };
 		353E94CC1F7F3C5B00B76CDF /* PlayerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 353E94CB1F7F3C5B00B76CDF /* PlayerViewController.m */; };
@@ -34,16 +47,11 @@
 		3580D6521F8CB8DC00966A3D /* VideoListInfoController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3580D64B1F8CB8BD00966A3D /* VideoListInfoController.m */; };
 		3580D6531F8CB8DC00966A3D /* VideoListInfoModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 3580D64D1F8CB8BD00966A3D /* VideoListInfoModel.m */; };
 		3580D6541F8CB8E900966A3D /* DownloadViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3580D63D1F8CB8BC00966A3D /* DownloadViewController.m */; };
-		35894A87214A53AC00D5E6D6 /* YCDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 35894A82214A53AC00D5E6D6 /* YCDownloader.m */; };
-		35894A88214A53AC00D5E6D6 /* YCDownloadUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 35894A84214A53AC00D5E6D6 /* YCDownloadUtils.m */; };
-		35894A89214A53AC00D5E6D6 /* YCDownloadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 35894A86214A53AC00D5E6D6 /* YCDownloadTask.m */; };
 		D72C84D51E77D42500EDCEEF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D72C84D41E77D42500EDCEEF /* main.m */; };
 		D72C84D81E77D42500EDCEEF /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D72C84D71E77D42500EDCEEF /* AppDelegate.m */; };
 		D72C84DE1E77D42500EDCEEF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D72C84DC1E77D42500EDCEEF /* Main.storyboard */; };
 		D72C84E01E77D42500EDCEEF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D72C84DF1E77D42500EDCEEF /* Assets.xcassets */; };
 		D72C84E31E77D42500EDCEEF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D72C84E11E77D42500EDCEEF /* LaunchScreen.storyboard */; };
-		D750A1431F2ADEDC00EC6796 /* YCDownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D750A1421F2ADEDC00EC6796 /* YCDownloadManager.m */; };
-		D750A1461F2AE2FC00EC6796 /* YCDownloadItem.m in Sources */ = {isa = PBXBuildFile; fileRef = D750A1451F2AE2FC00EC6796 /* YCDownloadItem.m */; };
 		D75627FE1EE799F200A031FE /* video.json in Resources */ = {isa = PBXBuildFile; fileRef = D75627FD1EE799F200A031FE /* video.json */; };
 		D78946B81E83A4B700284B35 /* MKAnnotationView+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = D78946981E83A4B700284B35 /* MKAnnotationView+WebCache.m */; };
 		D78946B91E83A4B700284B35 /* NSData+ImageContentType.m in Sources */ = {isa = PBXBuildFile; fileRef = D789469A1E83A4B700284B35 /* NSData+ImageContentType.m */; };
@@ -64,6 +72,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		3508D7DA215262C100D70A7C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D72C84C81E77D42500EDCEEF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3508D7D4215262C100D70A7C;
+			remoteInfo = YCDownloadSession;
+		};
 		356AAE221FDFE9DD0017FCD9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D72C84C81E77D42500EDCEEF /* Project object */;
@@ -73,7 +88,23 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		3508D7E1215262C100D70A7C /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				3508D7DD215262C100D70A7C /* YCDownloadSession.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		3508D7D5215262C100D70A7C /* YCDownloadSession.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = YCDownloadSession.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3508D7D8215262C100D70A7C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3532E34220DC9D3300B3EF5B /* YCDownloadSession.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = YCDownloadSession.podspec; sourceTree = SOURCE_ROOT; };
 		353E94C11F7F3BC200B76CDF /* FastForwardView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FastForwardView.h; sourceTree = "<group>"; };
 		353E94C21F7F3BC200B76CDF /* FastForwardView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FastForwardView.m; sourceTree = "<group>"; };
@@ -111,7 +142,7 @@
 		353E94E81F7F3D2E00B76CDF /* ViewController+MASAdditions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ViewController+MASAdditions.h"; sourceTree = "<group>"; };
 		353E94E91F7F3D2E00B76CDF /* ViewController+MASAdditions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "ViewController+MASAdditions.m"; sourceTree = "<group>"; };
 		355578182025A5A500BD4F7D /* Bugly.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Bugly.framework; sourceTree = "<group>"; };
-		356AAE1D1FDFE9DD0017FCD9 /* YCDownloadSessionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = YCDownloadSessionTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		356AAE1D1FDFE9DD0017FCD9 /* YCDownloadSessionDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = YCDownloadSessionDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		356AAE1F1FDFE9DD0017FCD9 /* YCDownloadSessionTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YCDownloadSessionTests.m; sourceTree = "<group>"; };
 		356AAE211FDFE9DD0017FCD9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3580D63C1F8CB8BC00966A3D /* DownloadViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadViewController.h; sourceTree = "<group>"; };
@@ -138,7 +169,7 @@
 		35894A84214A53AC00D5E6D6 /* YCDownloadUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YCDownloadUtils.m; sourceTree = "<group>"; };
 		35894A85214A53AC00D5E6D6 /* YCDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YCDownloader.h; sourceTree = "<group>"; };
 		35894A86214A53AC00D5E6D6 /* YCDownloadTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YCDownloadTask.m; sourceTree = "<group>"; };
-		D72C84D01E77D42500EDCEEF /* YCDownloadSession.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YCDownloadSession.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D72C84D01E77D42500EDCEEF /* YCDownloadSessionDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YCDownloadSessionDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D72C84D41E77D42500EDCEEF /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D72C84D61E77D42500EDCEEF /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = ../AppDelegate.h; sourceTree = "<group>"; };
 		D72C84D71E77D42500EDCEEF /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = ../AppDelegate.m; sourceTree = "<group>"; };
@@ -187,6 +218,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		3508D7D1215262C100D70A7C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		356AAE1A1FDFE9DD0017FCD9 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -199,12 +237,21 @@
 			buildActionMask = 2147483647;
 			files = (
 				355578192025A5A500BD4F7D /* Bugly.framework in Frameworks */,
+				3508D7DC215262C100D70A7C /* YCDownloadSession.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3508D7D6215262C100D70A7C /* YCDownloadSession */ = {
+			isa = PBXGroup;
+			children = (
+				3508D7D8215262C100D70A7C /* Info.plist */,
+			);
+			path = YCDownloadSession;
+			sourceTree = "<group>";
+		};
 		3532E34120DC9D0E00B3EF5B /* Config */ = {
 			isa = PBXGroup;
 			children = (
@@ -364,6 +411,7 @@
 			children = (
 				D72C84D21E77D42500EDCEEF /* YCDownloadSession */,
 				356AAE1E1FDFE9DD0017FCD9 /* YCDownloadSessionTests */,
+				3508D7D6215262C100D70A7C /* YCDownloadSession */,
 				D72C84D11E77D42500EDCEEF /* Products */,
 			);
 			sourceTree = "<group>";
@@ -371,8 +419,9 @@
 		D72C84D11E77D42500EDCEEF /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D72C84D01E77D42500EDCEEF /* YCDownloadSession.app */,
-				356AAE1D1FDFE9DD0017FCD9 /* YCDownloadSessionTests.xctest */,
+				D72C84D01E77D42500EDCEEF /* YCDownloadSessionDemo.app */,
+				356AAE1D1FDFE9DD0017FCD9 /* YCDownloadSessionDemoTests.xctest */,
+				3508D7D5215262C100D70A7C /* YCDownloadSession.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -470,10 +519,44 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXHeadersBuildPhase section */
+		3508D7D2215262C100D70A7C /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3508D7E7215262FE00D70A7C /* YCDownloader.h in Headers */,
+				3508D7E82152630A00D70A7C /* YCDownloadTask.h in Headers */,
+				3508D7E92152630A00D70A7C /* YCDownloadUtils.h in Headers */,
+				3508D7EA2152630A00D70A7C /* YCDownloadSession.h in Headers */,
+				3508D7EB2152630A00D70A7C /* YCDownloadItem.h in Headers */,
+				3508D7EC2152630A00D70A7C /* YCDownloadManager.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
 /* Begin PBXNativeTarget section */
-		356AAE1C1FDFE9DD0017FCD9 /* YCDownloadSessionTests */ = {
+		3508D7D4215262C100D70A7C /* YCDownloadSession */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 356AAE261FDFE9DD0017FCD9 /* Build configuration list for PBXNativeTarget "YCDownloadSessionTests" */;
+			buildConfigurationList = 3508D7E0215262C100D70A7C /* Build configuration list for PBXNativeTarget "YCDownloadSession" */;
+			buildPhases = (
+				3508D7D0215262C100D70A7C /* Sources */,
+				3508D7D1215262C100D70A7C /* Frameworks */,
+				3508D7D2215262C100D70A7C /* Headers */,
+				3508D7D3215262C100D70A7C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = YCDownloadSession;
+			productName = YCDownloadSession;
+			productReference = 3508D7D5215262C100D70A7C /* YCDownloadSession.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		356AAE1C1FDFE9DD0017FCD9 /* YCDownloadSessionDemoTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 356AAE261FDFE9DD0017FCD9 /* Build configuration list for PBXNativeTarget "YCDownloadSessionDemoTests" */;
 			buildPhases = (
 				356AAE191FDFE9DD0017FCD9 /* Sources */,
 				356AAE1A1FDFE9DD0017FCD9 /* Frameworks */,
@@ -484,26 +567,28 @@
 			dependencies = (
 				356AAE231FDFE9DD0017FCD9 /* PBXTargetDependency */,
 			);
-			name = YCDownloadSessionTests;
+			name = YCDownloadSessionDemoTests;
 			productName = YCDownloadSessionTests;
-			productReference = 356AAE1D1FDFE9DD0017FCD9 /* YCDownloadSessionTests.xctest */;
+			productReference = 356AAE1D1FDFE9DD0017FCD9 /* YCDownloadSessionDemoTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		D72C84CF1E77D42500EDCEEF /* YCDownloadSession */ = {
+		D72C84CF1E77D42500EDCEEF /* YCDownloadSessionDemo */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D72C84E71E77D42500EDCEEF /* Build configuration list for PBXNativeTarget "YCDownloadSession" */;
+			buildConfigurationList = D72C84E71E77D42500EDCEEF /* Build configuration list for PBXNativeTarget "YCDownloadSessionDemo" */;
 			buildPhases = (
 				D72C84CC1E77D42500EDCEEF /* Sources */,
 				D72C84CD1E77D42500EDCEEF /* Frameworks */,
 				D72C84CE1E77D42500EDCEEF /* Resources */,
+				3508D7E1215262C100D70A7C /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				3508D7DB215262C100D70A7C /* PBXTargetDependency */,
 			);
-			name = YCDownloadSession;
+			name = YCDownloadSessionDemo;
 			productName = YCDownloadSession;
-			productReference = D72C84D01E77D42500EDCEEF /* YCDownloadSession.app */;
+			productReference = D72C84D01E77D42500EDCEEF /* YCDownloadSessionDemo.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -515,6 +600,10 @@
 				LastUpgradeCheck = 0940;
 				ORGANIZATIONNAME = onezen.cc;
 				TargetAttributes = {
+					3508D7D4215262C100D70A7C = {
+						CreatedOnToolsVersion = 9.4;
+						ProvisioningStyle = Automatic;
+					};
 					356AAE1C1FDFE9DD0017FCD9 = {
 						CreatedOnToolsVersion = 9.1;
 						DevelopmentTeam = 6QXR4W42GG;
@@ -533,7 +622,7 @@
 					};
 				};
 			};
-			buildConfigurationList = D72C84CB1E77D42500EDCEEF /* Build configuration list for PBXProject "YCDownloadSession" */;
+			buildConfigurationList = D72C84CB1E77D42500EDCEEF /* Build configuration list for PBXProject "YCDownloadSessionDemo" */;
 			compatibilityVersion = "Xcode 8.0";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -546,13 +635,21 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D72C84CF1E77D42500EDCEEF /* YCDownloadSession */,
-				356AAE1C1FDFE9DD0017FCD9 /* YCDownloadSessionTests */,
+				D72C84CF1E77D42500EDCEEF /* YCDownloadSessionDemo */,
+				356AAE1C1FDFE9DD0017FCD9 /* YCDownloadSessionDemoTests */,
+				3508D7D4215262C100D70A7C /* YCDownloadSession */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		3508D7D3215262C100D70A7C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		356AAE1B1FDFE9DD0017FCD9 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -578,6 +675,18 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		3508D7D0215262C100D70A7C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3508D7E6215262F000D70A7C /* YCDownloadManager.m in Sources */,
+				3508D7E3215262F000D70A7C /* YCDownloadTask.m in Sources */,
+				3508D7E2215262F000D70A7C /* YCDownloader.m in Sources */,
+				3508D7E5215262F000D70A7C /* YCDownloadItem.m in Sources */,
+				3508D7E4215262F000D70A7C /* YCDownloadUtils.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		356AAE191FDFE9DD0017FCD9 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -601,8 +710,6 @@
 				D78946BD1E83A4B700284B35 /* SDWebImageDownloader.m in Sources */,
 				3580D6541F8CB8E900966A3D /* DownloadViewController.m in Sources */,
 				D72C84D51E77D42500EDCEEF /* main.m in Sources */,
-				D750A1461F2AE2FC00EC6796 /* YCDownloadItem.m in Sources */,
-				35894A87214A53AC00D5E6D6 /* YCDownloader.m in Sources */,
 				D78946B81E83A4B700284B35 /* MKAnnotationView+WebCache.m in Sources */,
 				353E94F21F7F3D4A00B76CDF /* View+MASAdditions.m in Sources */,
 				353E94CF1F7F3D1000B76CDF /* WMLightView.m in Sources */,
@@ -622,16 +729,13 @@
 				353E94EA1F7F3D4A00B76CDF /* MASCompositeConstraint.m in Sources */,
 				353E94CC1F7F3C5B00B76CDF /* PlayerViewController.m in Sources */,
 				353E94EC1F7F3D4A00B76CDF /* MASConstraintMaker.m in Sources */,
-				35894A88214A53AC00D5E6D6 /* YCDownloadUtils.m in Sources */,
 				3580D6501F8CB8D700966A3D /* VideoCacheListCell.m in Sources */,
-				D750A1431F2ADEDC00EC6796 /* YCDownloadManager.m in Sources */,
 				D78946BB1E83A4B700284B35 /* SDWebImageCompat.m in Sources */,
 				D78946C71E83A4B700284B35 /* UIView+WebCacheOperation.m in Sources */,
 				353E94F31F7F3D4A00B76CDF /* ViewController+MASAdditions.m in Sources */,
 				353E94CE1F7F3D1000B76CDF /* FastForwardView.m in Sources */,
 				D78946BE1E83A4B700284B35 /* SDWebImageDownloaderOperation.m in Sources */,
 				D78946C61E83A4B700284B35 /* UIImageView+WebCache.m in Sources */,
-				35894A89214A53AC00D5E6D6 /* YCDownloadTask.m in Sources */,
 				D78946C51E83A4B700284B35 /* UIImageView+HighlightedWebCache.m in Sources */,
 				353E94EE1F7F3D4A00B76CDF /* MASViewAttribute.m in Sources */,
 			);
@@ -640,9 +744,14 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		3508D7DB215262C100D70A7C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3508D7D4215262C100D70A7C /* YCDownloadSession */;
+			targetProxy = 3508D7DA215262C100D70A7C /* PBXContainerItemProxy */;
+		};
 		356AAE231FDFE9DD0017FCD9 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = D72C84CF1E77D42500EDCEEF /* YCDownloadSession */;
+			target = D72C84CF1E77D42500EDCEEF /* YCDownloadSessionDemo */;
 			targetProxy = 356AAE221FDFE9DD0017FCD9 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -667,6 +776,64 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		3508D7DE215262C100D70A7C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 65RJX5V69R;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = YCDownloadSession/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = cc.onezen.YCDownloadSession;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		3508D7DF215262C100D70A7C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 65RJX5V69R;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = YCDownloadSession/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = cc.onezen.YCDownloadSession;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
 		356AAE241FDFE9DD0017FCD9 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -684,7 +851,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = cc.onezen.YCDownloadSessionTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/YCDownloadSession.temp_caseinsensitive_rename.app/YCDownloadSession.temp_caseinsensitive_rename";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/YCDownloadSessionDemo.temp_caseinsensitive_rename.app/YCDownloadSessionDemo.temp_caseinsensitive_rename";
 			};
 			name = Debug;
 		};
@@ -705,7 +872,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = cc.onezen.YCDownloadSessionTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/YCDownloadSession.temp_caseinsensitive_rename.app/YCDownloadSession.temp_caseinsensitive_rename";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/YCDownloadSessionDemo.temp_caseinsensitive_rename.app/YCDownloadSessionDemo.temp_caseinsensitive_rename";
 			};
 			name = Release;
 		};
@@ -861,7 +1028,16 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		356AAE261FDFE9DD0017FCD9 /* Build configuration list for PBXNativeTarget "YCDownloadSessionTests" */ = {
+		3508D7E0215262C100D70A7C /* Build configuration list for PBXNativeTarget "YCDownloadSession" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3508D7DE215262C100D70A7C /* Debug */,
+				3508D7DF215262C100D70A7C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		356AAE261FDFE9DD0017FCD9 /* Build configuration list for PBXNativeTarget "YCDownloadSessionDemoTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				356AAE241FDFE9DD0017FCD9 /* Debug */,
@@ -870,7 +1046,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D72C84CB1E77D42500EDCEEF /* Build configuration list for PBXProject "YCDownloadSession" */ = {
+		D72C84CB1E77D42500EDCEEF /* Build configuration list for PBXProject "YCDownloadSessionDemo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D72C84E51E77D42500EDCEEF /* Debug */,
@@ -879,7 +1055,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D72C84E71E77D42500EDCEEF /* Build configuration list for PBXNativeTarget "YCDownloadSession" */ = {
+		D72C84E71E77D42500EDCEEF /* Build configuration list for PBXNativeTarget "YCDownloadSessionDemo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D72C84E81E77D42500EDCEEF /* Debug */,
