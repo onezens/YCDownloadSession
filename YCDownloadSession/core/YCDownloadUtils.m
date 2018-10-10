@@ -313,6 +313,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
     if(!dict) return nil;
     NSString *taskId = [dict valueForKey:@"taskId"];
     NSAssert(taskId, @"taskId can not nil!");
+    if(!taskId) return nil;
     YCDownloadItem *item = _memCacheItems[taskId];
     if (!item) {
         item = [YCDownloadItem itemWithDict:dict];
@@ -508,6 +509,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
     if(!dict) return nil;
     NSString *taskId = [dict valueForKey:@"taskId"];
     NSAssert(taskId, @"taskId can not nil!");
+    if(!taskId) return nil;
     YCDownloadTask *task = [_memCacheTasks valueForKey:taskId];
     if (!task) {
         task = [YCDownloadTask taskWithDict:dict];
@@ -517,6 +519,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
 }
 
 + (YCDownloadTask *)taskWithTid:(NSString *)tid {
+    if(!tid) return nil;
     __block YCDownloadTask *task = [_memCacheTasks valueForKey:tid];
     if(!task){
         [self performBlock:^BOOL{

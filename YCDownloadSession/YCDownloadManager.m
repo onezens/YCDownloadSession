@@ -186,7 +186,7 @@ static id _instance;
         [self.waitItems removeObject:item];
         [self resumeDownloadWithItem:item];
     }else{
-        NSLog(@"[startNextDownload] all finished!");
+        NSLog(@"[startNextDownload] all download task finished");
         [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadTaskAllFinishedNoti object:nil];
     }
 }

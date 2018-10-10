@@ -606,7 +606,6 @@
 					};
 					356AAE1C1FDFE9DD0017FCD9 = {
 						CreatedOnToolsVersion = 9.1;
-						DevelopmentTeam = 6QXR4W42GG;
 						ProvisioningStyle = Automatic;
 						TestTargetID = D72C84CF1E77D42500EDCEEF;
 					};
@@ -635,9 +634,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+				3508D7D4215262C100D70A7C /* YCDownloadSession */,
 				D72C84CF1E77D42500EDCEEF /* YCDownloadSessionDemo */,
 				356AAE1C1FDFE9DD0017FCD9 /* YCDownloadSessionDemoTests */,
-				3508D7D4215262C100D70A7C /* YCDownloadSession */,
 			);
 		};
 /* End PBXProject section */
@@ -843,7 +842,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 6QXR4W42GG;
+				DEVELOPMENT_TEAM = 65RJX5V69R;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = YCDownloadSessionTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
@@ -864,7 +863,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 6QXR4W42GG;
+				DEVELOPMENT_TEAM = 65RJX5V69R;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = YCDownloadSessionTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.1;

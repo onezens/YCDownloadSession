@@ -110,16 +110,15 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
 
 
 - (void)setFileExtensionWithTask:(YCDownloadTask *)task {
-    
-    NSHTTPURLResponse *response = (NSHTTPURLResponse *)task.downloadTask.response;
-    if (!response) {
-        NSLog(@"[warn] downloadTask response nil!");
-        return;
+    NSURLResponse *oriResponse =task.downloadTask.response;
+    if ([oriResponse isKindOfClass:[NSHTTPURLResponse class]]) {
+        NSHTTPURLResponse *response = (NSHTTPURLResponse *)oriResponse;
+        NSString *extension = [[response.allHeaderFields valueForKey:@"Content-Type"] componentsSeparatedByString:@"/"].lastObject;
+        if(extension.length==0) extension = response.suggestedFilename.pathExtension;
+        _fileExtension = extension;
+    }else{
+        NSLog(@"[warning] downloadTask response class type error: %@", oriResponse);
     }
-    NSAssert([response isKindOfClass:[NSHTTPURLResponse class]], @"response can not nil & class must be NSHTTPURLResponse");
-    NSString *extension = [[response.allHeaderFields valueForKey:@"Content-Type"] componentsSeparatedByString:@"/"].lastObject;
-    if(extension.length==0) extension = response.suggestedFilename.pathExtension;
-    _fileExtension = extension;
 }
 
 - (YCProgressHandler)progressHandler {

@@ -19,7 +19,6 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 @property (nonatomic, assign) NSInteger pid;
 @property (nonatomic, assign) NSInteger stid;
 @property (nonatomic, copy) NSString *tmpName;
-/**重新创建下载session，恢复下载状态的session的标识*/
 @property (nonatomic, assign) BOOL needToRestart;
 @property (nonatomic, strong) NSURLRequest *request;
 @property (nonatomic, assign, readonly) BOOL isFinished;
@@ -277,6 +276,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 
 - (YCDownloadTask *)taskWithSessionTask:(NSURLSessionDownloadTask *)downloadTask {
     NSAssert(downloadTask, @"taskWithSessionTask downloadTask can not nil!");
+    if (!downloadTask)  return nil;
     __block YCDownloadTask *task = [self.memCache objectForKey:downloadTask];
     NSString *url = [YCDownloadUtils urlStrWithDownloadTask:downloadTask];
     if (!task) {
@@ -382,7 +382,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     NSUInteger fileSize = [YCDownloadUtils fileSizeWithPath:localPath];
     NSError *error = nil;
     if (fileSize>0 && fileSize != task.fileSize) {
-        NSString *errStr = [NSString stringWithFormat:@"[YCDownloader didFinishDownloadingToURL] fileSize Error, task fileSize: %lu tmp fileSize: %lu", (unsigned long)task.fileSize, fileSize];
+        NSString *errStr = [NSString stringWithFormat:@"[YCDownloader didFinishDownloadingToURL] fileSize Error, task fileSize: %lu tmp fileSize: %lu", (unsigned long)task.fileSize, (unsigned long)fileSize];
         NSLog(@"%@",errStr);
         error = [NSError errorWithDomain:errStr code:10001 userInfo:nil];
         localPath = nil;
