@@ -401,9 +401,9 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     YCDownloadTask *task = [self taskWithSessionTask:downloadTask];
     if ([downloadTask.response isKindOfClass:[NSHTTPURLResponse class]]) {
         NSHTTPURLResponse *response = (NSHTTPURLResponse *)downloadTask.response;
-        if (response.statusCode != 200) {
+        if (!(response.statusCode == 200 || response.statusCode == 206)) {
             task.downloadedSize = 0;
-            NSLog(@"[didFinishDownloadingToURL] http status code error: %@", response.allHeaderFields);
+            NSLog(@"[didFinishDownloadingToURL] http status code error: %ld", (long)response.statusCode);
             NSError *error = [NSError errorWithDomain:@"[didFinishDownloadingToURL] http status code error" code:11002 userInfo:response.allHeaderFields];
             [self completionDownloadTask:task localPath:nil error:error];
             return;

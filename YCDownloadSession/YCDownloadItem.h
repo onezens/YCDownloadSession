@@ -24,7 +24,6 @@ typedef NS_ENUM(NSUInteger, YCDownloadStatus) {
     YCDownloadStatusFinished
 };
 
-
 @protocol YCDownloadItemDelegate <NSObject>
 
 @optional
