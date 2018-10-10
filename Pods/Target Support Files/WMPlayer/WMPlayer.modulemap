@@ -1,0 +1,6 @@
+framework module WMPlayer {
+  umbrella header "WMPlayer-umbrella.h"
+
+  export *
+  module * { export * }
+}

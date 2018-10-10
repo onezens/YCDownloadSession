@@ -1,0 +1,27 @@
+PODS:
+  - Masonry (1.1.0)
+  - SDWebImage (4.4.2):
+    - SDWebImage/Core (= 4.4.2)
+  - SDWebImage/Core (4.4.2)
+  - WMPlayer (5.0.0):
+    - Masonry
+
+DEPENDENCIES:
+  - Masonry
+  - SDWebImage
+  - WMPlayer
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - Masonry
+    - SDWebImage
+    - WMPlayer
+
+SPEC CHECKSUMS:
+  Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
+  SDWebImage: 624d6e296c69b244bcede364c72ae0430ac14681
+  WMPlayer: a914f80ed5dca7cd9e3a94ec07a2b02eec8c15c0
+
+PODFILE CHECKSUM: 8b2b9a70de90122edd9bec3d64b779a3e869d746
+
+COCOAPODS: 1.5.3

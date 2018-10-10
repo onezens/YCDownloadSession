@@ -8,6 +8,7 @@
 
 #import "PlayerViewController.h"
 #import "WMPlayer.h"
+#import "VideoListInfoModel.h"
 
 @interface PlayerViewController ()<WMPlayerDelegate>
 
@@ -23,16 +24,20 @@
     [super viewDidLoad];
     
     self.view.backgroundColor = [UIColor whiteColor];
-//    self.title = self.playerItem.fileName;
     self.originalFrame = CGRectMake(0, 64, self.view.bounds.size.width, 200);
-    
     self.player = [[WMPlayer alloc] init];
     self.player.delegate = self;
     [self.view addSubview:_player];
+    VideoListInfoModel *infoMo = [VideoListInfoModel infoWithData:self.playerItem.extraData];
+    self.title = infoMo.title;
+    
     //保存路径需要转换为url路径，才能播放
     NSURL *url = [NSURL fileURLWithPath:self.playerItem.savePath];
     NSLog(@"[playViewVC] videoUrl:%@", url);
-    [self.player setURLString:url.absoluteString];
+    
+    WMPlayerModel *model = [[WMPlayerModel alloc] init];
+    model.videoURL = url;
+    _player.playerModel = model;
     [_player play];
 }
 

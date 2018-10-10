@@ -106,7 +106,7 @@
 }
 
 - (void)downloadItem:(YCDownloadItem *)item speed:(NSUInteger)speed speedDesc:(NSString *)speedDesc {
-    NSLog(@"%zd ----- %@", speed, speedDesc);
+    NSLog(@"%lu ----- %@", (unsigned long)speed, speedDesc);
 }
 
 

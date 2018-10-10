@@ -1,0 +1,6 @@
+framework module Pods_YCDownloadSessionDemo {
+  umbrella header "Pods-YCDownloadSessionDemo-umbrella.h"
+
+  export *
+  module * { export * }
+}

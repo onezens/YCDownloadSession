@@ -11,6 +11,7 @@
 #import <Bugly/Bugly.h>
 #import "YCDownloadSession.h"
 #import "VideoListInfoModel.h"
+#import "YCDownloadSwift.h"
 
 @interface AppDelegate ()
 
@@ -39,6 +40,8 @@
     //setup downloadsession
     [self setUpDownload];
     
+    [self testSwift];
+    
     return YES;
 }
 
@@ -66,8 +69,13 @@
     [Bugly startWithAppId:@"900036376" config:config];
 }
 
-#pragma mark notificaton
+- (void)testSwift {
+    TestSwiftController *testVc = [TestSwiftController new];
+    testVc.title = @"test";
+    [testVc logInfo];
+}
 
+#pragma mark notificaton
 
 - (void)downloadAllTaskFinished{
     [self localPushWithTitle:@"YCDownloadSession" detail:@"所有的下载任务已完成！"];
@@ -102,9 +110,7 @@
     [[YCDownloader downloader] addCompletionHandler:completionHandler identifier:identifier];
 }
 
-
 - (void)applicationWillResignActive:(UIApplication *)application {
-//    YCDownloadMgr.uid = [YCDownloadMgr.uid isEqualToString: @"100007"] ? @"100006" : @"100007";
     NSLog(@"%s", __func__);
 }
 

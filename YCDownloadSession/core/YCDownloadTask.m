@@ -212,7 +212,7 @@ static NSString * const kNSURLSessionResumeServerDownloadDate = @"NSURLSessionRe
         NSMutableDictionary *dic = arr[1];
         id obj = [dic objectForKey:[NSString stringWithFormat:@"__nsurlrequest_proto_prop_obj_%ld",(long)i]];
         if (obj) {
-            [dic setValue:obj forKey:[NSString stringWithFormat:@"$%ld",i+k]];
+            [dic setValue:obj forKey:[NSString stringWithFormat:@"$%ld",(long)(i+k)]];
             [dic removeObjectForKey:[NSString stringWithFormat:@"__nsurlrequest_proto_prop_obj_%ld",(long)i]];
             [arr replaceObjectAtIndex:1 withObject:dic];
             archive[@"$objects"] = arr;
@@ -224,7 +224,7 @@ static NSString * const kNSURLSessionResumeServerDownloadDate = @"NSURLSessionRe
         NSMutableDictionary *dic = arr[1];
         id obj = [dic objectForKey:@"__nsurlrequest_proto_props"];
         if (obj) {
-            [dic setValue:obj forKey:[NSString stringWithFormat:@"$%ld",i+k]];
+            [dic setValue:obj forKey:[NSString stringWithFormat:@"$%ld",(long)(i+k)]];
             [dic removeObjectForKey:@"__nsurlrequest_proto_props"];
             [arr replaceObjectAtIndex:1 withObject:dic];
             archive[@"$objects"] = arr;
