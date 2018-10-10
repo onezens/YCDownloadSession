@@ -191,8 +191,8 @@ static id _instance;
     }
 }
 
-+ (NSUInteger)videoCacheSize {
-    NSUInteger size = 0;
++ (int64_t)videoCacheSize {
+    int64_t size = 0;
     NSArray *downloadList = [self downloadList];
     NSArray *finishList = [self finishList];
     for (YCDownloadTask *task in downloadList) {
@@ -236,7 +236,7 @@ static id _instance;
 }
 
 - (BOOL)downloadFinishedWithItem:(YCDownloadItem *)item {
-    NSUInteger localFileSize = [YCDownloadUtils fileSizeWithPath:item.savePath];
+    int64_t localFileSize = [YCDownloadUtils fileSizeWithPath:item.savePath];
     BOOL fileFinished = localFileSize>0 && localFileSize == item.fileSize;
     if (fileFinished) {
         [item setValue:@(localFileSize) forKey:@"_downloadedSize"];
@@ -265,7 +265,6 @@ static id _instance;
     NSAssert(item.taskId, @"item taskid not nil");
     YCDownloadTask *task = nil;
     task = [YCDownloadDB taskWithTid:item.taskId];
-    NSAssert(task, @"task not nil!");
     return task;
 }
 

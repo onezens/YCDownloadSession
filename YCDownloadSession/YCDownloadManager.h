@@ -140,7 +140,7 @@
 /**
  获取所有下载数据所占用的磁盘空间，不包括YCDownloadSession单独下载的文件
  */
-+ (NSUInteger)videoCacheSize;
++ (int64_t)videoCacheSize;
 
 /**
  是否允许蜂窝煤网络下载，以及网络状态变为蜂窝煤是否允许下载，必须把所有的downloadTask全部暂停，然后重新创建。否则，原先创建的

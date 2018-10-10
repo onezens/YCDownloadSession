@@ -16,20 +16,20 @@
 
 @implementation YCDownloadUtils
 
-+ (NSUInteger)fileSystemFreeSize {
-    NSUInteger totalFreeSpace = 0;
++ (int64_t)fileSystemFreeSize {
+    int64_t totalFreeSpace = 0;
     NSError *error = nil;
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSDictionary *dictionary = [[NSFileManager defaultManager] attributesOfFileSystemForPath:[paths lastObject] error: &error];
     
     if (dictionary) {
         NSNumber *freeFileSystemSizeInBytes = [dictionary objectForKey:NSFileSystemFreeSize];
-        totalFreeSpace = [freeFileSystemSizeInBytes unsignedIntegerValue];
+        totalFreeSpace = [freeFileSystemSizeInBytes longLongValue];
     }
     return totalFreeSpace;
 }
 
-+ (NSString *)fileSizeStringFromBytes:(NSUInteger)byteSize {
++ (NSString *)fileSizeStringFromBytes:(int64_t)byteSize {
     if (kCommonUtilsGigabyte <= byteSize) {
         return [NSString stringWithFormat:@"%@GB", [self numberStringFromDouble:(double)byteSize / kCommonUtilsGigabyte]];
     }
@@ -68,10 +68,10 @@
         [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:true attributes:nil error:nil];
     }
 }
-+ (NSUInteger)fileSizeWithPath:(NSString *)path {
++ (int64_t)fileSizeWithPath:(NSString *)path {
     if(![[NSFileManager defaultManager] fileExistsAtPath:path]) return 0;
     NSDictionary *dic = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:nil];
-    return dic ? (NSUInteger)[dic fileSize] : 0;
+    return dic ? (int64_t)[dic fileSize] : 0;
 }
 
 + (NSString *)urlStrWithDownloadTask:(NSURLSessionDownloadTask *)downloadTask {
@@ -315,6 +315,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
     NSAssert(taskId, @"taskId can not nil!");
     if(!taskId) return nil;
     YCDownloadItem *item = _memCacheItems[taskId];
+    if (item && ![item.taskId isEqualToString:taskId]) return nil;
     if (!item) {
         item = [YCDownloadItem itemWithDict:dict];
         _memCacheItems[taskId] = item;
@@ -510,6 +511,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
     NSAssert(taskId, @"taskId can not nil!");
     if(!taskId) return nil;
     YCDownloadTask *task = [_memCacheTasks valueForKey:taskId];
+    if (task && ![task.taskId isEqualToString:taskId]) return nil;
     if (!task) {
         task = [YCDownloadTask taskWithDict:dict];
         _memCacheTasks[taskId] = task;

@@ -80,10 +80,7 @@ static NSString * const kDownloadTaskIdKey = @"kDownloadTaskIdKey";
     [YCDownloader downloader];
     NSString *tid = [[NSUserDefaults standardUserDefaults] valueForKey:kDownloadTaskIdKey];
     YCDownloadTask *task = [YCDownloadDB taskWithTid:tid];
-    if (task.isRunning) {
-        [self resume];
-    }
-    
+    if (task.isRunning) [self resume];
 }
 
 - (void)downloadProgress:(YCDownloadTask *)task downloadedSize:(NSUInteger)downloadedSize fileSize:(NSUInteger)fileSize {
@@ -115,7 +112,7 @@ static NSString * const kDownloadTaskIdKey = @"kDownloadTaskIdKey";
     }else{
         //recovery download
         NSString *tid = [[NSUserDefaults standardUserDefaults] valueForKey:kDownloadTaskIdKey];
-        self.downloadTask = [[YCDownloader downloader] resumeDownloadTaskWithTid:tid progress:self.progress completion:self.completion];
+        if (tid) self.downloadTask = [[YCDownloader downloader] resumeDownloadTaskWithTid:tid progress:self.progress completion:self.completion];
     }
 }
 
@@ -125,6 +122,9 @@ static NSString * const kDownloadTaskIdKey = @"kDownloadTaskIdKey";
 
 - (void)stop {
     [[YCDownloader downloader] cancelTask:self.downloadTask];
+    self.downloadTask = nil;
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kDownloadTaskIdKey];
+    self.progressLbl.text = @"stop";
 }
 
 

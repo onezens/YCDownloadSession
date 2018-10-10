@@ -398,16 +398,25 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 }
 
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location {
-    
-    NSString *localPath = [location path];
     YCDownloadTask *task = [self taskWithSessionTask:downloadTask];
+    if ([downloadTask.response isKindOfClass:[NSHTTPURLResponse class]]) {
+        NSHTTPURLResponse *response = (NSHTTPURLResponse *)downloadTask.response;
+        if (response.statusCode != 200) {
+            task.downloadedSize = 0;
+            NSLog(@"[didFinishDownloadingToURL] http status code error: %@", response.allHeaderFields);
+            NSError *error = [NSError errorWithDomain:@"[didFinishDownloadingToURL] http status code error" code:11002 userInfo:response.allHeaderFields];
+            [self completionDownloadTask:task localPath:nil error:error];
+            return;
+        }
+    }
+    NSString *localPath = [location path];
     if (task.fileSize==0) [task updateTask];
-    NSUInteger fileSize = [YCDownloadUtils fileSizeWithPath:localPath];
+    int64_t fileSize = [YCDownloadUtils fileSizeWithPath:localPath];
     NSError *error = nil;
     if (fileSize>0 && fileSize != task.fileSize) {
-        NSString *errStr = [NSString stringWithFormat:@"[YCDownloader didFinishDownloadingToURL] fileSize Error, task fileSize: %lu tmp fileSize: %lu", (unsigned long)task.fileSize, (unsigned long)fileSize];
+        NSString *errStr = [NSString stringWithFormat:@"[YCDownloader didFinishDownloadingToURL] fileSize Error, task fileSize: %lld tmp fileSize: %lld", task.fileSize, fileSize];
         NSLog(@"%@",errStr);
-        error = [NSError errorWithDomain:errStr code:10001 userInfo:nil];
+        error = [NSError errorWithDomain:errStr code:11001 userInfo:nil];
         localPath = nil;
     }else{
         task.downloadedSize = fileSize;
@@ -421,7 +430,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
         [downloadTask cancel];
         NSAssert(false,@"didWriteData task nil!");
     }
-    task.downloadedSize = (NSUInteger)totalBytesWritten;
+    task.downloadedSize = totalBytesWritten;
     if(task.fileSize==0) [task updateTask];
     task.progress.totalUnitCount = totalBytesExpectedToWrite>0 ? totalBytesExpectedToWrite : task.fileSize;
     task.progress.completedUnitCount = totalBytesWritten;

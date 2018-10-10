@@ -71,7 +71,7 @@
 #pragma mark - public
 
 - (void)updateTask {
-    _fileSize = (NSUInteger)[_downloadTask.response expectedContentLength];
+    _fileSize = [_downloadTask.response expectedContentLength];
 }
 
 #pragma mark - setter
@@ -123,7 +123,7 @@
 }
 
 + (NSString *)downloaderVerison {
-    return @"2.0.0";
+    return @"2.0.1";
 }
 
 @end

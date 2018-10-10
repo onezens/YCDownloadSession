@@ -16,6 +16,30 @@
   "videosource": "测试视频"
   },
   {
+      "file_id": "100012",
+      "mp4_url": "http://api.onezen.cc/video/302/1.mp4",
+      "cover": "http://boscdn.bpc.baidu.com/v1/mediaspot/fa6bb8d492a2480036514b7ab54e18e7.jpeg",
+      "title": "test 301 redirect video",
+      "ptime": "2017",
+      "videosource": "测试视频"
+  },
+  {
+      "file_id": "100013",
+      "mp4_url": "http://api.onezen.cc/video/301/1.mp4",
+      "cover": "http://boscdn.bpc.baidu.com/v1/mediaspot/fa6bb8d492a2480036514b7ab54e18e7.jpeg",
+      "title": "test 302 redirect video",
+      "ptime": "2017",
+      "videosource": "测试视频"
+  },
+  {
+      "file_id": "100014",
+      "mp4_url": "http://api.onezen.cc/video/404/1.mp4",
+      "cover": "http://boscdn.bpc.baidu.com/v1/mediaspot/fa6bb8d492a2480036514b7ab54e18e7.jpeg",
+      "title": "test 404",
+      "ptime": "2017",
+      "videosource": "测试视频"
+  },
+  {
   "file_id": "10001",
   "mp4_url": "https://vd1.bdstatic.com/mda-hiqmm8s10vww26sx/mda-hiqmm8s10vww26sx.mp4?playlist=%5B%22hd%22%5D&auth_key=1506158514-0-0-6cde713ec6e6a15bd856fbb4f2564658&bcevod_channel=searchbox_feed",
   "cover": "http://boscdn.bpc.baidu.com/v1/mediaspot/fa6bb8d492a2480036514b7ab54e18e7.jpeg",

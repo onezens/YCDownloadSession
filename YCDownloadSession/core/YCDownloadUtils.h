@@ -27,12 +27,12 @@
 /**
  获取当前手机的空闲磁盘空间
  */
-+ (NSUInteger)fileSystemFreeSize;
++ (int64_t)fileSystemFreeSize;
 
 /**
  将文件的字节大小，转换成更加容易识别的大小KB，MB，GB
  */
-+ (NSString *)fileSizeStringFromBytes:(NSUInteger)byteSize;
++ (NSString *)fileSizeStringFromBytes:(int64_t)byteSize;
 
 /**
  字符串md5加密
@@ -47,7 +47,7 @@
  */
 + (void)createPathIfNotExist:(NSString *)path;
 
-+ (NSUInteger)fileSizeWithPath:(NSString *)path;
++ (int64_t)fileSizeWithPath:(NSString *)path;
 
 + (NSString *)urlStrWithDownloadTask:(NSURLSessionDownloadTask *)downloadTask;
 

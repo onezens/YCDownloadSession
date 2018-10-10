@@ -21,8 +21,8 @@ typedef void (^YCProgressHandler)(NSProgress * _Nonnull progress,YCDownloadTask 
 @property (nonatomic, strong, nullable) NSData *resumeData;
 @property (nonatomic, copy, readonly, nonnull) NSString *taskId;
 @property (nonatomic, copy, readonly, nonnull) NSString *downloadURL;
-@property (nonatomic, assign, readonly) NSUInteger fileSize;
-@property (nonatomic, assign) NSUInteger downloadedSize;
+@property (nonatomic, assign, readonly) int64_t fileSize;
+@property (nonatomic, assign) int64_t downloadedSize;
 @property (nonatomic, copy, nonnull) NSString *version;
 /**
  default value: NSURLSessionTaskPriorityDefault
