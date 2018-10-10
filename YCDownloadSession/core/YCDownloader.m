@@ -151,22 +151,30 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     }
     if (!task.resumeData && task.downloadTask.state == NSURLSessionTaskStateSuspended){
         [task.downloadTask resume];
-        return true;
+        NSError *err = nil;
+        BOOL success = [self checkDownloadTaskState:task.downloadTask task:task error:&err];
+        if(!success) NSLog(@"[resumeTask] task resume failed: %@", err);
+        return success;
     }else if (task.downloadTask && self.memCache[task.downloadTask] && task.downloadTask.state == NSURLSessionTaskStateRunning) {
         return true;
     }else if (!task.resumeData && task.downloadTask){
         NSError *error = [NSError errorWithDomain:@"resume NSURLSessionDownloadTask error state" code:10004 userInfo:nil];
         [self completionDownloadTask:task localPath:nil error:error];
+        NSLog(@"[resumeTask] task resume failed: %@", error);
         return false;
     }else if (!task.resumeData && task.request){
         NSURLSessionDownloadTask *downloadTask = [self.session downloadTaskWithRequest:task.request];
         [self memCacheDownloadTask:downloadTask task:task];
         task.downloadTask = downloadTask;
         [task.downloadTask resume];
-        return true;
+        NSError *err = nil;
+        BOOL success = [self checkDownloadTaskState:task.downloadTask task:task error:&err];
+        if(!success) NSLog(@"[resumeTask] task resume failed: %@", err);
+        return success;
     }else if (!task.resumeData){
         NSError *error = [NSError errorWithDomain:@"resume data nil!" code:10005 userInfo:nil];
         [self completionDownloadTask:task localPath:nil error:error];
+        NSLog(@"[resumeTask] task resume failed: %@", error);
         return false;
     }
     NSURLSessionDownloadTask *downloadTask = nil;
@@ -175,18 +183,35 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     } @catch (NSException *exception) {
         NSError *error = [NSError errorWithDomain:exception.description code:10002 userInfo:exception.userInfo];
         [self completionDownloadTask:task localPath:nil error:error];
+        NSLog(@"[resumeTask] task resume failed: %@", error);
         return false;
     }
     if (!downloadTask) {
         NSError *error = [NSError errorWithDomain:@"resume NSURLSessionDownloadTask nil!" code:10003 userInfo:nil];
         [self completionDownloadTask:task localPath:nil error:error];
+        NSLog(@"[resumeTask] task resume failed: %@", error);
         return false;
     }
     [self memCacheDownloadTask:downloadTask task:task];
     [downloadTask resume];
+    NSError *err = nil;
+    if (![self checkDownloadTaskState:downloadTask task:task error:&err]) {
+        NSLog(@"[resumeTask] task resume failed: %@", err);
+        return false;
+    }
+    NSLog(@"[resumeTask] task resume success");
     task.resumeData = nil;
     return true;
-    
+}
+
+- (BOOL)checkDownloadTaskState:(NSURLSessionDownloadTask *)downloadTask task:(YCDownloadTask *)task error:(NSError **)err {
+    if (downloadTask && downloadTask.state != NSURLSessionTaskStateRunning) {
+        NSError *error = [NSError errorWithDomain:[NSString stringWithFormat:@"task resume failed, downloadTask.state error : %ld", (long)downloadTask.state] code:10006 userInfo:nil];
+        [self completionDownloadTask:task localPath:nil error:error];
+        if(err) *err = error;
+        return false;
+    }
+    return true;
 }
 
 - (void)pauseTask:(YCDownloadTask *)task{
@@ -221,7 +246,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
             [self resumeTask:task];
         }
     }];
-    NSLog(@"recreate Session success");
+    NSLog(@"[recreateSession] recreate Session success");
 }
 
 #pragma mark - setter & getter
@@ -245,13 +270,11 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     task.stid = [self sessionTaskIdWithDownloadTask:downloadTask];
     [self.memCache setObject:task forKey:downloadTask];
     [self saveDownloadTask:task];
-    NSLog(@"[memCache] add : %@ ",task);
 }
 
 - (void)removeMembCacheTask:(NSURLSessionDownloadTask *)downloadTask task:(YCDownloadTask *)task {
     task.stid = -1;
     [self.memCache removeObjectForKey:downloadTask];
-    NSLog(@"[memCache] remove : %@ ",task);
 }
 
 - (void)completionDownloadTask:(YCDownloadTask *)task localPath:(NSString *)localPath error:(NSError *)error {
@@ -324,10 +347,10 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 }
 
 - (void)callTimer {
-    NSLog(@"background time remain: %f", [UIApplication sharedApplication].backgroundTimeRemaining);
+    NSLog(@"[callTimer] background time remain: %f", [UIApplication sharedApplication].backgroundTimeRemaining);
     //TODO: optimeze the logic for background session
     if ([UIApplication sharedApplication].backgroundTimeRemaining < 15 && !_bgRCSBlock) {
-        NSLog(@"background time will up, need to call completed hander!");
+        NSLog(@"[callTimer] background time will up, need to call completed hander!");
         __weak typeof(self) weakSelf = self;
         _bgRCSBlock = ^{
             [weakSelf.bgRCSTasks.copy enumerateObjectsUsingBlock:^(YCDownloadTask *obj, NSUInteger idx, BOOL * _Nonnull stop) {
@@ -432,7 +455,6 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
         NSLog(@"[didCompleteWithError] : %@",error);
         [self completionDownloadTask:task localPath:nil error:error];
     }
-    
 }
 
 @end

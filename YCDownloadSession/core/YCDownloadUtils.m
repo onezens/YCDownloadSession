@@ -429,7 +429,6 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
     if (sqlite3_prepare_v2(_db, [sql_data UTF8String], -1, &stmt, NULL) == SQLITE_OK) {
         sqlite3_bind_blob64(stmt, 1, [item.extraData bytes], [item.extraData length], NULL);
         if (sqlite3_step(stmt) == SQLITE_DONE) {
-            NSLog(@"task resumedata success");
             return result;
         }
     }
@@ -614,7 +613,6 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
     if (sqlite3_prepare_v2(_db, [sql UTF8String], -1, &stmt, NULL) == SQLITE_OK) {
         sqlite3_bind_blob64(stmt, 1, [data bytes], [data length], NULL);
         if (sqlite3_step(stmt) == SQLITE_DONE) {
-            NSLog(@"task resumedata success");
             return result;
         }
     }
