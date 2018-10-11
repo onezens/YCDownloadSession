@@ -1,6 +1,6 @@
 language: objective-c
 osx_image: xcode9
-xcode_project: YCDownloadSessionDemo.xcodeproj
+xcode_project: YCDownloadSessionDemo.xcworkspace
 xcode_scheme: YCDownloadSessionDemo
 
 before_install:
@@ -11,4 +11,4 @@ before_install:
 
 script:
 - set -o pipefail
-- xcodebuild clean build -project "$TRAVIS_XCODE_PROJECT"  -scheme "$TRAVIS_XCODE_SCHEME" -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' | xcpretty
+- xcodebuild clean build -workspace "$TRAVIS_XCODE_PROJECT"  -scheme "$TRAVIS_XCODE_SCHEME" -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' | xcpretty

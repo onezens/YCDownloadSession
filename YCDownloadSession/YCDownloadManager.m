@@ -23,8 +23,8 @@
 {
     NSString *_uniqueId;
 }
-@property (nonatomic, strong) NSMutableArray *waitItems;
-@property (nonatomic, strong) NSMutableArray *runItems;
+@property (nonatomic, strong) NSMutableArray <YCDownloadItem *> *waitItems;
+@property (nonatomic, strong) NSMutableArray <YCDownloadItem *> *runItems;
 @property (nonatomic, strong) YCDConfig *config;
 @end
 
@@ -65,6 +65,7 @@ static id _instance;
 
 - (void)addNotification {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadTaskFinishNoti:) name:kDownloadTaskFinishedNoti object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillTerminate) name:UIApplicationWillTerminateNotification object:nil];
 }
 
 - (void)restoreItems {
@@ -74,6 +75,9 @@ static id _instance;
             YCDownloadTask *task = [self taskWithItem:obj];
             task.completionHandler = obj.completionHandler;
             task.progressHandler = obj.progressHandler;
+            if (task.state != NSURLSessionTaskStateRunning) {
+                obj.downloadStatus = YCDownloadStatusPaused;
+            }
             [self.runItems addObject:obj];
         }
         if(self.config.launchAutoResumeDownload){
@@ -170,6 +174,10 @@ static id _instance;
 }
 
 #pragma mark - Handler
+
+- (void)appWillTerminate {
+    [self pauseAllDownloadTask];
+}
 
 - (void)saveDownloadItem:(YCDownloadItem *)item {
     [YCDownloadDB saveItem:item];
@@ -315,7 +323,6 @@ static id _instance;
     [self.waitItems removeObject:item];
     if(!item.noNeedStartNext) [self startNextDownload];
 }
-
 
 - (void)pauseAllDownloadTask {
     [[YCDownloadDB fetchAllDownloadingItemWithUid:self.uid] enumerateObjectsUsingBlock:^(YCDownloadItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {

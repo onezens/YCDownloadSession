@@ -315,11 +315,15 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
     NSAssert(taskId, @"taskId can not nil!");
     if(!taskId) return nil;
     YCDownloadItem *item = _memCacheItems[taskId];
-    if (item && ![item.taskId isEqualToString:taskId]) return nil;
+    if (item && ![item.taskId isEqualToString:taskId]){
+        _memCacheItems[taskId] = nil;
+        return nil;
+    }
     if (!item) {
         item = [YCDownloadItem itemWithDict:dict];
         _memCacheItems[taskId] = item;
     }
+    
     return item;
 }
 
@@ -330,7 +334,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
         NSArray *rel = [self selectSql:sql];
         [rel enumerateObjectsUsingBlock:^(NSDictionary * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             YCDownloadItem *item = [self itemWithDict:obj];
-            [results addObject:item];
+            if(item) [results addObject:item];
         }];
         return true;
     } sync:true];
@@ -344,7 +348,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
         NSArray *rel = [self selectSql:sql];
         [rel enumerateObjectsUsingBlock:^(NSDictionary * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             YCDownloadItem *item = [self itemWithDict:obj];
-            [results addObject:item];
+            if(item) [results addObject:item];
         }];
         return true;
     } sync:true];
@@ -358,7 +362,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
         NSArray *rel = [self selectSql:sql];
         [rel enumerateObjectsUsingBlock:^(NSDictionary * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             YCDownloadItem *item = [self itemWithDict:obj];
-            [results addObject:item];
+            if(item) [results addObject:item];
         }];
         return true;
     } sync:true];
@@ -385,7 +389,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
         NSArray *rel = [self selectSql:sql];
         [rel enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             YCDownloadItem *item = [self itemWithDict:rel.firstObject];
-            [items addObject:item];
+            if(item) [items addObject:item];
         }];
         
         return true;
@@ -511,7 +515,10 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
     NSAssert(taskId, @"taskId can not nil!");
     if(!taskId) return nil;
     YCDownloadTask *task = [_memCacheTasks valueForKey:taskId];
-    if (task && ![task.taskId isEqualToString:taskId]) return nil;
+    if (task && ![task.taskId isEqualToString:taskId]) {
+        _memCacheTasks[taskId] = nil;
+        return nil;
+    }
     if (!task) {
         task = [YCDownloadTask taskWithDict:dict];
         _memCacheTasks[taskId] = task;

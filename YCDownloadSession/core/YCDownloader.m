@@ -33,7 +33,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 }
 @property (nonatomic, strong) NSURLSession *session;
 @property (nonatomic, assign) BOOL isNeedCreateSession;
-@property (nonatomic, strong) NSMutableDictionary *memCache;
+@property (nonatomic, strong) NSMutableDictionary <NSURLSessionDownloadTask *, YCDownloadTask *> *memCache;
 @property (nonatomic, copy) BGCompletedHandler completedHandler;
 @property (nonatomic, strong) NSMutableArray <YCDownloadTask *> *bgRCSTasks;
 @end
@@ -89,9 +89,12 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 
 - (void)recoveryExceptionTasks {
     NSMutableDictionary *dictM = [self.session valueForKey:@"tasks"];
-    [dictM enumerateKeysAndObjectsUsingBlock:^(NSNumber *_Nonnull key, NSURLSessionDownloadTask *obj, BOOL * _Nonnull stop) {
+    [dictM.copy enumerateKeysAndObjectsUsingBlock:^(NSNumber *_Nonnull key, NSURLSessionDownloadTask *obj, BOOL * _Nonnull stop) {
         YCDownloadTask *task = [YCDownloadDB taskWithStid:key.integerValue].firstObject;
         task ? [self memCacheDownloadTask:obj task:task] : [obj cancel];
+        if (task.downloadTask && task.downloadTask.state != NSURLSessionTaskStateRunning) {
+            [self pauseTask:task];
+        }
     }];
 }
 - (void)addNotification {

@@ -84,6 +84,11 @@
 
 
 #pragma mark - getter
+
+- (NSURLSessionTaskState)state {
+    return self.downloadTask ? self.downloadTask.state : -1;
+}
+
 - (NSProgress *)progress {
     if (!_progress) {
         _progress = [NSProgress progressWithTotalUnitCount:NSURLSessionTransferSizeUnknown];

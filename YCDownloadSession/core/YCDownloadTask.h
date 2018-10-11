@@ -41,6 +41,11 @@ typedef void (^YCProgressHandler)(NSProgress * _Nonnull progress,YCDownloadTask 
 @property (nonatomic, copy, nullable) YCCompletionHandler completionHandler;
 @property (nonatomic, strong, nonnull) NSData *extraData;
 
+/**
+ if no downloadTask, state = -1
+ */
+@property (nonatomic, assign, readonly) NSURLSessionTaskState state;
+
 #pragma mark - method
 - (void)updateTask;
 
