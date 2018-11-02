@@ -83,6 +83,8 @@
 }
 
 @end
+
+
 #if YCDownload_Mgr_Item
 @interface YCDownloadItem(YCDownloadDB)
 @property (nonatomic, assign) NSInteger pid;

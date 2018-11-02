@@ -2,9 +2,10 @@
 
 [![Platform](https://img.shields.io/badge/platform-iOS-yellowgreen.svg)](https://github.com/onezens/YCDownloadSession)
 [![GitHub license](https://img.shields.io/github/license/onezens/YCDownloadSession.svg)](https://github.com/onezens/YCDownloadSession/blob/master/LICENSE)
-[![Support](https://img.shields.io/badge/support-iOS%208%2B%20-blue.svg?style=flat)](https://www.apple.com/nl/ios/)&nbsp;
+[![Support](https://img.shields.io/badge/support-iOS%208%2B%20-blue.svg?style=flat)](https://www.apple.com/nl/ios/)
+[![CocoaPods](http://img.shields.io/cocoapods/v/YCDownloadSession.svg?style=flat)](https://cocoapods.org/pods/YCDownloadSession)
+[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![Build Status](https://travis-ci.com/onezens/YCDownloadSession.svg?branch=master)](https://travis-ci.com/onezens/YCDownloadSession)
-
 
 
 ## 通过Cocoapods安装
@@ -28,7 +29,7 @@ source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '8.0'
 
 target 'TargetName' do
-    pod 'YCDownloadSession', '~> 2.0.0', :subspecs => ['Core', 'Mgr']
+    pod 'YCDownloadSession', '~> 2.0.1', :subspecs => ['Core', 'Mgr']
 end
 ```
 
@@ -85,7 +86,7 @@ carthage update --platform ios
 YCDownloadTask *task = [[YCDownloader downloader] downloadWithUrl:@"download_url" progress:^(NSProgress * _Nonnull progress, YCDownloadTask * _Nonnull task) {
     NSLog(@"progress: %f", progress.fractionCompleted); 
 } completion:^(NSString * _Nullable localPath, NSError * _Nullable error) {
-        
+    // handler download task completed callback
 }];
 ```
 
@@ -123,104 +124,89 @@ YCDownloadTask *task = [[YCDownloader downloader] downloadWithUrl:@"download_url
 
 ### 下载任务管理器`YCDownloadManager`
 
-1. 设置任务管理器配置
+设置任务管理器配置
 
-    ```
-    NSString *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true).firstObject;
-    path = [path stringByAppendingPathComponent:@"download"];
-    YCDConfig *config = [YCDConfig new];
-    config.saveRootPath = path;
-    config.uid = @"100006";
-    config.maxTaskCount = 3;
-    config.taskCachekMode = YCDownloadTaskCacheModeKeep;
-    config.launchAutoResumeDownload = true;
-    [YCDownloadManager mgrWithConfig:config];
-    ```
+```
+NSString *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true).firstObject;
+path = [path stringByAppendingPathComponent:@"download"];
+YCDConfig *config = [YCDConfig new];
+config.saveRootPath = path;
+config.uid = @"100006";
+config.maxTaskCount = 3;
+config.taskCachekMode = YCDownloadTaskCacheModeKeep;
+config.launchAutoResumeDownload = true;
+[YCDownloadManager mgrWithConfig:config];
+```
 
-2. 下载任务相关通知
+下载任务相关通知
 
-    ```
-    //某一个YCDownloadItem下载成功通知
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadTaskFinishedNoti:) name:kDownloadTaskFinishedNoti object:nil];
-    //mgr 管理的所有任务完成通知
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadAllTaskFinished) name:kDownloadTaskAllFinishedNoti object:nil];
-    ```
+```
+//某一个YCDownloadItem下载成功通知
+[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadTaskFinishedNoti:) name:kDownloadTaskFinishedNoti object:nil];
+//mgr 管理的所有任务完成通知
+[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadAllTaskFinished) name:kDownloadTaskAllFinishedNoti object:nil];
+```
 
-3. 开始下载任务
+开始下载任务
 
-    ```
-    YCDownloadItem *item = [YCDownloadItem itemWithUrl:model.mp4_url fileId:model.file_id];
-    item.extraData = ...;
-    [YCDownloadManager startDownloadWithItem:item];
-    ```
-4. 下载相关控制
+```
+YCDownloadItem *item = [YCDownloadItem itemWithUrl:model.mp4_url fileId:model.file_id];
+item.extraData = ...;
+[YCDownloadManager startDownloadWithItem:item];
+```
+下载相关控制
 
-    ```
-    /**
-     暂停一个后台下载任务
+```
+/**
+暂停一个后台下载任务
      
-     @param item 创建的下载任务item
-     */
-    + (void)pauseDownloadWithItem:(nonnull YCDownloadItem *)item;
+@param item 创建的下载任务item
+*/
++ (void)pauseDownloadWithItem:(nonnull YCDownloadItem *)item;
     
-    /**
-     继续开始一个后台下载任务
+/**
+继续开始一个后台下载任务
      
-     @param item 创建的下载任务item
-     */
-    + (void)resumeDownloadWithItem:(nonnull YCDownloadItem *)item;
+@param item 创建的下载任务item
+*/
++ (void)resumeDownloadWithItem:(nonnull YCDownloadItem *)item;
     
-    /**
-     删除一个后台下载任务，同时会删除当前任务下载的缓存数据
+/**
+删除一个后台下载任务，同时会删除当前任务下载的缓存数据
      
-     @param item 创建的下载任务item
-     */
-    + (void)stopDownloadWithItem:(nonnull YCDownloadItem *)item;
-    ```
-5. 蜂窝煤网络访问控制
+@param item 创建的下载任务item
+*/
++ (void)stopDownloadWithItem:(nonnull YCDownloadItem *)item;
+```
+蜂窝煤网络访问控制
 
-    ```
-    /**
-     是否允许蜂窝煤网络下载，以及网络状态变为蜂窝煤是否允许下载，必须把所有的downloadTask全部暂停，然后重新创建。否则，原先创建的
-     下载task依旧在网络切换为蜂窝煤网络时会继续下载
+```
+/**
+是否允许蜂窝煤网络下载，以及网络状态变为蜂窝煤是否允许下载，必须把所有的downloadTask全部暂停，然后重新创建。否则，原先创建的
+下载task依旧在网络切换为蜂窝煤网络时会继续下载
      
-     @param isAllow 是否允许蜂窝煤网络下载
-     */
-    + (void)allowsCellularAccess:(BOOL)isAllow;
+@param isAllow 是否允许蜂窝煤网络下载
+*/
++ (void)allowsCellularAccess:(BOOL)isAllow;
     
-    /**
-     获取是否允许蜂窝煤访问
-     */
-    + (BOOL)isAllowsCellularAccess;
-    ```
+/**
+获取是否允许蜂窝煤访问
+*/
++ (BOOL)isAllowsCellularAccess;
+```
 
 ## 使用效果图
 
-1. 单文件下载测试
+单文件下载测试
 
-  ![单文件下载测试](http://src.onezen.cc/demo/download/1.gif)
+![单文件下载测试](http://src.onezen.cc/demo/download/1.gif)
 
-2. 多视频下载测试
+多视频下载测试
 
-  ![多视频下载测试](http://src.onezen.cc/demo/download/2.gif)
+![多视频下载测试](http://src.onezen.cc/demo/download/2.gif)
   
-3. 下载通知
+下载通知
 
-  ![下载通知](http://src.onezen.cc/demo/download/4.png)
-
-
-## TODO
-
-* [x] 4G/流量下载管理
-* [x] 对下载任务个数进一步优化和管理
-* [x]  下载完成后添加本地通知
-* [x] 301/302 视频模拟测试
-* [ ] Swift 版的下载 - 第一个稳定版发布后开始 (正在进行)
-
-
-## 关于
-
-* 如何反馈问题：[Bug_report.md](https://github.com/onezens/YCDownloadSession/blob/master/.github/ISSUE_TEMPLATE/Bug_report.md)
-
+![下载通知](http://src.onezen.cc/demo/download/4.png)
 
 
