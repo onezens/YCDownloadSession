@@ -12,16 +12,20 @@
 @implementation VideoListInfoModel
 
 + (NSMutableArray<VideoListInfoModel *> *)getVideoListInfo:(NSArray<NSDictionary *> *)listInfos {
-    
     NSMutableArray *arrM = [NSMutableArray array];
     for (NSDictionary *dict in listInfos) {
         VideoListInfoModel *model = [[VideoListInfoModel alloc] initWithDict:dict];
+        if ([model.vid isKindOfClass:[NSNumber class]]) {
+            model.vid = [(NSNumber *)model.vid stringValue];
+        }
         [arrM addObject:model];
     }
     return arrM;
 }
 
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key {}
+
+- (void)setNilValueForKey:(NSString *)key{}
 
 - (instancetype)initWithDict:(NSDictionary *)dict {
     if (self = [super init]) {

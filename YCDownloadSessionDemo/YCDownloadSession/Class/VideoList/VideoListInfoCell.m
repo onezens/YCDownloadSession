@@ -48,8 +48,8 @@
 - (void)setVideoModel:(VideoListInfoModel *)videoModel {
     _videoModel = videoModel;
     self.titleLbl.text = videoModel.title;
-    self.timeLbl.text = videoModel.videosource;
-    [self.coverImgView sd_setImageWithURL:[NSURL URLWithString:videoModel.cover]];
+    self.timeLbl.text = videoModel.video_desc;
+    [self.coverImgView sd_setImageWithURL:[NSURL URLWithString:videoModel.cover_url]];
 }
 
 
