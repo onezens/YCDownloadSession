@@ -83,7 +83,7 @@
 
 - (void)downloadTaskFinishedNoti:(NSNotification *)noti{
     YCDownloadItem *item = noti.object;
-    if (item) {
+    if (item.downloadStatus == YCDownloadStatusFinished) {
         VideoListInfoModel *mo = [VideoListInfoModel infoWithData:item.extraData];
         NSString *detail = [NSString stringWithFormat:@"%@ 视频，已经下载完成！", mo.title];
         [self localPushWithTitle:@"YCDownloadSession" detail:detail];

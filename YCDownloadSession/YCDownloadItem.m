@@ -71,7 +71,7 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
         [self.delegate downloadItemStatusChanged:self];
     }
     //通知优先级最后，不与上面的finished重合
-    if (status == YCDownloadStatusFinished) {
+    if (status == YCDownloadStatusFinished || status == YCDownloadStatusFailed) {
         [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadTaskFinishedNoti object:self];
         [YCDownloadDB saveItem:self];
     }

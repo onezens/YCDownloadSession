@@ -18,6 +18,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 @interface YCDownloadTask(Downloader)
 @property (nonatomic, assign) NSInteger pid;
 @property (nonatomic, assign) NSInteger stid;
+@property (nonatomic, assign) BOOL isDeleted;
 @property (nonatomic, copy) NSString *tmpName;
 @property (nonatomic, assign) BOOL needToRestart;
 @property (nonatomic, strong) NSURLRequest *request;
@@ -98,7 +99,6 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     }];
 }
 - (void)addNotification {
-    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillBecomActive) name:UIApplicationDidBecomeActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive) name:UIApplicationWillResignActiveNotification object:nil];
 }
@@ -222,6 +222,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 }
 
 - (void)cancelTask:(YCDownloadTask *)task{
+    task.isDeleted = true;
     [task.downloadTask cancel];
 }
 
@@ -385,10 +386,6 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 
 #pragma mark - NSURLSession delegate
 
-- (void)URLSession:(NSURLSession *)session taskIsWaitingForConnectivity:(NSURLSessionTask *)task{
-    
-}
-
 - (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(nullable NSError *)error {
     if (self.isNeedCreateSession) {
         self.isNeedCreateSession = false;
@@ -400,18 +397,26 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     }
 }
 
-- (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location {
-    YCDownloadTask *task = [self taskWithSessionTask:downloadTask];
+- (NSInteger)statusCodeWithDownloadTask:(NSURLSessionDownloadTask *)downloadTask {
     if ([downloadTask.response isKindOfClass:[NSHTTPURLResponse class]]) {
         NSHTTPURLResponse *response = (NSHTTPURLResponse *)downloadTask.response;
-        if (!(response.statusCode == 200 || response.statusCode == 206)) {
-            task.downloadedSize = 0;
-            NSLog(@"[didFinishDownloadingToURL] http status code error: %ld", (long)response.statusCode);
-            NSError *error = [NSError errorWithDomain:@"[didFinishDownloadingToURL] http status code error" code:11002 userInfo:response.allHeaderFields];
-            [self completionDownloadTask:task localPath:nil error:error];
-            return;
-        }
+        return response.statusCode;
     }
+    return -1;
+}
+
+- (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location {
+    YCDownloadTask *task = [self taskWithSessionTask:downloadTask];
+
+    NSInteger statusCode = [self statusCodeWithDownloadTask:downloadTask];
+    if (!(statusCode == 200 || statusCode == 206)) {
+        task.downloadedSize = 0;
+        NSLog(@"[didFinishDownloadingToURL] http status code error: %ld", (long)statusCode);
+        NSError *error = [NSError errorWithDomain:@"http status code error" code:11002 userInfo:nil];
+        [self completionDownloadTask:task localPath:nil error:error];
+        return;
+    }
+    
     NSString *localPath = [location path];
     if (task.fileSize==0) [task updateTask];
     int64_t fileSize = [YCDownloadUtils fileSizeWithPath:localPath];
@@ -428,6 +433,10 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 }
 
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
+    NSInteger statusCode = [self statusCodeWithDownloadTask:downloadTask];
+    if (!(statusCode == 200 || statusCode == 206)) {
+        return;
+    }
     YCDownloadTask *task = [self taskWithSessionTask:downloadTask];
     if (!task) {
         [downloadTask cancel];
@@ -443,6 +452,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionDownloadTask *)downloadTask didCompleteWithError:(NSError *)error {
     if (!error) return;
     YCDownloadTask *task = [self taskWithSessionTask:downloadTask];
+    if(task.isDeleted) return;
     // check whether resume data are available
     NSData *resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
     if (resumeData) {

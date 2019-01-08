@@ -187,16 +187,16 @@ static id _instance;
     YCDownloadItem *item = noti.object;
     [self.runItems removeObject:item];
     [self startNextDownload];
-}
-- (void)startNextDownload {
-    YCDownloadItem *item = self.waitItems.firstObject;
-    if (item) {
-        [self.waitItems removeObject:item];
-        [self resumeDownloadWithItem:item];
-    }else{
+    if (self.runItems.count==0 && self.waitItems.count==0) {
         NSLog(@"[startNextDownload] all download task finished");
         [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadTaskAllFinishedNoti object:nil];
     }
+}
+- (void)startNextDownload {
+    YCDownloadItem *item = self.waitItems.firstObject;
+    if (!item) return;
+    [self.waitItems removeObject:item];
+    [self resumeDownloadWithItem:item];
 }
 
 + (int64_t)videoCacheSize {

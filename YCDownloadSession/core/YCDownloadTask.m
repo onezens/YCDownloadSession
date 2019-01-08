@@ -21,6 +21,7 @@
 @property (nonatomic, assign, readonly) BOOL isSupportRange;
 @property (nonatomic, assign, readonly) NSUInteger createTime;
 @property (nonatomic, strong) NSURLSessionDownloadTask *downloadTask;
+@property (nonatomic, assign) BOOL isDeleted;
 @end
 
 
