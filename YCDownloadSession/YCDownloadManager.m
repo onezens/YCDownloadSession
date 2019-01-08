@@ -80,6 +80,7 @@ static id _instance;
             YCDownloadTask *task = [self taskWithItem:obj];
             task.completionHandler = obj.completionHandler;
             task.progressHandler = obj.progressHandler;
+            task.downloadSpeedHanlder = obj.speedHanlder;
             if (task.state != NSURLSessionTaskStateRunning) {
                 obj.downloadStatus = YCDownloadStatusPaused;
             }
@@ -297,6 +298,7 @@ static id _instance;
     YCDownloadTask *task = [self taskWithItem:item];
     task.completionHandler = item.completionHandler;
     task.progressHandler = item.progressHandler;
+    task.downloadSpeedHanlder = item.speedHanlder;
     if([[YCDownloader downloader] resumeTask:task]) {
         [self.runItems addObject:item];
         return;
