@@ -8,6 +8,7 @@
 
 #import "VideoListInfoCell.h"
 #import "UIImageView+WebCache.h"
+#import "YCDownloadUtils.h"
 
 @interface VideoListInfoCell()
 
@@ -16,6 +17,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *timeLbl;
 @property (weak, nonatomic) IBOutlet UIButton *downloadBtn;
 
+@property (weak, nonatomic) IBOutlet UILabel *videoSizeLbl;
 
 @end
 
@@ -48,8 +50,10 @@
 - (void)setVideoModel:(VideoListInfoModel *)videoModel {
     _videoModel = videoModel;
     self.titleLbl.text = videoModel.title;
-    self.timeLbl.text = videoModel.videosource;
-    [self.coverImgView sd_setImageWithURL:[NSURL URLWithString:videoModel.cover]];
+    self.timeLbl.text = videoModel.video_desc;
+    self.videoSizeLbl.text = [YCDownloadUtils fileSizeStringFromBytes:videoModel.file_size];
+    self.videoSizeLbl.hidden = videoModel.file_size<=0;
+    [self.coverImgView sd_setImageWithURL:[NSURL URLWithString:videoModel.cover_url]];
 }
 
 

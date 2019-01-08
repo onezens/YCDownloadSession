@@ -7,6 +7,8 @@ target 'YCDownloadSessionDemo' do
   pod 'SDWebImage'
   pod 'WMPlayer'
   pod 'Masonry'
+  pod 'AFNetworking'
+  pod 'MJRefresh'
 
   target 'YCDownloadSessionDemoTests' do
     inherit! :search_paths

@@ -25,6 +25,8 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
 @property (nonatomic, assign) BOOL noNeedStartNext;
 @property (nonatomic, copy) NSString *fileExtension;
 @property (nonatomic, assign, readonly) NSUInteger createTime;
+@property (nonatomic, assign) NSTimeInterval speedMsec;
+//@property (nonatomic, assign) uint64_t preDownloadedSize;
 @end
 
 @implementation YCDownloadItem
@@ -49,11 +51,14 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
 + (instancetype)itemWithDict:(NSDictionary *)dict {
     YCDownloadItem *item = [[YCDownloadItem alloc] initWithPrivate];
     [item setValuesForKeysWithDictionary:dict];
+//    item.preDownloadedSize = item.downloadedSize;
     return item;
 }
 + (instancetype)itemWithUrl:(NSString *)url fileId:(NSString *)fileId {
     return [[YCDownloadItem alloc] initWithUrl:url fileId:fileId];
 }
+
+- (void)setValue:(id)value forUndefinedKey:(NSString *)key{}
 
 #pragma mark - Handler
 - (void)downloadProgress:(YCDownloadTask *)task downloadedSize:(int64_t)downloadedSize fileSize:(int64_t)fileSize {
@@ -63,6 +68,7 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
     if ([self.delegate respondsToSelector:@selector(downloadItem:downloadedSize:totalSize:)]) {
         [self.delegate downloadItem:self downloadedSize:downloadedSize totalSize:fileSize];
     }
+
 }
 
 - (void)downloadStatusChanged:(YCDownloadStatus)status downloadTask:(YCDownloadTask *)task {
@@ -71,15 +77,9 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
         [self.delegate downloadItemStatusChanged:self];
     }
     //通知优先级最后，不与上面的finished重合
-    if (status == YCDownloadStatusFinished) {
+    if (status == YCDownloadStatusFinished || status == YCDownloadStatusFailed) {
         [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadTaskFinishedNoti object:self];
         [YCDownloadDB saveItem:self];
-    }
-}
-
-- (void)downloadTask:(YCDownloadTask *)task speed:(NSUInteger)speed speedDesc:(NSString *)speedDesc {
-    if ([self.delegate respondsToSelector:@selector(downloadItem:speed:speedDesc:)]) {
-        [self.delegate downloadItem:self speed:speed speedDesc:speedDesc];
     }
 }
 
@@ -128,9 +128,24 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
     __weak typeof(self) weakSelf = self;
     return ^(NSProgress *progress, YCDownloadTask *task){
         if(weakSelf.downloadStatus == YCDownloadStatusWaiting){
-            [weakSelf downloadStatusChanged:YCDownloadStatusDownloading downloadTask:nil];
+            [weakSelf downloadStatusChanged:YCDownloadStatusDownloading downloadTask:task];
         }
         [weakSelf downloadProgress:task downloadedSize:progress.completedUnitCount fileSize:(progress.totalUnitCount>0 ? progress.totalUnitCount : 0)];
+    };
+}
+
+- (YCDownloadSpeedHandler)speedHanlder {
+    if (![self.delegate respondsToSelector:@selector(downloadItem:speed:speedDesc:)]) {
+        return nil;
+    }
+    __weak typeof(self) weakSelf = self;
+    return ^(uint64_t bytesWrited){
+        uint64_t secWriteSize = (self.speedMsec>0 && bytesWrited>0) ? bytesWrited / ([YCDownloadUtils msec_timestamp] - self.speedMsec) * 1000 : 0;
+        NSString *ss = [NSString stringWithFormat:@"%@/s",[YCDownloadUtils fileSizeStringFromBytes:secWriteSize]];
+        [self.delegate downloadItem:self speed:secWriteSize speedDesc:ss];
+        NSLog(@"[speed] size: %llu ss: %@ phase: %llu", secWriteSize, ss, bytesWrited);
+        self.speedMsec = [YCDownloadUtils msec_timestamp];
+        [weakSelf.delegate downloadItem:weakSelf speed:secWriteSize speedDesc:ss];
     };
 }
 
@@ -167,6 +182,7 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
     };
 }
 
+
 #pragma mark - public
 
 - (NSString *)compatibleKey {
@@ -196,6 +212,5 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
 - (NSString *)description {
     return [NSString stringWithFormat:@"<YCDownloadTask: %p>{taskId: %@, url: %@ fileId: %@}", self, self.taskId, self.downloadURL, self.fileId];
 }
-
 
 @end

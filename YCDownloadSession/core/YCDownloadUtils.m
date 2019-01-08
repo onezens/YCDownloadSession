@@ -13,6 +13,8 @@
 #define kCommonUtilsGigabyte (1024 * 1024 * 1024)
 #define kCommonUtilsMegabyte (1024 * 1024)
 #define kCommonUtilsKilobyte 1024
+#define kYCDownloadVersionKey @"YCDownloadVersionKey"
+#define kYCDownloadDbMinUpgradeVerion @"2.0.2"
 
 @implementation YCDownloadUtils
 
@@ -82,6 +84,11 @@
     return (NSUInteger)[[NSDate date] timeIntervalSince1970];
 }
 
++ (NSUInteger)msec_timestamp {
+    NSTimeInterval timestamp = [[NSDate date] timeIntervalSince1970];
+    return (NSUInteger)(timestamp * 1000);
+}
+
 @end
 
 
@@ -114,7 +121,7 @@ typedef NS_ENUM(NSUInteger, YCDownloadDBValueType) {
 static sqlite3 *_db;
 static dispatch_queue_t _dbQueue;
 //tasks
-static const char* allTaskKeys[] = {"taskId", "downloadURL", "stid", "priority", "enableSpeed", "fileSize", "downloadedSize", "version", "tmpName", "resumeData", "extraData", "createTime"};
+static const char* allTaskKeys[] = {"taskId", "downloadURL", "stid", "priority", "fileSize", "downloadedSize", "version", "tmpName", "resumeData", "extraData", "createTime"};
 static NSMutableDictionary <NSString* ,YCDownloadTask *> *_memCacheTasks;
 
 #if YCDownload_Mgr_Item
@@ -143,12 +150,27 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
         return;
     }
     NSString *sql = @"CREATE TABLE IF NOT EXISTS downloadItem (pid integer PRIMARY KEY AUTOINCREMENT,taskId text not null unique,fileId text, downloadURL text,uid text,fileType text,fileExtension text,rootPath text,fileSize integer,downloadedSize integer,downloadStatus integer,extraData BLOB, version text not null, createTime integer); \n"
-    "CREATE TABLE IF NOT EXISTS downloadTask (pid integer PRIMARY KEY AUTOINCREMENT,taskId text not null unique, downloadURL text, stid integer, priority float, enableSpeed integer, fileSize INTEGER, downloadedSize INTEGER, version text not null, tmpName text, resumeData BLOB, extraData BLOB, createTime integer);";
+    "CREATE TABLE IF NOT EXISTS downloadTask (pid integer PRIMARY KEY AUTOINCREMENT,taskId text not null unique, downloadURL text, stid integer, priority float, fileSize INTEGER, downloadedSize INTEGER, version text not null, tmpName text, resumeData BLOB, extraData BLOB, createTime integer);";
+    
     [self performBlock:^BOOL{ return [self execSql:sql]; } sync:true] ? NSLog(@"[init db success]") : false;
+    
     _memCacheTasks = [NSMutableDictionary dictionary];
 #if YCDownload_Mgr_Item
     _memCacheItems = [NSMutableDictionary dictionary];
 #endif
+}
+
+//数据库表字段变更
++ (void)compatibleDatabase {
+    NSString *localVersion = [[NSUserDefaults standardUserDefaults] valueForKey:kYCDownloadVersionKey];
+    NSString *curVersion = [YCDownloadTask downloaderVerison];
+    if ([curVersion compare:localVersion options:NSNumericSearch] == NSOrderedDescending){
+        [[NSUserDefaults standardUserDefaults] setValue:curVersion forKey:kYCDownloadVersionKey];
+        if ([kYCDownloadDbMinUpgradeVerion compare:localVersion options:NSNumericSearch] == NSOrderedDescending) {
+            NSString *sql = @"ALTER table downloadTask drop enableSpeed integer;";
+            [self performBlock:^BOOL{ return [self execSql:sql]; } sync:true] ? NSLog(@"[compatible db success]") : false;
+        }
+    }
 }
 
 + (BOOL)performBlock:(BOOL (^)(void))block sync:(BOOL)sync {

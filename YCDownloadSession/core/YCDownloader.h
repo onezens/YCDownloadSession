@@ -76,6 +76,18 @@ typedef NS_ENUM(NSUInteger, YCDownloadTaskCacheMode) {
  */
 - (nonnull YCDownloadTask *)downloadWithRequest:(nonnull NSURLRequest *)request progress:(YCProgressHandler)progress completion:(YCCompletionHandler)completion priority:(float)priority;
 
+/**
+ 通过request对象进行创建下载任务，可以自定义header等请求信息，手动调用resumeTask:开始下载, 可监控下载任务速度
+
+ @param request request 对象
+ @param priority 下载任务优先级，默认是 NSURLSessionTaskPriorityDefault, 取值范围0~1
+ @param progress 下载进度回调
+ @param speedHanlder 下载任务速度回调
+ @param completion 下载成功失败回调
+ @return 下载任务task
+ */
+- (nonnull YCDownloadTask *)downloadWithRequest:(nonnull NSURLRequest *)request priority:(float)priority progress:(YCProgressHandler)progress speedHanlder:(YCDownloadSpeedHandler)speedHanlder completion:(YCCompletionHandler)completion;
+
 
 /**
  恢复下载任务，继续下载任务，主要用于app异常退出状态恢复，继续下载任务的回调设置
@@ -86,6 +98,17 @@ typedef NS_ENUM(NSUInteger, YCDownloadTaskCacheMode) {
  @return 下载任务task
  */
 - (nullable YCDownloadTask *)resumeDownloadTaskWithTid:(NSString *)tid progress:(YCProgressHandler)progress completion:(YCCompletionHandler)completion;
+
+/**
+ 恢复下载任务，继续下载任务，主要用于app异常退出状态恢复，继续下载任务的回调设置, 可监控下载任务速度
+ 
+ @param tid 下载任务的taskId
+ @param progress 下载进度回调
+ @param speedHanlder 下载任务速度回调
+ @param completion 下载成功失败回调
+ @return 下载任务task
+ */
+- (nullable YCDownloadTask *)resumeDownloadTaskWithTid:(NSString *)tid progress:(YCProgressHandler)progress speedHanlder:(YCDownloadSpeedHandler)speedHanlder completion:(YCCompletionHandler)completion;
 
 /**
  继续下载任务

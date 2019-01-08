@@ -21,6 +21,7 @@
 @property (nonatomic, assign, readonly) BOOL isSupportRange;
 @property (nonatomic, assign, readonly) NSUInteger createTime;
 @property (nonatomic, strong) NSURLSessionDownloadTask *downloadTask;
+@property (nonatomic, assign) BOOL isDeleted;
 @end
 
 
@@ -128,7 +129,7 @@
 }
 
 + (NSString *)downloaderVerison {
-    return @"2.0.1";
+    return @"2.0.2";
 }
 
 @end

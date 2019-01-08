@@ -14,6 +14,11 @@
 
 #define YCDownloadMgr [YCDownloadManager manager]
 
+@interface YCDownloader(Mgr)
+- (void)endBGCompletedHandler;
+@end
+
+
 @interface YCDownloadItem(Mgr)
 @property (nonatomic, assign) BOOL isRemoved;
 @property (nonatomic, assign) BOOL noNeedStartNext;
@@ -75,6 +80,7 @@ static id _instance;
             YCDownloadTask *task = [self taskWithItem:obj];
             task.completionHandler = obj.completionHandler;
             task.progressHandler = obj.progressHandler;
+            task.downloadSpeedHanlder = obj.speedHanlder;
             if (task.state != NSURLSessionTaskStateRunning) {
                 obj.downloadStatus = YCDownloadStatusPaused;
             }
@@ -187,16 +193,17 @@ static id _instance;
     YCDownloadItem *item = noti.object;
     [self.runItems removeObject:item];
     [self startNextDownload];
+    if (self.runItems.count==0 && self.waitItems.count==0) {
+        NSLog(@"[startNextDownload] all download task finished");
+        [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadTaskAllFinishedNoti object:nil];
+        [[YCDownloader downloader] endBGCompletedHandler];
+    }
 }
 - (void)startNextDownload {
     YCDownloadItem *item = self.waitItems.firstObject;
-    if (item) {
-        [self.waitItems removeObject:item];
-        [self resumeDownloadWithItem:item];
-    }else{
-        NSLog(@"[startNextDownload] all download task finished");
-        [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadTaskAllFinishedNoti object:nil];
-    }
+    if (!item) return;
+    [self.waitItems removeObject:item];
+    [self resumeDownloadWithItem:item];
 }
 
 + (int64_t)videoCacheSize {
@@ -291,6 +298,7 @@ static id _instance;
     YCDownloadTask *task = [self taskWithItem:item];
     task.completionHandler = item.completionHandler;
     task.progressHandler = item.progressHandler;
+    task.downloadSpeedHanlder = item.speedHanlder;
     if([[YCDownloader downloader] resumeTask:task]) {
         [self.runItems addObject:item];
         return;

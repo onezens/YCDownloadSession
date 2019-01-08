@@ -18,6 +18,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 @interface YCDownloadTask(Downloader)
 @property (nonatomic, assign) NSInteger pid;
 @property (nonatomic, assign) NSInteger stid;
+@property (nonatomic, assign) BOOL isDeleted;
 @property (nonatomic, copy) NSString *tmpName;
 @property (nonatomic, assign) BOOL needToRestart;
 @property (nonatomic, strong) NSURLRequest *request;
@@ -98,7 +99,6 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     }];
 }
 - (void)addNotification {
-    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillBecomActive) name:UIApplicationDidBecomeActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActive) name:UIApplicationWillResignActiveNotification object:nil];
 }
@@ -132,15 +132,28 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 }
 
 - (YCDownloadTask *)downloadWithRequest:(NSURLRequest *)request progress:(YCProgressHandler)progress completion:(YCCompletionHandler)completion priority:(float)priority{
+    return [self downloadWithRequest:request priority:priority progress:progress speedHanlder:nil completion:completion];
+}
+
+- (YCDownloadTask *)downloadWithRequest:(NSURLRequest *)request priority:(float)priority progress:(YCProgressHandler)progress speedHanlder:(YCDownloadSpeedHandler)speedHanlder completion:(YCCompletionHandler)completion {
     YCDownloadTask *task = [YCDownloadTask taskWithRequest:request progress:progress completion:completion];
+    task.downloadSpeedHanlder = speedHanlder;
     [self saveDownloadTask:task];
     return task;
 }
 
 - (YCDownloadTask *)resumeDownloadTaskWithTid:(NSString *)tid progress:(YCProgressHandler)progress completion:(YCCompletionHandler)completion {
+    return [self resumeDownloadTaskWithTid:tid
+                                  progress:progress
+                              speedHanlder:nil
+                                completion:completion];
+}
+
+- (YCDownloadTask *)resumeDownloadTaskWithTid:(NSString *)tid progress:(YCProgressHandler)progress speedHanlder:(YCDownloadSpeedHandler)speedHanlder completion:(YCCompletionHandler)completion {
     YCDownloadTask *task = [YCDownloadDB taskWithTid:tid];
     task.completionHandler = completion;
     task.progressHandler = progress;
+    task.downloadSpeedHanlder = speedHanlder;
     [self resumeTask:task];
     return task;
 }
@@ -222,6 +235,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 }
 
 - (void)cancelTask:(YCDownloadTask *)task{
+    task.isDeleted = true;
     [task.downloadTask cancel];
 }
 
@@ -356,13 +370,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
         NSLog(@"[callTimer] background time will up, need to call completed hander!");
         __weak typeof(self) weakSelf = self;
         _bgRCSBlock = ^{
-            [weakSelf.bgRCSTasks.copy enumerateObjectsUsingBlock:^(YCDownloadTask *obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                [weakSelf resumeTask:obj];
-                NSLog(@"[session invalidated] fix pass!");
-            }];
-            [weakSelf.bgRCSTasks removeAllObjects];
-            [weakSelf endTimer];
-            [weakSelf callBgCompletedHandler];
+            [weakSelf endBGCompletedHandler];
         };
         [self prepareRecreateSession];
     }
@@ -375,6 +383,16 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     }
 }
 
+- (void)endBGCompletedHandler {
+    [self.bgRCSTasks.copy enumerateObjectsUsingBlock:^(YCDownloadTask *obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        [self resumeTask:obj];
+        NSLog(@"[session invalidated] fix pass!");
+    }];
+    [self.bgRCSTasks removeAllObjects];
+    [self endTimer];
+    [self callBgCompletedHandler];
+}
+
 -(void)addCompletionHandler:(BGCompletedHandler)handler identifier:(NSString *)identifier{
     if ([[self backgroundSessionIdentifier] isEqualToString:identifier]) {
         self.completedHandler = handler;
@@ -384,10 +402,6 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 }
 
 #pragma mark - NSURLSession delegate
-
-- (void)URLSession:(NSURLSession *)session taskIsWaitingForConnectivity:(NSURLSessionTask *)task{
-    
-}
 
 - (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(nullable NSError *)error {
     if (self.isNeedCreateSession) {
@@ -400,18 +414,26 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     }
 }
 
-- (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location {
-    YCDownloadTask *task = [self taskWithSessionTask:downloadTask];
+- (NSInteger)statusCodeWithDownloadTask:(NSURLSessionDownloadTask *)downloadTask {
     if ([downloadTask.response isKindOfClass:[NSHTTPURLResponse class]]) {
         NSHTTPURLResponse *response = (NSHTTPURLResponse *)downloadTask.response;
-        if (!(response.statusCode == 200 || response.statusCode == 206)) {
-            task.downloadedSize = 0;
-            NSLog(@"[didFinishDownloadingToURL] http status code error: %ld", (long)response.statusCode);
-            NSError *error = [NSError errorWithDomain:@"[didFinishDownloadingToURL] http status code error" code:11002 userInfo:response.allHeaderFields];
-            [self completionDownloadTask:task localPath:nil error:error];
-            return;
-        }
+        return response.statusCode;
     }
+    return -1;
+}
+
+- (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location {
+    YCDownloadTask *task = [self taskWithSessionTask:downloadTask];
+
+    NSInteger statusCode = [self statusCodeWithDownloadTask:downloadTask];
+    if (!(statusCode == 200 || statusCode == 206)) {
+        task.downloadedSize = 0;
+        NSLog(@"[didFinishDownloadingToURL] http status code error: %ld", (long)statusCode);
+        NSError *error = [NSError errorWithDomain:@"http status code error" code:11002 userInfo:nil];
+        [self completionDownloadTask:task localPath:nil error:error];
+        return;
+    }
+    
     NSString *localPath = [location path];
     if (task.fileSize==0) [task updateTask];
     int64_t fileSize = [YCDownloadUtils fileSizeWithPath:localPath];
@@ -428,6 +450,10 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 }
 
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
+    NSInteger statusCode = [self statusCodeWithDownloadTask:downloadTask];
+    if (!(statusCode == 200 || statusCode == 206)) {
+        return;
+    }
     YCDownloadTask *task = [self taskWithSessionTask:downloadTask];
     if (!task) {
         [downloadTask cancel];
@@ -438,11 +464,13 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     task.progress.totalUnitCount = totalBytesExpectedToWrite>0 ? totalBytesExpectedToWrite : task.fileSize;
     task.progress.completedUnitCount = totalBytesWritten;
     if(task.progressHandler) task.progressHandler(task.progress, task);
+    if(task.downloadSpeedHanlder) task.downloadSpeedHanlder(bytesWritten);
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionDownloadTask *)downloadTask didCompleteWithError:(NSError *)error {
     if (!error) return;
     YCDownloadTask *task = [self taskWithSessionTask:downloadTask];
+    if(task.isDeleted) return;
     // check whether resume data are available
     NSData *resumeData = [error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData];
     if (resumeData) {

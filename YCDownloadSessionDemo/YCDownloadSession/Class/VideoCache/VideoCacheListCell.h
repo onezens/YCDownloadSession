@@ -11,6 +11,7 @@
 
 @interface VideoCacheListCell : UITableViewCell<YCDownloadItemDelegate>
 
+@property (weak, nonatomic) IBOutlet UILabel *speedLbl;
 @property (nonatomic, strong) YCDownloadItem *item;
 
 +(instancetype)videoCacheListCellWithTableView:(UITableView *)tableView;
