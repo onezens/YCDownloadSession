@@ -906,7 +906,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 9SGZE8KEKC;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/YCDownloadSessionDemo/YCDownloadSession/ThirdLib/Bugly",
@@ -916,7 +916,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = cc.onezen.YCDownload;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = "appdev-meitu-beijing";
 				SWIFT_OBJC_BRIDGING_HEADER = "YCDownloadSessionDemo/YCDownloadSession/Class/Others/YCDownloadSessionDemo-Bridging-Header.h";
 				SWIFT_VERSION = 3.0;
 			};

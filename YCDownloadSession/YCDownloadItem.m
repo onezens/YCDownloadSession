@@ -25,6 +25,8 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
 @property (nonatomic, assign) BOOL noNeedStartNext;
 @property (nonatomic, copy) NSString *fileExtension;
 @property (nonatomic, assign, readonly) NSUInteger createTime;
+@property (nonatomic, assign) uint64_t preDownloadedSize;
+@property (nonatomic, strong) NSTimer *speedTimer;
 @end
 
 @implementation YCDownloadItem
@@ -75,11 +77,30 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
         [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadTaskFinishedNoti object:self];
         [YCDownloadDB saveItem:self];
     }
+    [self calculaterSpeedWithStatus:status];
 }
 
-- (void)downloadTask:(YCDownloadTask *)task speed:(NSUInteger)speed speedDesc:(NSString *)speedDesc {
-    if ([self.delegate respondsToSelector:@selector(downloadItem:speed:speedDesc:)]) {
-        [self.delegate downloadItem:self speed:speed speedDesc:speedDesc];
+- (void)speedTimerRun {
+    uint64_t size = self.downloadedSize - self.preDownloadedSize;
+    NSString *ss = [NSString stringWithFormat:@"%@/s",[YCDownloadUtils fileSizeStringFromBytes:size]];
+    [self.delegate downloadItem:self speed:size speedDesc:ss];
+    self.preDownloadedSize = self.downloadedSize;
+    NSLog(@"[speedTimerRun] %@", ss);
+}
+
+- (void)invalidateSpeedTimer {
+    [self.speedTimer invalidate];
+    self.speedTimer = nil;
+}
+
+- (void)calculaterSpeedWithStatus:(YCDownloadStatus)status {
+    //计算下载速度
+    if (!self.enableSpeed) return;
+    if (status == YCDownloadStatusFailed || status == YCDownloadStatusFinished || status == YCDownloadStatusPaused) {
+        [self invalidateSpeedTimer];
+        [self.delegate downloadItem:self speed:0 speedDesc:@"0KB/s"];
+    }else if (status == YCDownloadStatusDownloading){
+        [self.speedTimer fire];
     }
 }
 
@@ -90,6 +111,7 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
     if ([self.delegate respondsToSelector:@selector(downloadItemStatusChanged:)]) {
         [self.delegate downloadItemStatusChanged:self];
     }
+    [self calculaterSpeedWithStatus:downloadStatus];
 }
 
 - (void)setSaveRootPath:(NSString *)saveRootPath {
@@ -167,6 +189,13 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
     };
 }
 
+- (NSTimer *)speedTimer {
+    if (!_speedTimer) {
+        _speedTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(speedTimerRun) userInfo:nil repeats:true];
+    }
+    return _speedTimer;
+}
+
 #pragma mark - public
 
 - (NSString *)compatibleKey {
@@ -197,5 +226,8 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
     return [NSString stringWithFormat:@"<YCDownloadTask: %p>{taskId: %@, url: %@ fileId: %@}", self, self.taskId, self.downloadURL, self.fileId];
 }
 
+-(void)dealloc {
+    [self invalidateSpeedTimer];
+}
 
 @end

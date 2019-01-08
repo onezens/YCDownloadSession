@@ -357,13 +357,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
         NSLog(@"[callTimer] background time will up, need to call completed hander!");
         __weak typeof(self) weakSelf = self;
         _bgRCSBlock = ^{
-            [weakSelf.bgRCSTasks.copy enumerateObjectsUsingBlock:^(YCDownloadTask *obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                [weakSelf resumeTask:obj];
-                NSLog(@"[session invalidated] fix pass!");
-            }];
-            [weakSelf.bgRCSTasks removeAllObjects];
-            [weakSelf endTimer];
-            [weakSelf callBgCompletedHandler];
+            [weakSelf endBGCompletedHandler];
         };
         [self prepareRecreateSession];
     }
@@ -374,6 +368,16 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
         self.completedHandler();
         self.completedHandler = nil;
     }
+}
+
+- (void)endBGCompletedHandler {
+    [self.bgRCSTasks.copy enumerateObjectsUsingBlock:^(YCDownloadTask *obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        [self resumeTask:obj];
+        NSLog(@"[session invalidated] fix pass!");
+    }];
+    [self.bgRCSTasks removeAllObjects];
+    [self endTimer];
+    [self callBgCompletedHandler];
 }
 
 -(void)addCompletionHandler:(BGCompletedHandler)handler identifier:(NSString *)identifier{

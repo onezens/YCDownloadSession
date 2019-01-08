@@ -55,6 +55,7 @@
     [self.coverImgView sd_setImageWithURL:[NSURL URLWithString:mo.cover_url]];
     [self changeSizeLblDownloadedSize:item.downloadedSize totalSize:item.fileSize];
     [self setDownloadStatus:item.downloadStatus];
+    self.speedLbl.hidden = !item.enableSpeed;
 }
 
 
@@ -97,7 +98,7 @@
 }
 
 - (void)downloadItemStatusChanged:(YCDownloadItem *)item {
-   [self setDownloadStatus:item.downloadStatus];
+    [self setDownloadStatus:item.downloadStatus];
 }
 
 - (void)downloadItem:(YCDownloadItem *)item downloadedSize:(int64_t)downloadedSize totalSize:(int64_t)totalSize {
@@ -106,7 +107,7 @@
 }
 
 - (void)downloadItem:(YCDownloadItem *)item speed:(NSUInteger)speed speedDesc:(NSString *)speedDesc {
-    NSLog(@"%lu ----- %@", (unsigned long)speed, speedDesc);
+    self.speedLbl.text = speedDesc;
 }
 
 

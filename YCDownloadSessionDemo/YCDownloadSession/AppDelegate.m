@@ -51,7 +51,7 @@
     YCDConfig *config = [YCDConfig new];
     config.saveRootPath = path;
     config.uid = @"100006";
-    config.maxTaskCount = 3;
+    config.maxTaskCount = 2;
     config.taskCachekMode = YCDownloadTaskCacheModeKeep;
     config.launchAutoResumeDownload = true;
     [YCDownloadManager mgrWithConfig:config];

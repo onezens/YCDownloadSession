@@ -14,6 +14,11 @@
 
 #define YCDownloadMgr [YCDownloadManager manager]
 
+@interface YCDownloader(Mgr)
+- (void)endBGCompletedHandler;
+@end
+
+
 @interface YCDownloadItem(Mgr)
 @property (nonatomic, assign) BOOL isRemoved;
 @property (nonatomic, assign) BOOL noNeedStartNext;
@@ -190,6 +195,7 @@ static id _instance;
     if (self.runItems.count==0 && self.waitItems.count==0) {
         NSLog(@"[startNextDownload] all download task finished");
         [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadTaskAllFinishedNoti object:nil];
+        [[YCDownloader downloader] endBGCompletedHandler];
     }
 }
 - (void)startNextDownload {
