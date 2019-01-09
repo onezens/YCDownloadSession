@@ -137,6 +137,7 @@ static NSInteger const pageSize = 10;
     if (!item) {
         item = [YCDownloadItem itemWithUrl:model.video_url fileId:model.vid];
         item.extraData = [VideoListInfoModel dateWithInfoModel:model];
+        item.enableSpeed = true;
         [YCDownloadManager startDownloadWithItem:item];
     }
     

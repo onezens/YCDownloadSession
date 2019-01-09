@@ -53,8 +53,6 @@
 
 + (NSUInteger)sec_timestamp;
 
-+ (NSUInteger)msec_timestamp;
-
 @end
 
 #import "YCDownloadTask.h"

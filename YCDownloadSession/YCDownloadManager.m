@@ -76,11 +76,11 @@ static id _instance;
 - (void)restoreItems {
     [[YCDownloadDB fetchAllDownloadItemWithUid:self.uid] enumerateObjectsUsingBlock:^(YCDownloadItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         [self downloadFinishedWithItem:obj];
-        if (obj.downloadStatus == YCDownloadStatusDownloading) {
-            YCDownloadTask *task = [self taskWithItem:obj];
+        YCDownloadTask *task = [self taskWithItem:obj];
+        if (obj.downloadStatus == YCDownloadStatusDownloading || ( task.isRunning && self.config.launchAutoResumeDownload)) {
+            obj.downloadStatus = YCDownloadStatusDownloading;
             task.completionHandler = obj.completionHandler;
             task.progressHandler = obj.progressHandler;
-            task.downloadSpeedHanlder = obj.speedHanlder;
             if (task.state != NSURLSessionTaskStateRunning) {
                 obj.downloadStatus = YCDownloadStatusPaused;
             }
@@ -195,7 +195,6 @@ static id _instance;
     [self startNextDownload];
     if (self.runItems.count==0 && self.waitItems.count==0) {
         NSLog(@"[startNextDownload] all download task finished");
-        [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadTaskAllFinishedNoti object:nil];
         [[YCDownloader downloader] endBGCompletedHandler];
     }
 }
@@ -298,12 +297,11 @@ static id _instance;
     YCDownloadTask *task = [self taskWithItem:item];
     task.completionHandler = item.completionHandler;
     task.progressHandler = item.progressHandler;
-    task.downloadSpeedHanlder = item.speedHanlder;
     if([[YCDownloader downloader] resumeTask:task]) {
         [self.runItems addObject:item];
         return;
     }
-    [self startDownloadWithItem:item priority:task.priority];
+    //[self startDownloadWithItem:item priority:task.priority];
 }
 
 

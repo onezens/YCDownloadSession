@@ -12,7 +12,6 @@
 #import "YCDownloadUtils.h"
 
 NSString * const kDownloadTaskFinishedNoti = @"kDownloadTaskFinishedNoti";
-NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
 
 @interface YCDownloadTask(Downloader)
 @property (nonatomic, strong) NSURLSessionDownloadTask *downloadTask;
@@ -25,8 +24,8 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
 @property (nonatomic, assign) BOOL noNeedStartNext;
 @property (nonatomic, copy) NSString *fileExtension;
 @property (nonatomic, assign, readonly) NSUInteger createTime;
-@property (nonatomic, assign) NSTimeInterval speedMsec;
-//@property (nonatomic, assign) uint64_t preDownloadedSize;
+@property (nonatomic, assign) uint64_t preDSize;
+@property (nonatomic, strong) NSTimer *speedTimer;
 @end
 
 @implementation YCDownloadItem
@@ -51,14 +50,11 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
 + (instancetype)itemWithDict:(NSDictionary *)dict {
     YCDownloadItem *item = [[YCDownloadItem alloc] initWithPrivate];
     [item setValuesForKeysWithDictionary:dict];
-//    item.preDownloadedSize = item.downloadedSize;
     return item;
 }
 + (instancetype)itemWithUrl:(NSString *)url fileId:(NSString *)fileId {
     return [[YCDownloadItem alloc] initWithUrl:url fileId:fileId];
 }
-
-- (void)setValue:(id)value forUndefinedKey:(NSString *)key{}
 
 #pragma mark - Handler
 - (void)downloadProgress:(YCDownloadTask *)task downloadedSize:(int64_t)downloadedSize fileSize:(int64_t)fileSize {
@@ -68,7 +64,6 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
     if ([self.delegate respondsToSelector:@selector(downloadItem:downloadedSize:totalSize:)]) {
         [self.delegate downloadItem:self downloadedSize:downloadedSize totalSize:fileSize];
     }
-
 }
 
 - (void)downloadStatusChanged:(YCDownloadStatus)status downloadTask:(YCDownloadTask *)task {
@@ -81,6 +76,35 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
         [[NSNotificationCenter defaultCenter] postNotificationName:kDownloadTaskFinishedNoti object:self];
         [YCDownloadDB saveItem:self];
     }
+    [self calculaterSpeedWithStatus:status];
+}
+
+- (void)speedTimerRun {
+    uint64_t size = self.downloadedSize> self.preDSize ? self.downloadedSize - self.preDSize : 0;
+    if (size == 0) {
+        [self.delegate downloadItem:self speed:0 speedDesc:@"0KB/s"];
+    }else{
+        NSString *ss = [NSString stringWithFormat:@"%@/s",[YCDownloadUtils fileSizeStringFromBytes:size]];
+        [self.delegate downloadItem:self speed:size speedDesc:ss];
+    }
+    self.preDSize = self.downloadedSize;
+    //NSLog(@"[speedTimerRun] %@ dsize: %llu pdsize: %llu", ss, self.downloadedSize, self.preDownloadedSize);
+}
+
+- (void)invalidateSpeedTimer {
+    [self.speedTimer invalidate];
+    self.speedTimer = nil;
+}
+
+- (void)calculaterSpeedWithStatus:(YCDownloadStatus)status {
+    //计算下载速度
+    if (!self.enableSpeed) return;
+    if (status != YCDownloadStatusDownloading) {
+        [self invalidateSpeedTimer];
+        [self.delegate downloadItem:self speed:0 speedDesc:@"0KB/s"];
+    }else{
+        [self.speedTimer fire];
+    }
 }
 
 #pragma mark - getter & setter
@@ -90,6 +114,7 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
     if ([self.delegate respondsToSelector:@selector(downloadItemStatusChanged:)]) {
         [self.delegate downloadItemStatusChanged:self];
     }
+    [self calculaterSpeedWithStatus:downloadStatus];
 }
 
 - (void)setSaveRootPath:(NSString *)saveRootPath {
@@ -128,24 +153,9 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
     __weak typeof(self) weakSelf = self;
     return ^(NSProgress *progress, YCDownloadTask *task){
         if(weakSelf.downloadStatus == YCDownloadStatusWaiting){
-            [weakSelf downloadStatusChanged:YCDownloadStatusDownloading downloadTask:task];
+            [weakSelf downloadStatusChanged:YCDownloadStatusDownloading downloadTask:nil];
         }
         [weakSelf downloadProgress:task downloadedSize:progress.completedUnitCount fileSize:(progress.totalUnitCount>0 ? progress.totalUnitCount : 0)];
-    };
-}
-
-- (YCDownloadSpeedHandler)speedHanlder {
-    if (![self.delegate respondsToSelector:@selector(downloadItem:speed:speedDesc:)]) {
-        return nil;
-    }
-    __weak typeof(self) weakSelf = self;
-    return ^(uint64_t bytesWrited){
-        uint64_t secWriteSize = (self.speedMsec>0 && bytesWrited>0) ? bytesWrited / ([YCDownloadUtils msec_timestamp] - self.speedMsec) * 1000 : 0;
-        NSString *ss = [NSString stringWithFormat:@"%@/s",[YCDownloadUtils fileSizeStringFromBytes:secWriteSize]];
-        [self.delegate downloadItem:self speed:secWriteSize speedDesc:ss];
-        NSLog(@"[speed] size: %llu ss: %@ phase: %llu", secWriteSize, ss, bytesWrited);
-        self.speedMsec = [YCDownloadUtils msec_timestamp];
-        [weakSelf.delegate downloadItem:weakSelf speed:secWriteSize speedDesc:ss];
     };
 }
 
@@ -182,6 +192,12 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
     };
 }
 
+- (NSTimer *)speedTimer {
+    if (!_speedTimer) {
+        _speedTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(speedTimerRun) userInfo:nil repeats:true];
+    }
+    return _speedTimer;
+}
 
 #pragma mark - public
 
@@ -211,6 +227,10 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
 
 - (NSString *)description {
     return [NSString stringWithFormat:@"<YCDownloadTask: %p>{taskId: %@, url: %@ fileId: %@}", self, self.taskId, self.downloadURL, self.fileId];
+}
+
+-(void)dealloc {
+    [self invalidateSpeedTimer];
 }
 
 @end

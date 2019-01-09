@@ -57,7 +57,6 @@
     [YCDownloadManager mgrWithConfig:config];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadTaskFinishedNoti:) name:kDownloadTaskFinishedNoti object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadAllTaskFinished) name:kDownloadTaskAllFinishedNoti object:nil];
 }
 
 - (void)setUpBugly {
@@ -76,10 +75,6 @@
 }
 
 #pragma mark notificaton
-
-- (void)downloadAllTaskFinished{
-    [self localPushWithTitle:@"YCDownloadSession" detail:@"所有的下载任务已完成！"];
-}
 
 - (void)downloadTaskFinishedNoti:(NSNotification *)noti{
     YCDownloadItem *item = noti.object;

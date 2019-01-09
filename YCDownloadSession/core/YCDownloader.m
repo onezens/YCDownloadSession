@@ -132,28 +132,15 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 }
 
 - (YCDownloadTask *)downloadWithRequest:(NSURLRequest *)request progress:(YCProgressHandler)progress completion:(YCCompletionHandler)completion priority:(float)priority{
-    return [self downloadWithRequest:request priority:priority progress:progress speedHanlder:nil completion:completion];
-}
-
-- (YCDownloadTask *)downloadWithRequest:(NSURLRequest *)request priority:(float)priority progress:(YCProgressHandler)progress speedHanlder:(YCDownloadSpeedHandler)speedHanlder completion:(YCCompletionHandler)completion {
     YCDownloadTask *task = [YCDownloadTask taskWithRequest:request progress:progress completion:completion];
-    task.downloadSpeedHanlder = speedHanlder;
     [self saveDownloadTask:task];
     return task;
 }
 
 - (YCDownloadTask *)resumeDownloadTaskWithTid:(NSString *)tid progress:(YCProgressHandler)progress completion:(YCCompletionHandler)completion {
-    return [self resumeDownloadTaskWithTid:tid
-                                  progress:progress
-                              speedHanlder:nil
-                                completion:completion];
-}
-
-- (YCDownloadTask *)resumeDownloadTaskWithTid:(NSString *)tid progress:(YCProgressHandler)progress speedHanlder:(YCDownloadSpeedHandler)speedHanlder completion:(YCCompletionHandler)completion {
     YCDownloadTask *task = [YCDownloadDB taskWithTid:tid];
     task.completionHandler = completion;
     task.progressHandler = progress;
-    task.downloadSpeedHanlder = speedHanlder;
     [self resumeTask:task];
     return task;
 }
@@ -178,7 +165,11 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
         [self completionDownloadTask:task localPath:nil error:error];
         NSLog(@"[resumeTask] task resume failed: %@", error);
         return false;
-    }else if (!task.resumeData && task.request){
+    }else if (!task.resumeData){
+        if (!task.request) {
+            NSURLRequest *request = [self requestWithUrlStr:task.downloadURL];
+            task.request = request;
+        }
         NSURLSessionDownloadTask *downloadTask = [self.session downloadTaskWithRequest:task.request];
         [self memCacheDownloadTask:downloadTask task:task];
         task.downloadTask = downloadTask;
@@ -187,12 +178,8 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
         BOOL success = [self checkDownloadTaskState:task.downloadTask task:task error:&err];
         if(!success) NSLog(@"[resumeTask] task resume failed: %@", err);
         return success;
-    }else if (!task.resumeData){
-        NSError *error = [NSError errorWithDomain:@"resume data nil!" code:10005 userInfo:nil];
-        [self completionDownloadTask:task localPath:nil error:error];
-        NSLog(@"[resumeTask] task resume failed: %@", error);
-        return false;
     }
+    
     NSURLSessionDownloadTask *downloadTask = nil;
     @try {
         downloadTask = [YCResumeData downloadTaskWithCorrectResumeData:task.resumeData urlSession:self.session];
@@ -383,7 +370,9 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     }
 }
 
-- (void)endBGCompletedHandler {
+- (void)endBGCompletedHandler{
+    
+    if(!self.completedHandler) return;
     [self.bgRCSTasks.copy enumerateObjectsUsingBlock:^(YCDownloadTask *obj, NSUInteger idx, BOOL * _Nonnull stop) {
         [self resumeTask:obj];
         NSLog(@"[session invalidated] fix pass!");
@@ -464,7 +453,6 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     task.progress.totalUnitCount = totalBytesExpectedToWrite>0 ? totalBytesExpectedToWrite : task.fileSize;
     task.progress.completedUnitCount = totalBytesWritten;
     if(task.progressHandler) task.progressHandler(task.progress, task);
-    if(task.downloadSpeedHanlder) task.downloadSpeedHanlder(bytesWritten);
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionDownloadTask *)downloadTask didCompleteWithError:(NSError *)error {

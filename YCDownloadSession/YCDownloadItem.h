@@ -13,7 +13,6 @@
 @class YCDownloadItem;
 
 extern NSString * const kDownloadTaskFinishedNoti;
-extern NSString * const kDownloadTaskAllFinishedNoti;
 
 typedef NS_ENUM(NSUInteger, YCDownloadStatus) {
     YCDownloadStatusUnknow,
@@ -44,11 +43,11 @@ typedef NS_ENUM(NSUInteger, YCDownloadStatus) {
 @property (nonatomic, assign, readonly) int64_t fileSize;
 @property (nonatomic, assign, readonly) int64_t downloadedSize;
 @property (nonatomic, weak, nullable) id <YCDownloadItemDelegate> delegate;
+@property (nonatomic, assign) BOOL enableSpeed;
 @property (nonatomic, strong, nullable) NSData *extraData;
 @property (nonatomic, assign, readwrite) YCDownloadStatus downloadStatus;
 @property (nonatomic, copy, readonly, nullable) YCProgressHandler progressHandler;
 @property (nonatomic, copy, readonly, nullable) YCCompletionHandler completionHandler;
-@property (nonatomic, copy, readonly, nullable) YCDownloadSpeedHandler speedHanlder;
 /**
  下载的文件在沙盒保存的类型，默认为video.可指定为pdf，image，等自定义类型
  */

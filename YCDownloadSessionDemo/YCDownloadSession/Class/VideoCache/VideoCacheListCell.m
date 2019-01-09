@@ -55,6 +55,7 @@
     [self.coverImgView sd_setImageWithURL:[NSURL URLWithString:mo.cover_url]];
     [self changeSizeLblDownloadedSize:item.downloadedSize totalSize:item.fileSize];
     [self setDownloadStatus:item.downloadStatus];
+    self.speedLbl.hidden = !item.enableSpeed;
 }
 
 
