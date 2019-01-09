@@ -132,28 +132,15 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 }
 
 - (YCDownloadTask *)downloadWithRequest:(NSURLRequest *)request progress:(YCProgressHandler)progress completion:(YCCompletionHandler)completion priority:(float)priority{
-    return [self downloadWithRequest:request priority:priority progress:progress speedHanlder:nil completion:completion];
-}
-
-- (YCDownloadTask *)downloadWithRequest:(NSURLRequest *)request priority:(float)priority progress:(YCProgressHandler)progress speedHanlder:(YCDownloadSpeedHandler)speedHanlder completion:(YCCompletionHandler)completion {
     YCDownloadTask *task = [YCDownloadTask taskWithRequest:request progress:progress completion:completion];
-    task.downloadSpeedHanlder = speedHanlder;
     [self saveDownloadTask:task];
     return task;
 }
 
 - (YCDownloadTask *)resumeDownloadTaskWithTid:(NSString *)tid progress:(YCProgressHandler)progress completion:(YCCompletionHandler)completion {
-    return [self resumeDownloadTaskWithTid:tid
-                                  progress:progress
-                              speedHanlder:nil
-                                completion:completion];
-}
-
-- (YCDownloadTask *)resumeDownloadTaskWithTid:(NSString *)tid progress:(YCProgressHandler)progress speedHanlder:(YCDownloadSpeedHandler)speedHanlder completion:(YCCompletionHandler)completion {
     YCDownloadTask *task = [YCDownloadDB taskWithTid:tid];
     task.completionHandler = completion;
     task.progressHandler = progress;
-    task.downloadSpeedHanlder = speedHanlder;
     [self resumeTask:task];
     return task;
 }
@@ -464,7 +451,6 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     task.progress.totalUnitCount = totalBytesExpectedToWrite>0 ? totalBytesExpectedToWrite : task.fileSize;
     task.progress.completedUnitCount = totalBytesWritten;
     if(task.progressHandler) task.progressHandler(task.progress, task);
-    if(task.downloadSpeedHanlder) task.downloadSpeedHanlder(bytesWritten);
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionDownloadTask *)downloadTask didCompleteWithError:(NSError *)error {

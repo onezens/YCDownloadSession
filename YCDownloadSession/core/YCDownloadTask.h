@@ -13,7 +13,6 @@
 
 typedef void (^YCCompletionHandler)(NSString  * _Nullable localPath, NSError * _Nullable error);
 typedef void (^YCProgressHandler)(NSProgress * _Nonnull progress,YCDownloadTask * _Nonnull task);
-typedef void (^YCDownloadSpeedHandler)(uint64_t bytesWritten);
 
 #pragma mark - YCDownloadTask
 
@@ -31,11 +30,15 @@ typedef void (^YCDownloadSpeedHandler)(uint64_t bytesWritten);
  poiority float value range: 0.0 - 1.0
  */
 @property (nonatomic, assign, readonly) float priority;
+/**
+ enable calculate download task speed
+ default value: false
+ */
+@property (nonatomic, assign) BOOL enableSpeed;
 @property (nonatomic, assign, readonly) BOOL isRunning;
 @property (nonatomic, strong, readonly, nonnull) NSProgress *progress;
 @property (nonatomic, copy, nullable) YCProgressHandler progressHandler;
 @property (nonatomic, copy, nullable) YCCompletionHandler completionHandler;
-@property (nonatomic, copy, nullable) YCDownloadSpeedHandler downloadSpeedHanlder;
 @property (nonatomic, strong, nonnull) NSData *extraData;
 
 /**
