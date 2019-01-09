@@ -30,11 +30,6 @@ typedef void (^YCProgressHandler)(NSProgress * _Nonnull progress,YCDownloadTask 
  poiority float value range: 0.0 - 1.0
  */
 @property (nonatomic, assign, readonly) float priority;
-/**
- enable calculate download task speed
- default value: false
- */
-@property (nonatomic, assign) BOOL enableSpeed;
 @property (nonatomic, assign, readonly) BOOL isRunning;
 @property (nonatomic, strong, readonly, nonnull) NSProgress *progress;
 @property (nonatomic, copy, nullable) YCProgressHandler progressHandler;

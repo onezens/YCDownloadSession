@@ -146,7 +146,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
     "CREATE TABLE IF NOT EXISTS downloadTask (pid integer PRIMARY KEY AUTOINCREMENT,taskId text not null unique, downloadURL text, stid integer, priority float, enableSpeed integer, fileSize INTEGER, downloadedSize INTEGER, version text not null, tmpName text, resumeData BLOB, extraData BLOB, createTime integer);";
     
     [self performBlock:^BOOL{ return [self execSql:sql]; } sync:true] ? NSLog(@"[init db success]") : false;
-    
+    [self compatibleDatabase];
     _memCacheTasks = [NSMutableDictionary dictionary];
 #if YCDownload_Mgr_Item
     _memCacheItems = [NSMutableDictionary dictionary];
@@ -477,6 +477,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
         return [self execSql:sql];
     }
     return true;
+    
 }
 
 + (BOOL)saveDownloadItem:(YCDownloadItem *)item {
@@ -505,7 +506,6 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
             if (sqlite3_prepare_v2(_db, [sql_data UTF8String], -1, &stmt, NULL) == SQLITE_OK) {
                 sqlite3_bind_blob64(stmt, 1, [item.extraData bytes], [item.extraData length], NULL);
                 if (sqlite3_step(stmt) == SQLITE_DONE) {
-                    NSLog(@"data success");
                     return result;
                 }
             }

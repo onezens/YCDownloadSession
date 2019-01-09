@@ -12,7 +12,6 @@
 #import "YCDownloadUtils.h"
 
 NSString * const kDownloadTaskFinishedNoti = @"kDownloadTaskFinishedNoti";
-NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
 
 @interface YCDownloadTask(Downloader)
 @property (nonatomic, strong) NSURLSessionDownloadTask *downloadTask;
@@ -25,7 +24,7 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
 @property (nonatomic, assign) BOOL noNeedStartNext;
 @property (nonatomic, copy) NSString *fileExtension;
 @property (nonatomic, assign, readonly) NSUInteger createTime;
-@property (nonatomic, assign) uint64_t preDownloadedSize;
+@property (nonatomic, assign) uint64_t preDSize;
 @property (nonatomic, strong) NSTimer *speedTimer;
 @end
 
@@ -81,11 +80,15 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
 }
 
 - (void)speedTimerRun {
-    uint64_t size = self.downloadedSize - self.preDownloadedSize;
-    NSString *ss = [NSString stringWithFormat:@"%@/s",[YCDownloadUtils fileSizeStringFromBytes:size]];
-    [self.delegate downloadItem:self speed:size speedDesc:ss];
-    self.preDownloadedSize = self.downloadedSize;
-    NSLog(@"[speedTimerRun] %@", ss);
+    uint64_t size = self.downloadedSize> self.preDSize ? self.downloadedSize - self.preDSize : 0;
+    if (size == 0) {
+        [self.delegate downloadItem:self speed:0 speedDesc:@"0KB/s"];
+    }else{
+        NSString *ss = [NSString stringWithFormat:@"%@/s",[YCDownloadUtils fileSizeStringFromBytes:size]];
+        [self.delegate downloadItem:self speed:size speedDesc:ss];
+    }
+    self.preDSize = self.downloadedSize;
+    //NSLog(@"[speedTimerRun] %@ dsize: %llu pdsize: %llu", ss, self.downloadedSize, self.preDownloadedSize);
 }
 
 - (void)invalidateSpeedTimer {
@@ -96,10 +99,10 @@ NSString * const kDownloadTaskAllFinishedNoti = @"kDownloadTaskAllFinishedNoti";
 - (void)calculaterSpeedWithStatus:(YCDownloadStatus)status {
     //计算下载速度
     if (!self.enableSpeed) return;
-    if (status == YCDownloadStatusFailed || status == YCDownloadStatusFinished || status == YCDownloadStatusPaused) {
+    if (status != YCDownloadStatusDownloading) {
         [self invalidateSpeedTimer];
         [self.delegate downloadItem:self speed:0 speedDesc:@"0KB/s"];
-    }else if (status == YCDownloadStatusDownloading){
+    }else{
         [self.speedTimer fire];
     }
 }
