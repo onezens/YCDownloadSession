@@ -29,7 +29,7 @@ source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '8.0'
 
 target 'TargetName' do
-    pod 'YCDownloadSession', '~> 2.0.1', :subspecs => ['Core', 'Mgr']
+    pod 'YCDownloadSession', '~> 2.0.2', :subspecs => ['Core', 'Mgr']
 end
 ```
 

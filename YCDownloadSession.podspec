@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name         = "YCDownloadSession"
-  s.version      = "2.0.1"
+  s.version      = "2.0.2"
   s.summary      = "iOS background download video or file"
   s.homepage     = "https://github.com/onezens/YCDownloadSession"
   s.license      = "MIT"
@@ -29,4 +29,6 @@ Pod::Spec.new do |s|
 
   s.default_subspec = 'Core','Mgr'
   s.requires_arc = true
+  s.frameworks = 'CFNetwork'
+
 end
