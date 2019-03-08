@@ -48,6 +48,12 @@
  */
 + (void)mgrWithConfig:(nonnull YCDConfig *)config;
 
+
+/**
+ 切换用户，更新uid
+ */
++ (void)updateUid:(NSString *)uid;
+
 /**
  开始/创建一个后台下载任务。
  

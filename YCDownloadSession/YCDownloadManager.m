@@ -104,6 +104,10 @@ static id _instance;
 
 #pragma mark - public
 
++ (void)updateUid:(NSString *)uid {
+    [YCDownloadMgr setUid:uid];
+}
+
 + (void)startDownloadWithUrl:(NSString *)downloadURLString{
     [self startDownloadWithUrl:downloadURLString fileId:nil priority:NSURLSessionTaskPriorityDefault extraData:nil];
 }

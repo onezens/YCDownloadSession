@@ -15,6 +15,7 @@
 
 @interface AppDelegate ()
 
+
 @end
 
 @implementation AppDelegate
@@ -105,8 +106,13 @@
     [[YCDownloader downloader] addCompletionHandler:completionHandler identifier:identifier];
 }
 
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+    
+}
+
 - (void)applicationWillResignActive:(UIApplication *)application {
     NSLog(@"%s", __func__);
+    //[YCDownloadManager updateUid:@"100002"];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
