@@ -128,7 +128,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
     id ocObj = nil;
     switch (type) {
         case SQLITE_INTEGER:
-            ocObj = [NSNumber numberWithInteger:sqlite3_column_int(stmt, idx)];
+            ocObj = [NSNumber numberWithInteger:sqlite3_column_int64(stmt, idx)];
             break;
         case SQLITE_FLOAT:
             ocObj = [NSNumber numberWithDouble:sqlite3_column_double(stmt, idx)];
