@@ -10,6 +10,7 @@
 
 #import "YCDownloadItem.h"
 #import "YCDownloadUtils.h"
+#import "YCDownloadDB.h"
 
 NSString * const kDownloadTaskFinishedNoti = @"kDownloadTaskFinishedNoti";
 

@@ -13,6 +13,7 @@
 #define YCDownload_H
 
 #import "YCDownloader.h"
+#import "YCDownloadDB.h"
 #import "YCDownloadUtils.h"
 
 #ifndef YCDownload_Manager

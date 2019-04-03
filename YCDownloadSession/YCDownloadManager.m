@@ -11,6 +11,7 @@
 #import "YCDownloadManager.h"
 #import "YCDownloadUtils.h"
 #import "YCDownloader.h"
+#import "YCDownloadDB.h"
 
 #define YCDownloadMgr [YCDownloadManager manager]
 

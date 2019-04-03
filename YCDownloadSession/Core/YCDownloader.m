@@ -11,6 +11,7 @@
 #import "YCDownloader.h"
 #import "YCDownloadUtils.h"
 #import "YCDownloadTask.h"
+#import "YCDownloadDB.h"
 
 typedef void(^BGRecreateSessionBlock)(void);
 static NSString * const kIsAllowCellar = @"kIsAllowCellar";

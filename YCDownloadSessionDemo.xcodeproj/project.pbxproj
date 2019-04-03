@@ -20,6 +20,8 @@
 		3508D7EA2152630A00D70A7C /* YCDownloadSession.h in Headers */ = {isa = PBXBuildFile; fileRef = 35894A81214A53AC00D5E6D6 /* YCDownloadSession.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3508D7EB2152630A00D70A7C /* YCDownloadItem.h in Headers */ = {isa = PBXBuildFile; fileRef = D750A1441F2AE2FC00EC6796 /* YCDownloadItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3508D7EC2152630A00D70A7C /* YCDownloadManager.h in Headers */ = {isa = PBXBuildFile; fileRef = D750A1411F2ADEDC00EC6796 /* YCDownloadManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		352C50D822549BD200396171 /* YCDownloadDB.m in Sources */ = {isa = PBXBuildFile; fileRef = 352C50D622549BD200396171 /* YCDownloadDB.m */; };
+		352C50D922549D2000396171 /* YCDownloadDB.h in Headers */ = {isa = PBXBuildFile; fileRef = 352C50D522549BD200396171 /* YCDownloadDB.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3536388E1F9496650070CFA3 /* VideoCacheListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3580D6451F8CB8BC00966A3D /* VideoCacheListCell.xib */; };
 		3536388F1F9496700070CFA3 /* VideoListInfoCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3580D6491F8CB8BD00966A3D /* VideoListInfoCell.xib */; };
 		353E94CC1F7F3C5B00B76CDF /* PlayerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 353E94CB1F7F3C5B00B76CDF /* PlayerViewController.m */; };
@@ -78,6 +80,8 @@
 		321219565A11F526E950AEC5 /* Pods-YCDownloadSessionDemoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YCDownloadSessionDemoTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-YCDownloadSessionDemoTests/Pods-YCDownloadSessionDemoTests.release.xcconfig"; sourceTree = "<group>"; };
 		3508D7D5215262C100D70A7C /* YCDownloadSession.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = YCDownloadSession.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3508D7D8215262C100D70A7C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		352C50D522549BD200396171 /* YCDownloadDB.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YCDownloadDB.h; sourceTree = "<group>"; };
+		352C50D622549BD200396171 /* YCDownloadDB.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YCDownloadDB.m; sourceTree = "<group>"; };
 		353E94CA1F7F3C5B00B76CDF /* PlayerViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlayerViewController.h; sourceTree = "<group>"; };
 		353E94CB1F7F3C5B00B76CDF /* PlayerViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PlayerViewController.m; sourceTree = "<group>"; };
 		355578182025A5A500BD4F7D /* Bugly.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Bugly.framework; sourceTree = "<group>"; };
@@ -241,18 +245,20 @@
 			path = VideoList;
 			sourceTree = "<group>";
 		};
-		35894A7F214A53AC00D5E6D6 /* core */ = {
+		35894A7F214A53AC00D5E6D6 /* Core */ = {
 			isa = PBXGroup;
 			children = (
 				35894A85214A53AC00D5E6D6 /* YCDownloader.h */,
 				35894A82214A53AC00D5E6D6 /* YCDownloader.m */,
-				35894A83214A53AC00D5E6D6 /* YCDownloadTask.h */,
-				35894A86214A53AC00D5E6D6 /* YCDownloadTask.m */,
+				352C50D522549BD200396171 /* YCDownloadDB.h */,
+				352C50D622549BD200396171 /* YCDownloadDB.m */,
 				35894A80214A53AC00D5E6D6 /* YCDownloadUtils.h */,
 				35894A84214A53AC00D5E6D6 /* YCDownloadUtils.m */,
+				35894A83214A53AC00D5E6D6 /* YCDownloadTask.h */,
+				35894A86214A53AC00D5E6D6 /* YCDownloadTask.m */,
 				35894A81214A53AC00D5E6D6 /* YCDownloadSession.h */,
 			);
-			path = core;
+			path = Core;
 			sourceTree = "<group>";
 		};
 		35AB598E1F6E6A37009274CB /* Class */ = {
@@ -332,7 +338,7 @@
 		D72C84EA1E77D46100EDCEEF /* YCDownloadSession */ = {
 			isa = PBXGroup;
 			children = (
-				35894A7F214A53AC00D5E6D6 /* core */,
+				35894A7F214A53AC00D5E6D6 /* Core */,
 				D750A1441F2AE2FC00EC6796 /* YCDownloadItem.h */,
 				D750A1451F2AE2FC00EC6796 /* YCDownloadItem.m */,
 				D750A1411F2ADEDC00EC6796 /* YCDownloadManager.h */,
@@ -367,6 +373,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3508D7E7215262FE00D70A7C /* YCDownloader.h in Headers */,
+				352C50D922549D2000396171 /* YCDownloadDB.h in Headers */,
 				3508D7E82152630A00D70A7C /* YCDownloadTask.h in Headers */,
 				3508D7E92152630A00D70A7C /* YCDownloadUtils.h in Headers */,
 				3508D7EA2152630A00D70A7C /* YCDownloadSession.h in Headers */,
@@ -592,6 +599,7 @@
 				3508D7E2215262F000D70A7C /* YCDownloader.m in Sources */,
 				3508D7E5215262F000D70A7C /* YCDownloadItem.m in Sources */,
 				3508D7E4215262F000D70A7C /* YCDownloadUtils.m in Sources */,
+				352C50D822549BD200396171 /* YCDownloadDB.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
