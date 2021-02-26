@@ -7,7 +7,7 @@
 //
 
 #import "DownloadViewController.h"
-#import "YCDownloadSession.h"
+#import <YCDownloadSession/YCDownloadSession.h>
 
 static NSString * const kDownloadTaskIdKey = @"kDownloadTaskIdKey";
 @interface DownloadViewController ()

@@ -8,7 +8,7 @@
 
 #import "VideoCacheController.h"
 #import "VideoCacheListCell.h"
-#import "YCDownloadManager.h"
+#import <YCDownloadSession/YCDownloadSession.h>
 #import "PlayerViewController.h"
 
 static NSString * const kDefinePauseAllTitle = @"暂停所有";

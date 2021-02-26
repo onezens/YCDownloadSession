@@ -9,8 +9,7 @@
 #import "MainTableViewController.h"
 #import "DownloadViewController.h"
 #import "VideoListInfoController.h"
-#import "YCDownloadManager.h"
-#import "YCDownloadSession.h"
+#import <YCDownloadSession/YCDownloadSession.h>
 
 @interface MainTableViewController ()
 
@@ -22,7 +21,6 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
     self.title = @"后台视频下载";
 }
 

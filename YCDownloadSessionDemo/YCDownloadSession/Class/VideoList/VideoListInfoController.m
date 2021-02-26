@@ -10,9 +10,9 @@
 #import "VideoListInfoCell.h"
 #import "VideoListInfoModel.h"
 #import "VideoCacheController.h"
-#import "YCDownloadManager.h"
 #import "AFNetworking.h"
 #import "MJRefresh.h"
+#import <YCDownloadSession/YCDownloadSession.h>
 
 static NSInteger const pageSize = 10;
 

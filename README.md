@@ -5,8 +5,6 @@
 [![CocoaPods](http://img.shields.io/cocoapods/v/YCDownloadSession.svg?style=flat)](https://cocoapods.org/pods/YCDownloadSession)
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![Build Status](https://travis-ci.com/onezens/YCDownloadSession.svg?branch=master)](https://travis-ci.com/onezens/YCDownloadSession)
-[![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
-[![LICENSE](https://img.shields.io/badge/license-Anti%20996-blue.svg)](https://github.com/996icu/996.ICU/blob/master/LICENSE)
 
 
 

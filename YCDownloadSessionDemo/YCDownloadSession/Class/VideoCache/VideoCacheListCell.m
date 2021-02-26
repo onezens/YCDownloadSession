@@ -9,7 +9,7 @@
 
 #import "VideoCacheListCell.h"
 #import "UIImageView+WebCache.h"
-#import "YCDownloadSession.h"
+#import <YCDownloadSession/YCDownloadSession.h>
 #import "VideoListInfoModel.h"
 
 

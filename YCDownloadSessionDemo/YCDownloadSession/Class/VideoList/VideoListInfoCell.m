@@ -8,7 +8,7 @@
 
 #import "VideoListInfoCell.h"
 #import "UIImageView+WebCache.h"
-#import "YCDownloadUtils.h"
+#import <YCDownloadSession/YCDownloadSession.h>
 
 @interface VideoListInfoCell()
 
