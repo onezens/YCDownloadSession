@@ -59,3 +59,4 @@ fastlane/screenshots
 
 iOSInjectionProject/
 Pods
+.bundle
