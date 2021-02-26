@@ -8,7 +8,9 @@ before_install:
 - xcodebuild -version
 - xcodebuild -showsdks
 - xcpretty --version
+- pod --version
 
 script:
 - set -o pipefail
+- pod install
 - xcodebuild clean build -workspace "$TRAVIS_XCODE_PROJECT"  -scheme "$TRAVIS_XCODE_SCHEME" -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' | xcpretty
