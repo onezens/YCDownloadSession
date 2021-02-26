@@ -24,7 +24,7 @@ class TestSwiftController: UIViewController {
         }
     }
     
-    func logInfo() {
+    @objc func logInfo() {
         print("Hello, here is Swift log")
     }
 

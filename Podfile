@@ -9,6 +9,8 @@ target 'YCDownloadSessionDemo' do
   pod 'Masonry'
   pod 'AFNetworking'
   pod 'MJRefresh'
+  pod 'Bugly'
+  pod 'YCDownloadSession', :path=>'./'
 
   target 'YCDownloadSessionDemoTests' do
     inherit! :search_paths
@@ -16,3 +18,9 @@ target 'YCDownloadSessionDemo' do
   end
 
 end
+
+target 'YCDownloadSession' do
+    use_frameworks!
+    pod 'YCDownloadSession', :path=>'./'
+end
+
