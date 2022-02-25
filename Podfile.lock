@@ -1,0 +1,65 @@
+PODS:
+  - AFNetworking (3.2.1):
+    - AFNetworking/NSURLSession (= 3.2.1)
+    - AFNetworking/Reachability (= 3.2.1)
+    - AFNetworking/Security (= 3.2.1)
+    - AFNetworking/Serialization (= 3.2.1)
+    - AFNetworking/UIKit (= 3.2.1)
+  - AFNetworking/NSURLSession (3.2.1):
+    - AFNetworking/Reachability
+    - AFNetworking/Security
+    - AFNetworking/Serialization
+  - AFNetworking/Reachability (3.2.1)
+  - AFNetworking/Security (3.2.1)
+  - AFNetworking/Serialization (3.2.1)
+  - AFNetworking/UIKit (3.2.1):
+    - AFNetworking/NSURLSession
+  - Bugly (2.5.71)
+  - Masonry (1.1.0)
+  - MJRefresh (3.5.0)
+  - SDWebImage (5.9.5):
+    - SDWebImage/Core (= 5.9.5)
+  - SDWebImage/Core (5.9.5)
+  - WMPlayer (5.0.0):
+    - Masonry
+  - YCDownloadSession (2.0.3):
+    - YCDownloadSession/Core (= 2.0.3)
+    - YCDownloadSession/Mgr (= 2.0.3)
+  - YCDownloadSession/Core (2.0.3)
+  - YCDownloadSession/Mgr (2.0.3):
+    - YCDownloadSession/Core
+
+DEPENDENCIES:
+  - AFNetworking
+  - Bugly
+  - Masonry
+  - MJRefresh
+  - SDWebImage
+  - WMPlayer
+  - YCDownloadSession (from `./`)
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - AFNetworking
+    - Bugly
+    - Masonry
+    - MJRefresh
+    - SDWebImage
+    - WMPlayer
+
+EXTERNAL SOURCES:
+  YCDownloadSession:
+    :path: "./"
+
+SPEC CHECKSUMS:
+  AFNetworking: b6f891fdfaed196b46c7a83cf209e09697b94057
+  Bugly: fd066c75c4a0eca1440f9b6a84bd37d51bfc85ac
+  Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
+  MJRefresh: 6afc955813966afb08305477dd7a0d9ad5e79a16
+  SDWebImage: 0b2ba0d56479bf6a45ecddbfd5558bea93150d25
+  WMPlayer: a914f80ed5dca7cd9e3a94ec07a2b02eec8c15c0
+  YCDownloadSession: cb6875db47346d75b9b8eed0302956efcca2d3bc
+
+PODFILE CHECKSUM: 13c872c3d303ef29916c6f2ec84f06d5ccbf4713
+
+COCOAPODS: 1.5.3
