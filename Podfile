@@ -1,23 +1,14 @@
 # Uncomment the next line to define a global platform for your project
+platform :ios, '10.0'
 target 'YCDownloadSessionDemo' do
-  pod 'YCDownloadSession', :path=>'./'
+  pod 'YCDownloadSession', :path=>'.', :subspecs => ["Core", "Mgr", "DB"]
   pod 'SDWebImage'
   pod 'WMPlayer'
   pod 'Masonry'
   pod 'AFNetworking'
   pod 'MJRefresh'
   pod 'Bugly'
-  
-  target 'YCDownloadSessionDemoTests' do
-    inherit! :search_paths
-    # Pods for testing
-  end
 
-end
-
-target 'YCDownloadSession' do
-    use_frameworks!
-    pod 'YCDownloadSession', :path=>'./'
 end
 
 post_install do |installer|
@@ -25,8 +16,8 @@ post_install do |installer|
       target.build_configurations.each do |config|
           if target.name != "YCDownloadSession"
               config.build_settings['GCC_WARN_INHIBIT_ALL_WARNINGS'] = "YES"
-              config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '9.0'
           end
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '10.0'
       end
     end
 end

@@ -4,7 +4,7 @@
 [![Support](https://img.shields.io/badge/support-iOS%208%2B%20-blue.svg?style=flat)](https://www.apple.com/nl/ios/)
 [![CocoaPods](http://img.shields.io/cocoapods/v/YCDownloadSession.svg?style=flat)](https://cocoapods.org/pods/YCDownloadSession)
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
-[![Build Status](https://travis-ci.com/onezens/YCDownloadSession.svg?branch=master)](https://travis-ci.com/onezens/YCDownloadSession)
+[![Build Status](https://api.travis-ci.com/onezens/YCDownloadSession.svg?branch=main)](https://app.travis-ci.com/github/onezens/YCDownloadSession)
 
 
 
