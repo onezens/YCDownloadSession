@@ -13,6 +13,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface YCDownloadSession : NSObject
 
+@property (nonatomic, strong, readonly) NSURLSession *urlSession;
+
 + (instancetype)sharedSession;
 
 + (instancetype)sessionWithConfiguration:(YCDownloadSessionConfig *)config;

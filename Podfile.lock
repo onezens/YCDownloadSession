@@ -14,7 +14,6 @@ PODS:
   - AFNetworking/Serialization (4.0.1)
   - AFNetworking/UIKit (4.0.1):
     - AFNetworking/NSURLSession
-  - Bugly (2.5.93)
   - Masonry (1.1.0)
   - MJRefresh (3.7.5)
   - SDWebImage (5.18.3):
@@ -30,7 +29,6 @@ PODS:
 
 DEPENDENCIES:
   - AFNetworking
-  - Bugly
   - Masonry
   - MJRefresh
   - SDWebImage
@@ -42,7 +40,6 @@ DEPENDENCIES:
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
     - AFNetworking
-    - Bugly
     - Masonry
     - MJRefresh
     - SDWebImage
@@ -54,13 +51,12 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   AFNetworking: 3bd23d814e976cd148d7d44c3ab78017b744cd58
-  Bugly: b8715e6ec4004b7f7fbffab0643ba80545aee3da
   Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
   MJRefresh: fdf5e979eb406a0341468932d1dfc8b7f9fce961
   SDWebImage: 96e0c18ef14010b7485210e92fac888587ebb958
   WMPlayer: a914f80ed5dca7cd9e3a94ec07a2b02eec8c15c0
   YCDownloadSession: 168e7be06cbfc302089a8336e8f69d9aeebdd9d0
 
-PODFILE CHECKSUM: 71cddcfed876250b1c2a7b8562534f4cf6564886
+PODFILE CHECKSUM: a03789f805227e7967c4dc68c452a8249ec718d7
 
 COCOAPODS: 1.5.3

@@ -16,19 +16,28 @@ typedef NS_ENUM(NSUInteger, YCDownloadTaskState) {
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef void (^YCDownloadCompletionBlock)(NSURL * _Nullable fileURL, NSError * _Nullable error);
+
 @interface YCDownloadTask : NSObject
 
 @property (nonatomic, assign, readonly) YCDownloadTaskState state;
 
-+ (instancetype)taskWithTask:(NSURLSessionDownloadTask *)task;
+@property (nonatomic, copy, nullable) void (^progressBlock) (float progress);
+
+@property (nonatomic, copy, nullable) YCDownloadCompletionBlock completionBlock;
 
 - (void)pause;
 
-- (void)pauseWithResumeData:(NSData *)data;
+- (void)pauseWithResumeData:(void (NS_SWIFT_SENDABLE ^)(NSData * _Nullable resumeData))completionHandler;
 
 - (void)resume;
 
-- (void)resumeWithResumeData:(NSData *)data;
+- (void)resumeWithResumeData:(NSData * _Nullable)resumeData;
+
+- (void)resumeWithResumeData:(NSData * _Nullable)resumeData
+                  completion:(YCDownloadCompletionBlock _Nullable)completionBlock;
+
+- (void)stop;
 
 @end
 

@@ -7,7 +7,6 @@ target 'YCDownloadSessionDemo' do
   pod 'Masonry'
   pod 'AFNetworking'
   pod 'MJRefresh'
-  pod 'Bugly'
 
 end
 

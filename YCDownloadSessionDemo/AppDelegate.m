@@ -8,12 +8,14 @@
 
 #import "AppDelegate.h"
 #import "MainTableViewController.h"
-#import <Bugly/Bugly.h>
 #import "VideoListInfoModel.h"
 #import "YCDownloadSwift.h"
 #import <YCDownloadSession/YCDownloadSession.h>
 
 @interface AppDelegate ()
+
+@property (nonatomic, strong) NSTimer *timer;
+@property (nonatomic, assign) NSInteger duration;
 
 
 @end
@@ -34,10 +36,6 @@
         UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeAlert | UIUserNotificationTypeBadge | UIUserNotificationTypeSound categories:nil];
         [application registerUserNotificationSettings:settings];
     }
-    
-    //setup bugly
-    [self setUpBugly];
-    
     //setup downloadsession
     [self setUpDownload];
     
@@ -48,20 +46,20 @@
 
 - (void)setUpDownload
 {
-    YCDownloadSessionConfig *conf = [YCDownloadSessionConfig new];
-    YCDownloadSession *session = [YCDownloadSession sessionWithConfiguration:conf];
+//    YCDownloadSessionConfig *conf = [YCDownloadSessionConfig new];
+//    YCDownloadSession *session = [YCDownloadSession sessionWithConfiguration:conf];
 //    [[session taskWithUrlStr:@"xxx"] start];
     
 }
 
-- (void)setUpBugly {
-    BuglyConfig *config = [BuglyConfig new];
-    config.blockMonitorEnable = true;
-    config.channel = @"git";
-    config.unexpectedTerminatingDetectionEnable = true;
-    config.symbolicateInProcessEnable =  true;
-    [Bugly startWithAppId:@"900036376" config:config];
-}
+//- (void)setUpBugly {
+//    BuglyConfig *config = [BuglyConfig new];
+//    config.blockMonitorEnable = true;
+//    config.channel = @"git";
+//    config.unexpectedTerminatingDetectionEnable = true;
+//    config.symbolicateInProcessEnable =  true;
+//    [Bugly startWithAppId:@"900036376" config:config];
+//}
 
 - (void)testSwift {
 //    TestSwiftController *testVc = [TestSwiftController new];
@@ -91,17 +89,26 @@
 }
 
 
--(void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler{
- 
+- (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler{
+    NSLog(@"Background event: %@", identifier);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        completionHandler();
+    });
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
-    
+    [self.timer invalidate];
+    self.timer = nil;
+    self.duration = 0;
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
     NSLog(@"%s", __func__);
-    //[YCDownloadManager updateUid:@"100002"];
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:1 repeats:true block:^(NSTimer * _Nonnull timer) {
+        self.duration += 1;
+        NSLog(@"timer run: %ld", (long)self.duration);
+    }];
+    [self.timer fire];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
