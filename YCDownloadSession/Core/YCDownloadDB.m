@@ -67,13 +67,13 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
     [YCDownloadUtils createPathIfNotExist:path];
     path = [path stringByAppendingPathComponent:@"YCDownload.db"];
     if (sqlite3_open(path.UTF8String, &_db) != SQLITE_OK) {
-        NSLog(@"[db error]");
+        NSLog(@"[YCDownload] [db error]");
         return;
     }
     NSString *sql = @"CREATE TABLE IF NOT EXISTS downloadItem (pid integer PRIMARY KEY AUTOINCREMENT,taskId text not null unique,fileId text, downloadURL text,uid text,fileType text,fileExtension text,rootPath text,fileSize integer,downloadedSize integer,downloadStatus integer,extraData BLOB, version text not null, createTime integer); \n"
     "CREATE TABLE IF NOT EXISTS downloadTask (pid integer PRIMARY KEY AUTOINCREMENT,taskId text not null unique, downloadURL text, stid integer, priority float, enableSpeed integer, fileSize INTEGER, downloadedSize INTEGER, version text not null, tmpName text, resumeData BLOB, extraData BLOB, createTime integer);";
     
-    [self performBlock:^BOOL{ return [self execSql:sql]; } sync:true] ? NSLog(@"[init db success]") : false;
+    [self performBlock:^BOOL{ return [self execSql:sql]; } sync:true] ? NSLog(@"[YCDownload] [init db success]") : false;
     [self compatibleDatabase];
     _memCacheTasks = [NSMutableDictionary dictionary];
 #if YCDownload_Mgr_Item
@@ -89,7 +89,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
         [[NSUserDefaults standardUserDefaults] setValue:curVersion forKey:kYCDownloadVersionKey];
         if ([kYCDownloadDbMinUpgradeVerion compare:localVersion options:NSNumericSearch] == NSOrderedDescending) {
             NSString *sql = @"ALTER table downloadItem add enableSpeed integer;";
-            [self performBlock:^BOOL{ return [self execSql:sql]; } sync:true] ? NSLog(@"[compatible db success]") : false;
+            [self performBlock:^BOOL{ return [self execSql:sql]; } sync:true] ? NSLog(@"[YCDownload] [compatible db success]") : false;
         }
     }
 }
@@ -112,7 +112,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
 + (BOOL)execSql:(NSString *)sql {
     char *error = NULL;
     sqlite3_exec(_db, sql.UTF8String, NULL, NULL, &error);
-    error ? NSLog(@"[execSql error] %s", error) : false;
+    error ? NSLog(@"[YCDownload] [execSql error] %s", error) : false;
     return error == NULL;
 }
 //while (sqlite3_step(stmt) == SQLITE_ROW) {}
@@ -187,7 +187,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
     @try{
         char *error;
         if (sqlite3_exec(_db, "BEGIN", NULL, NULL, &error)==SQLITE_OK) {
-            NSLog(@"启动事务成功");
+            NSLog(@"[YCDownload] 启动事务成功");
             sqlite3_free(error);
             sqlite3_stmt *statement;
             for (int i = 0; i<sqls.count; i++) {
@@ -195,13 +195,13 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
                     if (sqlite3_step(statement)!=SQLITE_DONE) sqlite3_finalize(statement);
                 }
             }
-            if (sqlite3_exec(_db, "COMMIT", NULL, NULL, &error)==SQLITE_OK)   NSLog(@"提交事务成功");
+            if (sqlite3_exec(_db, "COMMIT", NULL, NULL, &error)==SQLITE_OK)   NSLog(@"[YCDownload] 提交事务成功");
             sqlite3_free(error);
         }
         else sqlite3_free(error);
     } @catch(NSException *e) {
         char *error;
-        if (sqlite3_exec(_db, "ROLLBACK", NULL, NULL, &error)==SQLITE_OK)  NSLog(@"回滚事务成功");
+        if (sqlite3_exec(_db, "ROLLBACK", NULL, NULL, &error)==SQLITE_OK)  NSLog(@"[YCDownload] 回滚事务成功");
         sqlite3_free(error);
     }
 }
@@ -541,7 +541,7 @@ static NSMutableDictionary <NSString* ,YCDownloadItem *> *_memCacheItems;
             }else if ([key isEqualToString:@"resumeData"]){
                 [self updateTaskDataWithTid:task.taskId data:task.resumeData dataKey:key];
             }else{
-                NSLog(@"[Warn] new data key for task : %@", key);
+                NSLog(@"[YCDownload] [Warn] new data key for task : %@", key);
             }
             
         }else if (type == YCDownloadDBValueTypeNumber){

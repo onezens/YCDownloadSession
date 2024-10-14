@@ -70,7 +70,7 @@ static NSString * const kDownloadTaskIdKey = @"kDownloadTaskIdKey";
             [weakSelf downloadStatusChanged:YCDownloadStatusFailed downloadTask:nil];
         }else{
             [weakSelf downloadStatusChanged:YCDownloadStatusFinished downloadTask:nil];
-            NSLog(@"%@", localPath);
+            NSLog(@"[YCDownload] %@", localPath);
         }
         weakSelf.downloadTask = nil;
     };

@@ -72,6 +72,8 @@ carthage update --platform ios
 
 **AppDelegate设置后台下载成功回调方法**
 
+在 iOS 18 手机上测试，用户想要使用后台下载功能，需要在系统设置页，检查是否开启"后台 App 刷新"；如果没有开启，则第一个任务下载完成后，无法后台唤醒，开启下一个下载任务
+
 ```
 -(void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler{
     [[YCDownloader downloader] addCompletionHandler:completionHandler identifier:identifier];

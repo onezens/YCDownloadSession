@@ -33,7 +33,7 @@
     
     //保存路径需要转换为url路径，才能播放
     NSURL *url = [NSURL fileURLWithPath:self.playerItem.savePath];
-    NSLog(@"[playViewVC] videoUrl:%@", url);
+    NSLog(@"[YCDownload] [playViewVC] videoUrl:%@", url);
     
     WMPlayerModel *model = [[WMPlayerModel alloc] init];
     model.videoURL = url;

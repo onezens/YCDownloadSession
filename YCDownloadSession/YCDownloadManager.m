@@ -199,7 +199,7 @@ static id _instance;
     [self.runItems removeObject:item];
     [self startNextDownload];
     if (self.runItems.count==0 && self.waitItems.count==0) {
-        NSLog(@"[startNextDownload] all download task finished");
+        NSLog(@"[YCDownload] [startNextDownload] all download task finished");
         [[YCDownloader downloader] endBGCompletedHandler];
     }
 }
@@ -233,7 +233,7 @@ static id _instance;
     if(!item) return;
     YCDownloadItem *oldItem = [YCDownloadDB itemWithTaskId:item.taskId];
     if (oldItem && [self downloadFinishedWithItem:oldItem]) {
-        NSLog(@"[startDownloadWithItem] detect item finished!");
+        NSLog(@"[YCDownload] [startDownloadWithItem] detect item finished!");
         [self startNextDownload];
         return;
     }
@@ -263,7 +263,7 @@ static id _instance;
         return true;
     }
     if (item.downloadStatus == YCDownloadStatusFinished){
-        NSLog(@"[downloadFinishedWithItem] status finished to failed, reason: savePath error! %@", item.savePath);
+        NSLog(@"[YCDownload] [downloadFinishedWithItem] status finished to failed, reason: savePath error! %@", item.savePath);
         item.downloadStatus = YCDownloadStatusFailed;
     }
     if ([[NSFileManager defaultManager] fileExistsAtPath:item.savePath]) {
@@ -289,7 +289,7 @@ static id _instance;
 
 - (void)resumeDownloadWithItem:(YCDownloadItem *)item{
     if ([self downloadFinishedWithItem:item]) {
-        NSLog(@"[resumeDownloadWithItem] detect item finished : %@", item);
+        NSLog(@"[YCDownload] [resumeDownloadWithItem] detect item finished : %@", item);
         [self startNextDownload];
         return;
     }
@@ -326,7 +326,7 @@ static id _instance;
     YCDownloadTask *task  = [self taskWithItem:item];
     [[YCDownloader downloader] cancelTask:task];
     BOOL isExist = [[NSFileManager defaultManager] fileExistsAtPath:item.savePath];
-    NSLog(@"[remove item] isExist : %d path: %@", isExist, item.savePath);
+    NSLog(@"[YCDownload] [remove item] isExist : %d path: %@", isExist, item.savePath);
     [[NSFileManager defaultManager] removeItemAtPath:item.savePath error:nil];
     [self removeItemWithTaskId:item.taskId];
     [YCDownloadDB removeTask:task];

@@ -450,22 +450,15 @@
 			files = (
 			);
 			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-YCDownloadSessionDemo/Pods-YCDownloadSessionDemo-resources.sh",
-				"${PODS_ROOT}/MJRefresh/MJRefresh/MJRefresh.bundle",
-				"${PODS_ROOT}/WMPlayer/WMPlayer/WMPlayer.bundle",
+				"${PODS_ROOT}/Target Support Files/Pods-YCDownloadSessionDemo/Pods-YCDownloadSessionDemo-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
-			);
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/MJRefresh.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WMPlayer.bundle",
+				"${PODS_ROOT}/Target Support Files/Pods-YCDownloadSessionDemo/Pods-YCDownloadSessionDemo-resources-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-YCDownloadSessionDemo/Pods-YCDownloadSessionDemo-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-YCDownloadSessionDemo/Pods-YCDownloadSessionDemo-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		9BFDE7BDC48BCA4F3B773BE3 /* [CP] Check Pods Manifest.lock */ = {
@@ -819,6 +812,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = T3ZLXP4K5B;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 33P88K8G66;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/YCDownloadSessionDemo/YCDownloadSession/ThirdLib/Bugly",
@@ -833,6 +827,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "f60538e5-fc80-4bda-9a11-be6dde7acac4";
 				PROVISIONING_PROFILE_SPECIFIER = wild;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = AppDevWildcard;
 				SWIFT_OBJC_BRIDGING_HEADER = "YCDownloadSessionDemo/YCDownloadSession/Class/Others/YCDownloadSessionDemo-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -848,6 +843,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = T3ZLXP4K5B;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 33P88K8G66;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/YCDownloadSessionDemo/YCDownloadSession/ThirdLib/Bugly",
@@ -861,6 +857,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = cc.onezen.YCDownload;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = wild;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = AppDevWildcard;
 				SWIFT_OBJC_BRIDGING_HEADER = "YCDownloadSessionDemo/YCDownloadSession/Class/Others/YCDownloadSessionDemo-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};

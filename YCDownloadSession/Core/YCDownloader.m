@@ -30,14 +30,17 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 
 @interface YCDownloader()<NSURLSessionDelegate>
 {
-    BGRecreateSessionBlock _bgRCSBlock;
     dispatch_source_t _timerSource;
 }
 @property (nonatomic, strong) NSURLSession *session;
 @property (nonatomic, assign) BOOL isNeedCreateSession;
 @property (nonatomic, strong) NSMutableDictionary <NSURLSessionDownloadTask *, YCDownloadTask *> *memCache;
+/// 通知后台，
 @property (nonatomic, copy) BGCompletedHandler completedHandler;
-@property (nonatomic, strong) NSMutableArray <YCDownloadTask *> *bgRCSTasks;
+/// 重建session期间，需要下载的任务
+@property (nonatomic, strong) NSMutableArray <YCDownloadTask *> *recreateSessionTask;
+@property (nonatomic, copy) BGRecreateSessionBlock recreateSessionBlock;
+
 @end
 
 @implementation YCDownloader
@@ -55,10 +58,10 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 
 - (instancetype)initWithPrivate {
     if (self = [super init]) {
-        NSLog(@"[YCDownloader init]");
+        NSLog(@"[YCDownload] [YCDownloader init]");
         _session = [self backgroundUrlSession];
         _memCache = [NSMutableDictionary dictionary];
-        _bgRCSTasks = [NSMutableArray array];
+        _recreateSessionTask = [NSMutableArray array];
         [self recoveryExceptionTasks];
         [self addNotification];
     }
@@ -81,6 +84,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     NSString *identifier = [self backgroundSessionIdentifier];
     NSURLSessionConfiguration* sessionConfig = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:identifier];
     sessionConfig.allowsCellularAccess = [[NSUserDefaults standardUserDefaults] boolForKey:kIsAllowCellar];
+    sessionConfig.sessionSendsLaunchEvents = YES;
     session = [NSURLSession sessionWithConfiguration:sessionConfig delegate:self delegateQueue:[NSOperationQueue mainQueue]];
     return session;
 }
@@ -107,10 +111,9 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 #pragma mark - event
 
 - (void)appWillBecomActive {
-    [self endTimer];
     if (self.completedHandler) self.completedHandler();
     self.completedHandler = nil;
-    _bgRCSBlock = nil;
+    _recreateSessionBlock = nil;
 }
 
 - (void)appWillResignActive {
@@ -147,24 +150,30 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 }
 
 - (BOOL)resumeTask:(YCDownloadTask *)task {
+    NSError *error = nil;
+    BOOL result = [self _resumeTask:task error:&error];
+    NSLog(@"[YCDownload] [resumeTask] taskId: %@ resume success: %d err: %@", task.taskId, result, error);
+    return result;
+}
+
+- (BOOL)_resumeTask:(YCDownloadTask *)task error:(NSError **)error {
     if(!task) return false;
     if (self.isNeedCreateSession) {
         //fix crash: #25 #35 Attempted to create a task in a session that has been invalidated
-        [self.bgRCSTasks addObject:task];
+        [self.recreateSessionTask addObject:task];
         return true;
     }
     if (!task.resumeData && task.downloadTask.state == NSURLSessionTaskStateSuspended){
         [task.downloadTask resume];
-        NSError *err = nil;
-        BOOL success = [self checkDownloadTaskState:task.downloadTask task:task error:&err];
-        if(!success) NSLog(@"[resumeTask] task resume failed: %@", err);
+        BOOL success = [self checkDownloadTaskState:task.downloadTask task:task error:error];
         return success;
     }else if (task.downloadTask && self.memCache[task.downloadTask] && task.downloadTask.state == NSURLSessionTaskStateRunning) {
+        NSLog(@"[YCDownload] [resumeTask] task already Running");
         return true;
     }else if (!task.resumeData && task.downloadTask){
-        NSError *error = [NSError errorWithDomain:@"resume NSURLSessionDownloadTask error state" code:10004 userInfo:nil];
-        [self completionDownloadTask:task localPath:nil error:error];
-        NSLog(@"[resumeTask] task resume failed: %@", error);
+        NSError *err = [NSError errorWithDomain:@"resume NSURLSessionDownloadTask error state" code:10004 userInfo:nil];
+        [self completionDownloadTask:task localPath:nil error:err];
+        *error = err;
         return false;
     }else if (!task.resumeData){
         if (!task.request) {
@@ -177,7 +186,6 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
         [task.downloadTask resume];
         NSError *err = nil;
         BOOL success = [self checkDownloadTaskState:task.downloadTask task:task error:&err];
-        if(!success) NSLog(@"[resumeTask] task resume failed: %@", err);
         return success;
     }
     
@@ -187,23 +195,19 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     } @catch (NSException *exception) {
         NSError *error = [NSError errorWithDomain:exception.description code:10002 userInfo:exception.userInfo];
         [self completionDownloadTask:task localPath:nil error:error];
-        NSLog(@"[resumeTask] task resume failed: %@", error);
         return false;
     }
     if (!downloadTask) {
         NSError *error = [NSError errorWithDomain:@"resume NSURLSessionDownloadTask nil!" code:10003 userInfo:nil];
         [self completionDownloadTask:task localPath:nil error:error];
-        NSLog(@"[resumeTask] task resume failed: %@", error);
         return false;
     }
     [self memCacheDownloadTask:downloadTask task:task];
     [downloadTask resume];
     NSError *err = nil;
     if (![self checkDownloadTaskState:downloadTask task:task error:&err]) {
-        NSLog(@"[resumeTask] task resume failed: %@", err);
         return false;
     }
-    NSLog(@"[resumeTask] task resume success");
     task.resumeData = nil;
     return true;
 }
@@ -219,10 +223,12 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 }
 
 - (void)pauseTask:(YCDownloadTask *)task{
+    NSLog(@"[YCDownload] [pauseTask] taskId: %@ ", task.taskId);
     [task.downloadTask cancelByProducingResumeData:^(NSData * _Nullable resumeData) { }];
 }
 
 - (void)cancelTask:(YCDownloadTask *)task{
+    NSLog(@"[YCDownload] [cancelTask] taskId: %@ ", task.taskId);
     task.isDeleted = true;
     [task.downloadTask cancel];
 }
@@ -251,7 +257,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
             [self resumeTask:task];
         }
     }];
-    NSLog(@"[recreateSession] recreate Session success");
+    NSLog(@"[YCDownload] [recreateSession] recreate Session success");
 }
 
 #pragma mark - setter & getter
@@ -333,37 +339,6 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 
 #pragma mark - Handler
 
-- (void)startTimer {
-    [self endTimer];
-    dispatch_source_t timerSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_main_queue());
-    _timerSource = timerSource;
-    double interval = 1 * NSEC_PER_SEC;
-    dispatch_source_set_timer(timerSource, dispatch_time(DISPATCH_TIME_NOW, interval), interval, 0);
-    __weak typeof(self) weakself = self;
-    dispatch_source_set_event_handler(timerSource, ^{
-        [weakself callTimer];
-    });
-    dispatch_resume(_timerSource);
-}
-
-- (void)endTimer {
-    if(_timerSource) dispatch_source_cancel(_timerSource);
-    _timerSource = nil;
-}
-
-- (void)callTimer {
-    NSLog(@"[callTimer] background time remain: %f", [UIApplication sharedApplication].backgroundTimeRemaining);
-    //TODO: optimeze the logic for background session
-    if ([UIApplication sharedApplication].backgroundTimeRemaining < 15 && !_bgRCSBlock) {
-        NSLog(@"[callTimer] background time will up, need to call completed hander!");
-        __weak typeof(self) weakSelf = self;
-        _bgRCSBlock = ^{
-            [weakSelf endBGCompletedHandler];
-        };
-        [self prepareRecreateSession];
-    }
-}
-
 - (void)callBgCompletedHandler {
     if (self.completedHandler) {
         self.completedHandler();
@@ -372,22 +347,22 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
 }
 
 - (void)endBGCompletedHandler{
-    
+    NSLog(@"[YCDownload] endBGCompletedHandler");
     if(!self.completedHandler) return;
-    [self.bgRCSTasks.copy enumerateObjectsUsingBlock:^(YCDownloadTask *obj, NSUInteger idx, BOOL * _Nonnull stop) {
+    [self.recreateSessionTask.copy enumerateObjectsUsingBlock:^(YCDownloadTask *obj, NSUInteger idx, BOOL * _Nonnull stop) {
         [self resumeTask:obj];
-        NSLog(@"[session invalidated] fix pass!");
+        NSLog(@"[YCDownload] [session invalidated] fix pass!");
     }];
-    [self.bgRCSTasks removeAllObjects];
-    [self endTimer];
+    [self.recreateSessionTask removeAllObjects];
     [self callBgCompletedHandler];
 }
 
 -(void)addCompletionHandler:(BGCompletedHandler)handler identifier:(NSString *)identifier{
     if ([[self backgroundSessionIdentifier] isEqualToString:identifier]) {
         self.completedHandler = handler;
-        //fix a crash in backgroud. for:  reason: backgroundDownload owner pid:252 preventSuspend  preventThrottleDownUI  preventIdleSleep  preventSuspendOnSleep
-        [self startTimer];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(6 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self endBGCompletedHandler];
+        });
     }
 }
 
@@ -397,9 +372,9 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     if (self.isNeedCreateSession) {
         self.isNeedCreateSession = false;
         [self recreateSession];
-        if (_bgRCSBlock) {
-            _bgRCSBlock();
-            _bgRCSBlock = nil;
+        if (_recreateSessionBlock) {
+            _recreateSessionBlock();
+            _recreateSessionBlock = nil;
         }
     }
 }
@@ -418,7 +393,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     NSInteger statusCode = [self statusCodeWithDownloadTask:downloadTask];
     if (!(statusCode == 200 || statusCode == 206)) {
         task.downloadedSize = 0;
-        NSLog(@"[didFinishDownloadingToURL] http status code error: %ld", (long)statusCode);
+        NSLog(@"[YCDownload] [didFinishDownloadingToURL] http status code error: %ld", (long)statusCode);
         NSError *error = [NSError errorWithDomain:@"http status code error" code:11002 userInfo:nil];
         [self completionDownloadTask:task localPath:nil error:error];
         return;
@@ -430,7 +405,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
     NSError *error = nil;
     if (fileSize>0 && fileSize != task.fileSize) {
         NSString *errStr = [NSString stringWithFormat:@"[YCDownloader didFinishDownloadingToURL] fileSize Error, task fileSize: %lld tmp fileSize: %lld", task.fileSize, fileSize];
-        NSLog(@"%@",errStr);
+        NSLog(@"[YCDownload] %@",errStr);
         error = [NSError errorWithDomain:errStr code:11001 userInfo:nil];
         localPath = nil;
     }else{
@@ -481,7 +456,7 @@ static NSString * const kIsAllowCellar = @"kIsAllowCellar";
         task.downloadTask = nil;
     }else{
         //cannot resume
-        NSLog(@"[didCompleteWithError] : %@",error);
+        NSLog(@"[YCDownload] [didCompleteWithError] : %@",error);
         [self completionDownloadTask:task localPath:nil error:error];
     }
 }

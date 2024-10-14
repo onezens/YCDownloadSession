@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name         = "YCDownloadSession"
-  s.version      = "2.0.3"
+  s.version      = "2.0.6"
   s.summary      = "iOS background download video or file"
   s.homepage     = "https://github.com/onezens/YCDownloadSession"
   s.license      = "MIT"

@@ -52,31 +52,31 @@ static NSInteger const pageSize = 10;
 }
 
 - (void)getVideoList:(BOOL)isLoadMore {
-    
-    [[AFHTTPSessionManager manager] GET:@"http://api.onezen.cc/v1/video/list" parameters:@{@"page": @(self.page), @"size": @(pageSize)} progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSArray *res = [responseObject valueForKey:@"data"];
-        if ([res isKindOfClass:[NSNull class]] || res.count==0) {
-            [self.tableView.mj_footer endRefreshingWithNoMoreData];
-            return ;
-        }
-        if (res.count>0) {
-            if (!isLoadMore){
-                [self.tableView.mj_header endRefreshing];
-                [self.videoListArr removeAllObjects];
-            }else{
-                (res.count < pageSize) ? [self.tableView.mj_footer endRefreshingWithNoMoreData] : [self.tableView.mj_footer endRefreshing];
-            }
-            NSMutableArray *models = [VideoListInfoModel getVideoListInfo:res];
-            [self.videoListArr addObjectsFromArray:models];
-            [self.tableView reloadData];
-        }
-        
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        if (error) {
-            NSLog(@"%@",error);
-        }
-        [self getLocalVideoList];
-    }];
+    [self getLocalVideoList];
+//    [[AFHTTPSessionManager manager] GET:@"http://api.onezen.cc/v1/video/list" parameters:@{@"page": @(self.page), @"size": @(pageSize)} progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+//        NSArray *res = [responseObject valueForKey:@"data"];
+//        if ([res isKindOfClass:[NSNull class]] || res.count==0) {
+//            [self.tableView.mj_footer endRefreshingWithNoMoreData];
+//            return ;
+//        }
+//        if (res.count>0) {
+//            if (!isLoadMore){
+//                [self.tableView.mj_header endRefreshing];
+//                [self.videoListArr removeAllObjects];
+//            }else{
+//                (res.count < pageSize) ? [self.tableView.mj_footer endRefreshingWithNoMoreData] : [self.tableView.mj_footer endRefreshing];
+//            }
+//            NSMutableArray *models = [VideoListInfoModel getVideoListInfo:res];
+//            [self.videoListArr addObjectsFromArray:models];
+//            [self.tableView reloadData];
+//        }
+//        
+//    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+//        if (error) {
+//            NSLog(@"%@",error);
+//        }
+//
+//    }];
 }
 
 - (void)downloadAll {

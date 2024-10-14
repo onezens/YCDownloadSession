@@ -39,7 +39,7 @@ DEPENDENCIES:
   - YCDownloadSession (from `./`)
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  https://github.com/CocoaPods/Specs.git:
     - AFNetworking
     - Bugly
     - Masonry
@@ -52,14 +52,14 @@ EXTERNAL SOURCES:
     :path: "./"
 
 SPEC CHECKSUMS:
-  AFNetworking: b6f891fdfaed196b46c7a83cf209e09697b94057
+  AFNetworking: cb604b1c2bded0871f5f61f5d53653739e841d6b
   Bugly: fd066c75c4a0eca1440f9b6a84bd37d51bfc85ac
   Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
   MJRefresh: 6afc955813966afb08305477dd7a0d9ad5e79a16
   SDWebImage: 0b2ba0d56479bf6a45ecddbfd5558bea93150d25
   WMPlayer: a914f80ed5dca7cd9e3a94ec07a2b02eec8c15c0
-  YCDownloadSession: cb6875db47346d75b9b8eed0302956efcca2d3bc
+  YCDownloadSession: a95e2449c6d01af8ba0d5977ce79a9f596f4245d
 
 PODFILE CHECKSUM: 13c872c3d303ef29916c6f2ec84f06d5ccbf4713
 
-COCOAPODS: 1.5.3
+COCOAPODS: 1.11.3

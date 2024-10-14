@@ -15,6 +15,9 @@
 
 @interface AppDelegate ()
 
+@property (nonatomic, strong) NSTimer *testTimer;
+
+@property (nonatomic, assign) NSInteger duration;
 
 @end
 
@@ -36,7 +39,7 @@
     }
     
     //setup bugly
-    [self setUpBugly];
+//    [self setUpBugly];
     
     //setup downloadsession
     [self setUpDownload];
@@ -46,13 +49,32 @@
     return YES;
 }
 
+- (void)startTestTimer {
+    if(self.testTimer) {
+        [self cancelTestTimer];
+    }
+    self.duration = 0;
+    self.testTimer = [NSTimer scheduledTimerWithTimeInterval:1 repeats:YES block:^(NSTimer * _Nonnull timer) {
+        self.duration += 1;
+        NSLog(@"[YCDownload] testTimer run duration: %zd", self.duration);
+    }];
+    [self.testTimer fire];
+}
+
+- (void)cancelTestTimer {
+    NSLog(@"[YCDownload] cancelTestTimer");
+    [self.testTimer invalidate];
+    self.testTimer = nil;
+    self.duration = 0;
+}
+
 - (void)setUpDownload {
     NSString *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true).firstObject;
     path = [path stringByAppendingPathComponent:@"download"];
     YCDConfig *config = [YCDConfig new];
     config.saveRootPath = path;
     config.uid = @"100006";
-    config.maxTaskCount = 2;
+    config.maxTaskCount = 1;
     config.taskCachekMode = YCDownloadTaskCacheModeKeep;
     config.launchAutoResumeDownload = true;
     [YCDownloadManager mgrWithConfig:config];
@@ -103,16 +125,18 @@
 
 
 -(void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler{
+    NSLog(@"[YCDownload] handleEventsForBackgroundURLSession: %@", identifier);
     [[YCDownloader downloader] addCompletionHandler:completionHandler identifier:identifier];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
-    
+    [self cancelTestTimer];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
     NSLog(@"%s", __func__);
     //[YCDownloadManager updateUid:@"100002"];
+    [self startTestTimer];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
